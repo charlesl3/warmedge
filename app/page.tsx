@@ -9,22 +9,22 @@ export default function Home() {
   return (
     <main className="min-h-screen flex items-center justify-center text-center px-6">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-sky-200 via-sky-50 to-blue-100" />
+      {/* <div className="absolute inset-0 bg-gradient-to-b from-sky-200 via-sky-50 to-blue-100" /> */}
 
       {/* Content */}
       <section className="relative">
         <h1 className="text-5xl md:text-7xl font-medium tracking-tight text-slate-700">
           <Typewriter
-            text="Designed for the rink"
-            speed={200}
+            text="Built for the ice"
+            speed={100}
             onComplete={() => setShowSubtitle(true)}
           />
         </h1>
 
         <p className="mt-6 text-lg font-light text-slate-500">
           <Typewriter
-            text="Nothing more..."
-            speed={300}
+            text="Skaters, we hear you..."
+            speed={100}
             start={showSubtitle}
           />
         </p>
