@@ -1,6 +1,6 @@
 export default function AboutPage() {
   return (
-    <main className="flex justify-center px-8 pt-60 pb-32">
+    <main className="flex justify-center px-8 pt-50 pb-32">
       <div className="w-full max-w-3xl">
 
         {/* Title */}

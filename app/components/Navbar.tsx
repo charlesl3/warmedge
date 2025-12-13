@@ -6,32 +6,31 @@ import Image from 'next/image'
 export default function Navbar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
-      <nav className="mx-auto max-w-7xl px-8 py-6 flex items-center justify-between">
+      <nav className="mx-auto max-w-7xl px-6 py-4 md:px-8 md:py-6 flex items-center justify-between">
         
         {/* Brand */}
         <Link
           href="/"
-          className="flex items-center gap-[2px] hover:opacity-80 transition"
+          className="flex items-center hover:opacity-80 transition"
         >
- 
           <Image
             src="/name2.jpg"
             alt="WarmEdge wordmark"
-            width={200}
-            height={200}
+            width={140}
+            height={32}
             priority
+            className="block relative -top-[1px]"
           />
         </Link>
 
         {/* Links */}
-        <div className="flex gap-8 text-sm text-slate-600">
+        <div className="flex gap-6 text-sm text-slate-600">
           <Link href="/about" className="hover:text-slate-800 transition">
             About
           </Link>
           <Link href="/products" className="hover:text-slate-800 transition">
             Products
           </Link>
-
           <Link href="/contact" className="hover:text-slate-800 transition">
             Contact
           </Link>
