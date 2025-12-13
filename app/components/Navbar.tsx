@@ -17,8 +17,8 @@ export default function Navbar() {
           <Image
             src="/name2.jpg"
             alt="WarmEdge wordmark"
-            width={260}
-            height={260}
+            width={200}
+            height={200}
             priority
           />
         </Link>
