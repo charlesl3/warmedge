@@ -14,13 +14,19 @@ export default function Navbar() {
           className="flex items-center hover:opacity-80 transition"
         >
           <Image
-            src="/name2.jpg"
-            alt="WarmEdge wordmark"
-            width={140}
-            height={32}
-            priority
-            className="block relative -top-[1px]"
-          />
+  src="/name2.jpg"
+  alt="WarmEdge wordmark"
+  width={140}
+  height={32}
+  priority
+  className="
+    block relative -top-[1px]
+    md:scale-110
+    lg:scale-125
+    origin-left
+  "
+/>
+
         </Link>
 
         {/* Links */}
