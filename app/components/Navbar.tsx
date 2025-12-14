@@ -31,8 +31,8 @@ export default function Navbar() {
           <Image
             src="/name2.jpg"
             alt="WarmEdge wordmark"
-            width={140}
-            height={32}
+            width={200}
+            height={50}
             priority
             className="
               block relative -top-[1px]
