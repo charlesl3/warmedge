@@ -19,7 +19,7 @@ export default function ContactPage() {
     try {
       const res = await fetch(FORM_ENDPOINT, {
         method: 'POST',
-        headers: { 'Accept': 'application/json' },
+        headers: { Accept: 'application/json' },
         body: new FormData(e.currentTarget),
       })
 
@@ -52,7 +52,7 @@ export default function ContactPage() {
         </div>
 
         {status === 'success' ? (
-          <div className="rounded-md border border-slate-200 bg-white p-6 text-center">
+          <div className="rounded-md border border-sky-200 bg-sky-50 p-6 text-center">
             <p className="text-slate-800 font-medium">
               Message sent. Thank you.
             </p>
@@ -63,7 +63,7 @@ export default function ContactPage() {
             <button
               type="button"
               onClick={() => setStatus('idle')}
-              className="mt-6 rounded-md bg-slate-800 px-6 py-3 text-white font-medium hover:bg-slate-700 transition"
+              className="mt-6 rounded-md bg-sky-500 px-6 py-3 text-white font-medium hover:bg-sky-600 transition"
             >
               Send another message
             </button>
@@ -76,7 +76,7 @@ export default function ContactPage() {
               placeholder="Name (optional)"
               value={formData.name}
               onChange={(e) => setFormData((d) => ({ ...d, name: e.target.value }))}
-              className="w-full rounded-md border border-slate-300 px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
+              className="w-full rounded-md border border-sky-300 bg-transparent px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400"
             />
 
             <input
@@ -86,7 +86,7 @@ export default function ContactPage() {
               required
               value={formData.email}
               onChange={(e) => setFormData((d) => ({ ...d, email: e.target.value }))}
-              className="w-full rounded-md border border-slate-300 px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
+              className="w-full rounded-md border border-sky-300 bg-transparent px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400"
             />
 
             <textarea
@@ -96,13 +96,13 @@ export default function ContactPage() {
               required
               value={formData.message}
               onChange={(e) => setFormData((d) => ({ ...d, message: e.target.value }))}
-              className="w-full rounded-md border border-slate-300 px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 resize-none"
+              className="w-full rounded-md border border-sky-300 bg-transparent px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400 resize-none"
             />
 
             <button
               type="submit"
               disabled={status === 'submitting'}
-              className="w-full rounded-md bg-slate-800 px-6 py-3 text-white font-medium hover:bg-slate-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full rounded-md bg-sky-500 px-6 py-3 text-white font-medium hover:bg-sky-600 transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {status === 'submitting' ? 'Sending...' : 'Send message'}
             </button>
