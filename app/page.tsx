@@ -7,13 +7,10 @@ export default function Home() {
   const [showSubtitle, setShowSubtitle] = useState(false)
 
   return (
-    <main className="min-h-screen flex items-center justify-center text-center px-6">
-      {/* Background */}
-      {/* <div className="absolute inset-0 bg-gradient-to-b from-sky-200 via-sky-50 to-blue-100" /> */}
-
-      {/* Content */}
+    <main className="min-h-screen flex items-center justify-center text-center px-6 bg-sky-100">
       <section className="relative">
-        <h1 className="text-5xl md:text-7xl font-medium tracking-tight text-slate-700">
+        {/* Main headline */}
+        <h1 className="text-5xl md:text-7xl font-semibold tracking-tight text-slate-800">
           <Typewriter
             text="Built for the ice"
             speed={100}
@@ -21,10 +18,11 @@ export default function Home() {
           />
         </h1>
 
-        <p className="mt-6 text-lg font-light text-slate-500">
+        {/* Subtitle */}
+        <p className="mt-6 text-sm md:text-base font-light tracking-wide text-slate-600">
           <Typewriter
-            text="Skaters, we hear you..."
-            speed={100}
+            text="Thoughtful tools for skaters"
+            speed={80}
             start={showSubtitle}
           />
         </p>
