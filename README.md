@@ -1,8 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WarmEdge
 
-## Getting Started
+WarmEdge is an early-stage startup focused on thoughtfully designed tools for skaters. The company explores practical, minimal solutions for real rink-side use—without unnecessary complexity.
 
-First, run the development server:
+This repository contains the web platform built to support the WarmEdge brand and its initial product concepts.
+
+---
+
+## Project Status
+
+WarmEdge is currently in **v0.x development**.
+The focus at this stage is on:
+
+- Establishing brand structure and product categories
+- Prototyping initial product directions
+- Building a clean, maintainable frontend foundation
+
+No commercial features (payments, checkout, fulfillment) are implemented at this time.
+
+---
+
+## Tech Stack
+
+- **Next.js (App Router)**
+- **TypeScript**
+- **Tailwind CSS**
+- **Vercel Analytics**
+- **next/font** for optimized font loading
+
+The project follows a minimal, production-oriented setup even at an early stage.
+
+---
+
+## Local Development
+
+To run the development server locally:
 
 ```bash
 npm run dev
@@ -12,25 +43,4 @@ yarn dev
 pnpm dev
 # or
 bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
