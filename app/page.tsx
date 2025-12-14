@@ -7,7 +7,7 @@ export default function Home() {
   const [showSubtitle, setShowSubtitle] = useState(false)
 
   return (
-    <main className="min-h-screen flex items-center justify-center text-center px-6 bg-sky-100">
+    <main className="min-h-screen flex items-center justify-center text-center px-6">
       <section className="relative">
         {/* Main headline */}
         <h1 className="text-5xl md:text-7xl font-semibold tracking-tight text-slate-800">
