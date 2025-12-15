@@ -103,10 +103,10 @@ export default function Navbar() {
                 </li>
                 <li>
                   <Link
-                    href="/products/fun"
+                    href="/products/essentials"
                     className="block px-4 py-2 hover:bg-sky-200 hover:text-slate-900 transition"
                   >
-                    Fun Accessories
+                    Skating Essentials
                   </Link>
                 </li>
               </ul>
