@@ -27,25 +27,12 @@ export default function AboutPage() {
           </p>
         </section>
 
-        {/* Differentiation */}
-        <section className="mb-14">
-          <ul className="list-disc pl-5 space-y-3 text-slate-700">
-            <li>Designed from real rink needs, not catalogs</li>
-            <li>Focused on function, durability, and everyday usability</li>
-            <li>Built by an engineer who skates, tests, and iterates</li>
-          </ul>
-        </section>
-
         {/* Closing */}
         <section>
           <p className="text-slate-700 leading-relaxed">
             WarmEdge exists to quietly solve the small but very real problems skaters 
             live with every day—the ones that do not ruin a session, but constantly 
-            distract from it.
-          </p>
-
-          <p className="text-slate-700 leading-relaxed mt-6">
-            Because skating is already hard enough. Your gear should NOT make it harder.
+            distract from it. Because skating is already hard enough. Your gear should NOT make it harder.
           </p>
         </section>
 
