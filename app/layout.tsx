@@ -15,6 +15,9 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   title: 'WarmEdge',
   description: 'Designed for the rink. Nothing more.',
+  verification: {
+    google: "3OAhSqekuVAr3_8Bw-vdBSgI4f9Yn3uUKn2nwnUz-cE",
+  },
 }
 
 export default function RootLayout({
