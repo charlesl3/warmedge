@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Typewriter from './components/Typewriter'
+import Link from 'next/link'
 
 export default function Home() {
   const [showSubtitle, setShowSubtitle] = useState(false)
@@ -26,7 +27,51 @@ export default function Home() {
             start={showSubtitle}
           />
         </p>
+
+        {/* Text-only directory (always visible) */}
+        <nav className="mt-8 text-sm md:text-base font-light tracking-wide text-slate-500">
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
+            <DirectoryLink href="/products/photographing">
+              Rink Photography
+            </DirectoryLink>
+
+            <span className="opacity-40">｜</span>
+
+            <DirectoryLink href="/products/warming">
+              Rink Warming
+            </DirectoryLink>
+
+            <span className="opacity-40">｜</span>
+
+            <DirectoryLink href="/products/storage">
+              Rink Storage
+            </DirectoryLink>
+
+            <span className="opacity-40">｜</span>
+
+            <DirectoryLink href="/products/essentials">
+              Skating Essentials
+            </DirectoryLink>
+          </div>
+        </nav>
       </section>
     </main>
+  )
+}
+
+function DirectoryLink({
+  href,
+  children,
+}: {
+  href: string
+  children: React.ReactNode
+}) {
+  return (
+    <Link
+      href={href}
+      className="hover:text-slate-700 transition-colors duration-200"
+    >
+      {children}
+    </Link>
   )
 }

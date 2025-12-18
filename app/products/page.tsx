@@ -48,8 +48,8 @@ export default function Products() {
           <Image
             src="/edea.jpg"
             alt="Concept product image"
-            width={700}
-            height={1000}
+            width={520}
+            height={700}
             className="object-cover"
             priority
           />
