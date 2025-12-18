@@ -10,50 +10,47 @@ export default function Home() {
   return (
     <main className="min-h-screen flex items-center justify-center text-center px-6">
       <section className="relative">
-        {/* Main headline */}
-        <h1 className="text-5xl md:text-7xl font-semibold tracking-tight text-slate-800">
-          <Typewriter
-            text="Built for the ice"
-            speed={100}
-            onComplete={() => setShowSubtitle(true)}
-          />
-        </h1>
-
-        {/* Subtitle */}
-        <p className="mt-6 text-sm md:text-base font-light tracking-wide text-slate-600">
-          <Typewriter
-            text="Thoughtful tools for skaters"
-            speed={80}
-            start={showSubtitle}
-          />
-        </p>
-
-        {/* Text-only directory (always visible) */}
-        <nav className="mt-8 text-sm md:text-base font-light tracking-wide text-slate-500">
-          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
+        {/* Directory bar (position never shifts) */}
+        <nav className="mb-8 text-sm md:text-base font-light tracking-wide text-slate-500">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
             <DirectoryLink href="/products/photographing">
               Rink Photography
             </DirectoryLink>
-
             <span className="opacity-40">｜</span>
-
             <DirectoryLink href="/products/warming">
               Rink Warming
             </DirectoryLink>
-
             <span className="opacity-40">｜</span>
-
             <DirectoryLink href="/products/storage">
               Rink Storage
             </DirectoryLink>
-
             <span className="opacity-40">｜</span>
-
             <DirectoryLink href="/products/essentials">
               Skating Essentials
             </DirectoryLink>
           </div>
         </nav>
+
+        {/* Hero text container with fixed height */}
+        <div className="flex flex-col items-center justify-start min-h-[8.5rem] md:min-h-[10.5rem]">
+          {/* Main headline */}
+          <h1 className="text-5xl md:text-7xl font-semibold tracking-tight text-slate-800">
+            <Typewriter
+              text="Built for the ice"
+              speed={100}
+              onComplete={() => setShowSubtitle(true)}
+            />
+          </h1>
+
+          {/* Subtitle */}
+          <p className="mt-6 text-sm md:text-base font-light tracking-wide text-slate-600">
+            <Typewriter
+              text="Thoughtful tools for skaters"
+              speed={80}
+              start={showSubtitle}
+            />
+          </p>
+        </div>
       </section>
     </main>
   )
