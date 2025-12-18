@@ -14,11 +14,11 @@ export default function Home() {
         <nav className="mb-8 text-sm md:text-base font-light tracking-wide text-slate-500">
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
             <DirectoryLink href="/products/photographing">
-              Rink Photography
+              Photographing
             </DirectoryLink>
             <span className="opacity-40">｜</span>
             <DirectoryLink href="/products/warming">
-              Rink Warming
+              Toe Warming 
             </DirectoryLink>
             <span className="opacity-40">｜</span>
             <DirectoryLink href="/products/storage">
