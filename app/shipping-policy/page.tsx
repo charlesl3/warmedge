@@ -16,7 +16,7 @@ export default function ShippingPolicyPage() {
       </p>
 
       <h2 className="text-lg font-medium text-slate-900 mt-12 mb-4">
-        Local destination pickup and delivery
+        Free destination pickup and delivery
       </h2>
 
       <p className="mb-6">
