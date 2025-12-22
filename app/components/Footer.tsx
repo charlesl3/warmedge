@@ -45,6 +45,22 @@ export default function Footer() {
                 Contact
               </Link>
             </li>
+            <li>
+              <Link
+                href="/return-policy"
+                className="text-slate-700 hover:text-slate-900 hover:underline underline-offset-4 transition-colors duration-200"
+              >
+                Return Policy
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/shipping-policy"
+                className="text-slate-700 hover:text-slate-900 hover:underline underline-offset-4 transition-colors duration-200"
+              >
+                Shipping Policy
+              </Link>
+            </li>
           </ul>
         </div>
 
