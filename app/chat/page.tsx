@@ -62,7 +62,7 @@ export default function ChatPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#EAF2F8] flex items-start justify-center pt-85 px-6">
+    <main className="min-h-screen bg-[#EAF2F8] flex items-start justify-center pt-60 px-6">
   <div className="w-full max-w-3xl">
 
 
