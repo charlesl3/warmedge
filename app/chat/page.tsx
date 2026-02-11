@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, KeyboardEvent } from 'react'
 
 type Message = {
   role: 'user' | 'assistant'
@@ -12,6 +12,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [history, setHistory] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -19,7 +20,7 @@ export default function ChatPage() {
   }, [messages, loading])
 
   const sendMessage = async () => {
-    if (!input.trim()) return
+    if (!input.trim() || loading) return
 
     const userMessage = input
     setInput('')
@@ -64,16 +65,23 @@ export default function ChatPage() {
     }
   }
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      sendMessage()
+    }
+  }
+
   return (
-    <main className="min-h-screen flex items-start justify-center pt-56 px-6">
-      <div className="w-full max-w-3xl">
+    <main className="min-h-screen flex items-center justify-center px-6 pt-150">
+  <div className="w-full max-w-3xl">
 
         <h1 className="text-3xl font-semibold mb-8 text-gray-900">
           WarmEdge AI Chatbot
         </h1>
 
         {/* Chat Container */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 space-y-4">
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 space-y-4 h-[30vh] overflow-y-auto">
 
           {messages.length === 0 && (
             <p className="text-gray-500 text-sm">
@@ -113,6 +121,7 @@ export default function ChatPage() {
             rows={3}
             value={input}
             onChange={e => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Type your skating question…"
             className="flex-1 border border-gray-300 rounded-2xl p-3 text-sm text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
           />
