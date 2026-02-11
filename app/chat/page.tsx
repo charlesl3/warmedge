@@ -54,7 +54,10 @@ export default function ChatPage() {
     } catch {
       setMessages(prev => [
         ...prev,
-        { role: 'assistant', content: 'Something went wrong.' },
+        {
+          role: 'assistant',
+          content: 'Something went wrong. Please try again.',
+        },
       ])
     } finally {
       setLoading(false)
@@ -62,15 +65,15 @@ export default function ChatPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#EAF2F8] flex items-start justify-center pt-60 px-6">
-  <div className="w-full max-w-3xl">
-
+    <main className="min-h-screen flex items-start justify-center pt-56 px-6">
+      <div className="w-full max-w-3xl">
 
         <h1 className="text-3xl font-semibold mb-8 text-gray-900">
           WarmEdge AI Chatbot
         </h1>
 
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 space-y-4">
+        {/* Chat Container */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 space-y-4">
 
           {messages.length === 0 && (
             <p className="text-gray-500 text-sm">
@@ -104,19 +107,20 @@ export default function ChatPage() {
           <div ref={bottomRef} />
         </div>
 
+        {/* Input Area */}
         <div className="mt-6 flex gap-3">
           <textarea
             rows={3}
             value={input}
             onChange={e => setInput(e.target.value)}
             placeholder="Type your skating question…"
-            className="flex-1 border border-gray-300 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="flex-1 border border-gray-300 rounded-2xl p-3 text-sm text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
           />
 
           <button
             onClick={sendMessage}
             disabled={loading}
-            className="px-5 py-3 text-sm rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition disabled:opacity-50"
+            className="px-5 py-3 text-sm rounded-2xl bg-blue-600 text-white hover:bg-blue-700 transition disabled:opacity-50"
           >
             Send
           </button>
