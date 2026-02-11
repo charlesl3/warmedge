@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 type Message = {
   role: 'user' | 'assistant'
@@ -12,6 +12,11 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [history, setHistory] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+  const bottomRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, loading])
 
   const sendMessage = async () => {
     if (!input.trim()) return
@@ -30,9 +35,7 @@ export default function ChatPage() {
         `${process.env.NEXT_PUBLIC_CHAT_API_URL}/chat`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             message: userMessage,
             history: history,
@@ -51,10 +54,7 @@ export default function ChatPage() {
     } catch {
       setMessages(prev => [
         ...prev,
-        {
-          role: 'assistant',
-          content: 'Something went wrong.',
-        },
+        { role: 'assistant', content: 'Something went wrong.' },
       ])
     } finally {
       setLoading(false)
@@ -62,49 +62,66 @@ export default function ChatPage() {
   }
 
   return (
-    <main className="max-w-3xl mx-auto px-6 pt-32 pb-24 text-black">
-      <h1 className="text-2xl font-semibold mb-6 text-black">
-        WarmEdge Skating Chatbot
-      </h1>
+    <main className="min-h-screen bg-[#EAF2F8] flex items-start justify-center pt-85 px-6">
+  <div className="w-full max-w-3xl">
 
-      <div className="border border-black rounded-md p-4 mb-4 space-y-3 bg-white">
-        {messages.length === 0 && (
-          <p className="text-black text-sm">
-            Ask a figure skating question to get started.
-          </p>
-        )}
 
-        {messages.map((m, i) => (
-          <div key={i}>
-            <p className="text-xs text-gray-600 mb-1">
-              {m.role === 'user' ? 'You' : 'Assistant'}
+        <h1 className="text-3xl font-semibold mb-8 text-gray-900">
+          WarmEdge AI Chatbot
+        </h1>
+
+        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 space-y-4">
+
+          {messages.length === 0 && (
+            <p className="text-gray-500 text-sm">
+              Ask a figure skating question to get started.
             </p>
-            <p className="whitespace-pre-wrap text-black">
-              {m.content}
-            </p>
-          </div>
-        ))}
+          )}
 
-        {loading && (
-          <p className="text-gray-600 text-sm">Thinking…</p>
-        )}
-      </div>
+          {messages.map((m, i) => (
+            <div
+              key={i}
+              className={`flex ${
+                m.role === 'user' ? 'justify-end' : 'justify-start'
+              }`}
+            >
+              <div
+                className={`max-w-[75%] px-4 py-3 rounded-2xl text-sm whitespace-pre-wrap ${
+                  m.role === 'user'
+                    ? 'bg-blue-600 text-white rounded-br-sm'
+                    : 'bg-gray-100 text-gray-900 rounded-bl-sm'
+                }`}
+              >
+                {m.content}
+              </div>
+            </div>
+          ))}
 
-      <div className="flex gap-2">
-        <textarea
-          rows={3}
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          placeholder="Type your skating question…"
-          className="flex-1 border border-black rounded-md p-2 text-sm text-black bg-white placeholder-gray-600"
-        />
-        <button
-          onClick={sendMessage}
-          disabled={loading}
-          className="px-4 py-2 text-sm border border-black rounded-md bg-white text-black hover:bg-gray-100 disabled:opacity-50"
-        >
-          Send
-        </button>
+          {loading && (
+            <div className="text-sm text-gray-500">Thinking…</div>
+          )}
+
+          <div ref={bottomRef} />
+        </div>
+
+        <div className="mt-6 flex gap-3">
+          <textarea
+            rows={3}
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            placeholder="Type your skating question…"
+            className="flex-1 border border-gray-300 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+          />
+
+          <button
+            onClick={sendMessage}
+            disabled={loading}
+            className="px-5 py-3 text-sm rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition disabled:opacity-50"
+          >
+            Send
+          </button>
+        </div>
+
       </div>
     </main>
   )
