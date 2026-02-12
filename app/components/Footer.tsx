@@ -30,7 +30,7 @@ export default function Footer() {
                 href="https://warmedge.org/collections/all"
                 className="text-slate-700 hover:text-slate-900 transition-colors duration-200"
               >
-                Products
+                Skating Products
               </Link>
             </li>
             <li>
