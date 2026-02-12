@@ -87,8 +87,8 @@ export default function ChatPage() {
               <div
                 className={`max-w-[75%] rounded-lg px-6 py-5 text-base leading-relaxed ${
                   m.role === 'user'
-                    ? 'bg-sky-500 text-white'
-                    : 'bg-sky-50 border border-sky-200 text-slate-800'
+                    ? 'bg-slate-700 text-white'
+                    : 'bg-white border border-black text-slate-800'
                 }`}
               >
                 {m.content}
@@ -109,13 +109,13 @@ export default function ChatPage() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type your question..."
-            className="w-full rounded-lg border border-sky-300 bg-transparent px-6 py-5 text-base text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400 resize-none"
+            className="w-full rounded-lg border border-black bg-transparent px-6 py-5 text-base text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-black resize-none"
           />
 
           <button
             onClick={sendMessage}
             disabled={loading}
-            className="w-full rounded-lg bg-sky-500 px-6 py-4 text-white text-base font-medium hover:bg-sky-600 transition disabled:opacity-60"
+            className="w-full rounded-lg bg-black px-6 py-4 text-white text-base font-medium hover:bg-gray-800 transition disabled:opacity-60"
           >
             {loading ? 'Sending...' : 'Send'}
           </button>
