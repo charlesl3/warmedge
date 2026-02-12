@@ -13,7 +13,7 @@ export default function ChatPage() {
     {
       role: 'assistant',
       content:
-        "Hi, I’m WarmEdge. Ask me anything about technique, sharpening, boots, or competition rules.",
+        "Hi, I’m WarmEdge. Ask me anything about figure skating technique, sharpening, boots, or competition rules.",
     },
   ])
   const [loading, setLoading] = useState(false)
@@ -68,14 +68,15 @@ export default function ChatPage() {
 
   return (
     <main className="flex justify-center px-8 pt-44 pb-32">
-      <div className="w-full max-w-2xl">
+      <div className="w-full max-w-3xl">
 
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-800 mb-12 text-center">
+        {/* Title */}
+        <h1 className="text-4xl font-semibold tracking-tight text-slate-800 mb-14 text-center">
           WarmGPT
         </h1>
 
         {/* Chat messages */}
-        <div className="space-y-6 mb-8">
+        <div className="space-y-8 mb-10">
           {messages.map((m, i) => (
             <div
               key={i}
@@ -84,7 +85,7 @@ export default function ChatPage() {
               }`}
             >
               <div
-                className={`max-w-[75%] rounded-md px-4 py-3 text-sm ${
+                className={`max-w-[75%] rounded-lg px-6 py-5 text-base leading-relaxed ${
                   m.role === 'user'
                     ? 'bg-sky-500 text-white'
                     : 'bg-sky-50 border border-sky-200 text-slate-800'
@@ -96,25 +97,25 @@ export default function ChatPage() {
           ))}
 
           {loading && (
-            <p className="text-sm text-slate-500">Thinking…</p>
+            <p className="text-base text-slate-500">Thinking…</p>
           )}
         </div>
 
         {/* Input */}
-        <div className="space-y-4">
+        <div className="space-y-5">
           <textarea
             rows={4}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type your question..."
-            className="w-full rounded-md border border-sky-300 bg-transparent px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400 resize-none"
+            className="w-full rounded-lg border border-sky-300 bg-transparent px-6 py-5 text-base text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400 resize-none"
           />
 
           <button
             onClick={sendMessage}
             disabled={loading}
-            className="w-full rounded-md bg-sky-500 px-6 py-3 text-white font-medium hover:bg-sky-600 transition disabled:opacity-60"
+            className="w-full rounded-lg bg-sky-500 px-6 py-4 text-white text-base font-medium hover:bg-sky-600 transition disabled:opacity-60"
           >
             {loading ? 'Sending...' : 'Send'}
           </button>

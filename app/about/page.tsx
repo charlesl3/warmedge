@@ -1,3 +1,4 @@
+
 export default function AboutPage() {
   return (
     <main className="flex justify-center px-8 pt-44 pb-32">
@@ -16,23 +17,46 @@ export default function AboutPage() {
           </p>
         </section>
 
-        {/* Background */}
+        {/* Philosophy */}
         <section className="mb-12">
           <p className="text-slate-700 leading-relaxed">
-            Spending countless hours at the rink, he began noticing the same small, 
-            recurring frustrations—things that were not big enough to seem worth fixing, 
-            but annoying enough to affect every session. With an engineering mindset 
-            and firsthand rink experience, WarmEdge grew from the idea that even the 
-            smallest details deserve to be designed properly.
+            After spending countless hours at the rink, he began noticing the same small,
+            recurring frustrations—details that were not dramatic enough to complain about,
+            but distracting enough to affect every session. With an engineering mindset
+            and firsthand rink experience, WarmEdge was built on a simple belief:
+            small problems deserve proper design.
+          </p>
+        </section>
+
+        {/* Product Layer */}
+        <section className="mb-12">
+          <p className="text-slate-700 leading-relaxed">
+            WarmEdge creates minimal, purpose-built skate accessories designed to
+            quietly improve consistency, comfort, and focus. No unnecessary features.
+            No noise. Just thoughtful design for skaters who care about the details.
+          </p>
+        </section>
+
+        {/* AI Layer */}
+        <section className="mb-12">
+          <h2 className="text-xl font-medium text-slate-800 mb-4">
+            WarmEdge AI
+          </h2>
+          <p className="text-slate-700 leading-relaxed">
+            WarmEdge AI is the technology arm of the brand. It powers WarmGPT,
+            an AI assistant trained on real figure skating discussions and
+            community experience. The goal is not to replace coaches, but to
+            organize collective skating knowledge into something searchable,
+            practical, and accessible.
           </p>
         </section>
 
         {/* Closing */}
         <section>
           <p className="text-slate-700 leading-relaxed">
-            WarmEdge exists to quietly solve the small but very real problems skaters 
-            live with every day—the ones that do not ruin a session, but constantly 
-            distract from it. Because skating is already hard enough. Your gear should NOT make it harder.
+            WarmEdge brings together physical design and intelligent systems.
+            Because skating is already demanding. Your gear—and your information—
+            should make it clearer, not more complicated.
           </p>
         </section>
 

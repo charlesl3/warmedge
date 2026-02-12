@@ -1,15 +1,16 @@
 import type { Metadata } from 'next'
-import { Manrope } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import './globals.css'
 
-const manrope = Manrope({
+const inter = Inter({
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
+  variable: '--font-inter',
 })
 
 export const metadata: Metadata = {
@@ -24,7 +25,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={manrope.className}>
+      <body className={`${inter.className} antialiased`}>
         <Navbar />
         <main className="min-h-screen">
           {children}

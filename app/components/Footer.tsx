@@ -2,63 +2,51 @@ import Link from 'next/link'
 
 export default function Footer() {
   return (
-    <footer className="mt-32 bg-gradient-to-b from-sky-100 to-sky-200">
-      <div className="max-w-6xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-3 gap-12 text-sm">
+    <footer className="mt-40 border-t border-sky-300/40 bg-sky-200">
+      
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto px-8 py-20 grid grid-cols-1 md:grid-cols-3 gap-16 text-[15px]">
 
         {/* Brand */}
         <div>
-          <div className="font-medium text-slate-800 mb-3">
-            WarmEdge
+          <div className="font-semibold text-slate-900 mb-4 tracking-tight text-lg">
+            WarmEdge AI
           </div>
-          <p className="text-slate-600">
+          <p className="text-slate-700 leading-relaxed">
+            Powered by WarmEdge.
+            <br />
             Where engineering and skating meet.
           </p>
         </div>
 
-        {/* Navigate */}
+        {/* Explore */}
         <div>
-          <div className="font-medium text-slate-800 mb-3">
-            Navigate
+          <div className="font-medium text-slate-900 mb-4">
+            Explore
           </div>
-          <ul className="space-y-2">
+          <ul className="space-y-3">
             <li>
               <Link
-                href="/products"
-                className="text-slate-700 hover:text-slate-900 hover:underline underline-offset-4 transition-colors duration-200"
+                href="https://warmedge.org/collections/all"
+                className="text-slate-700 hover:text-slate-900 transition-colors duration-200"
               >
                 Products
               </Link>
             </li>
             <li>
               <Link
+                href="/chat"
+                className="text-slate-700 hover:text-slate-900 transition-colors duration-200"
+              >
+                WarmGPT
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/about"
-                className="text-slate-700 hover:text-slate-900 hover:underline underline-offset-4 transition-colors duration-200"
+                className="text-slate-700 hover:text-slate-900 transition-colors duration-200"
               >
                 About
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/contact"
-                className="text-slate-700 hover:text-slate-900 hover:underline underline-offset-4 transition-colors duration-200"
-              >
-                Contact
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/return-policy"
-                className="text-slate-700 hover:text-slate-900 hover:underline underline-offset-4 transition-colors duration-200"
-              >
-                Return Policy
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/shipping-policy"
-                className="text-slate-700 hover:text-slate-900 hover:underline underline-offset-4 transition-colors duration-200"
-              >
-                Shipping Policy
               </Link>
             </li>
           </ul>
@@ -66,50 +54,60 @@ export default function Footer() {
 
         {/* Connect */}
         <div>
-          <div className="font-medium text-slate-800 mb-3">
+          <div className="font-medium text-slate-900 mb-4">
             Connect
           </div>
 
-          <p className="text-slate-600 mb-2">
-            Email:&nbsp;
-            <a
-              href="mailto:charlesatlife@gmail.com"
-              className="text-slate-700 hover:text-slate-900 hover:underline underline-offset-4 transition-colors duration-200"
-            >
-              charlesatlife@gmail.com
-            </a>
-          </p>
-
-          <p className="text-slate-600 mb-2">
-            Phone:&nbsp;
-            <a
-              href="tel:+12173051473"
-              className="text-slate-700 hover:text-slate-900 hover:underline underline-offset-4 transition-colors duration-200"
-            >
-              +1 (217) 305-1473
-            </a>
-          </p>
-
-          <p className="text-slate-600">
+          <p className="text-slate-700 mb-3">
             Instagram:&nbsp;
             <a
-              href="https://www.instagram.com/charles_llliu/"
+              href="https://www.instagram.com/warm_edge_skating"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-slate-700 hover:text-slate-900 hover:underline underline-offset-4 transition-colors duration-200"
+              className="hover:text-slate-900 transition-colors duration-200"
             >
-              @charles_llliu
+              @warm_edge_skating
+            </a>
+          </p>
+
+          <p className="text-slate-700">
+            Email:&nbsp;
+            <a
+              href="mailto:hello@warmedge.org"
+              className="hover:text-slate-900 transition-colors duration-200"
+            >
+              hello@warmedge.org
             </a>
           </p>
         </div>
       </div>
 
-      {/* Bottom bar */}
-      <div className="border-t border-slate-300/40">
-        <div className="max-w-6xl mx-auto px-6 py-6 text-xs text-slate-500 text-center">
-          © {new Date().getFullYear()} WarmEdge. All rights reserved.
+      {/* Bottom Row */}
+      <div className="border-t border-sky-300/40">
+        <div className="max-w-6xl mx-auto px-8 py-8 flex flex-col md:flex-row items-center justify-between text-xs text-slate-700">
+          
+          <span>
+            © {new Date().getFullYear()} WarmEdge
+          </span>
+
+          <div className="mt-4 md:mt-0 flex space-x-6">
+            <Link
+              href="/privacy-policy"
+              className="hover:text-slate-900 transition-colors duration-200"
+            >
+              Privacy
+            </Link>
+            <Link
+              href="/terms"
+              className="hover:text-slate-900 transition-colors duration-200"
+            >
+              Terms
+            </Link>
+          </div>
+
         </div>
       </div>
+
     </footer>
   )
 }
