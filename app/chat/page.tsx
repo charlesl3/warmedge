@@ -16,24 +16,23 @@ type Message = {
 
 function ThinkingDots() {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-end gap-4">
       <div
-        className="w-2.5 h-2.5 rounded-full bg-[#2F6BFF]
-                   animate-[warmDotFloat_1.05s_ease-in-out_infinite]
-                   [animation-delay:0ms]
-                   animate-[warmDotGlow_1.05s_ease-in-out_infinite]"
+        className="w-3 h-3 rounded-full bg-[#2F6BFF]
+                   animate-[warmDotFloat_1.1s_ease-in-out_infinite]
+                   animate-[warmDotGlow_1.1s_ease-in-out_infinite]"
       />
       <div
-        className="w-2.5 h-2.5 rounded-full bg-[#2F6BFF]
-                   animate-[warmDotFloat_1.05s_ease-in-out_infinite]
-                   [animation-delay:140ms]
-                   animate-[warmDotGlow_1.05s_ease-in-out_infinite]"
+        className="w-3 h-3 rounded-full bg-[#2F6BFF]
+                   animate-[warmDotFloat_1.1s_ease-in-out_infinite]
+                   animate-[warmDotGlow_1.1s_ease-in-out_infinite]
+                   [animation-delay:150ms]"
       />
       <div
-        className="w-2.5 h-2.5 rounded-full bg-[#2F6BFF]
-                   animate-[warmDotFloat_1.05s_ease-in-out_infinite]
-                   [animation-delay:280ms]
-                   animate-[warmDotGlow_1.05s_ease-in-out_infinite]"
+        className="w-3 h-3 rounded-full bg-[#2F6BFF]
+                   animate-[warmDotFloat_1.1s_ease-in-out_infinite]
+                   animate-[warmDotGlow_1.1s_ease-in-out_infinite]
+                   [animation-delay:300ms]"
       />
     </div>
   )
@@ -140,7 +139,7 @@ export default function ChatPage() {
                 }`}
               >
                 <div
-                  className={`max-w-[75%] px-5 py-4 text-[15px] leading-relaxed rounded-2xl transition-all duration-200 ${
+                  className={`max-w-[75%] px-5 py-4 text-[15px] leading-relaxed rounded-2xl ${
                     m.role === 'user'
                       ? 'border border-[#2F6BFF] text-slate-900'
                       : 'border border-black/20 text-slate-900'
