@@ -14,6 +14,31 @@ type Message = {
   content: string
 }
 
+function ThinkingDots() {
+  return (
+    <div className="flex items-center gap-3">
+      <div
+        className="w-2.5 h-2.5 rounded-full bg-[#2F6BFF]
+                   animate-[warmDotFloat_1.05s_ease-in-out_infinite]
+                   [animation-delay:0ms]
+                   animate-[warmDotGlow_1.05s_ease-in-out_infinite]"
+      />
+      <div
+        className="w-2.5 h-2.5 rounded-full bg-[#2F6BFF]
+                   animate-[warmDotFloat_1.05s_ease-in-out_infinite]
+                   [animation-delay:140ms]
+                   animate-[warmDotGlow_1.05s_ease-in-out_infinite]"
+      />
+      <div
+        className="w-2.5 h-2.5 rounded-full bg-[#2F6BFF]
+                   animate-[warmDotFloat_1.05s_ease-in-out_infinite]
+                   [animation-delay:280ms]
+                   animate-[warmDotGlow_1.05s_ease-in-out_infinite]"
+      />
+    </div>
+  )
+}
+
 export default function ChatPage() {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState<Message[]>([
@@ -44,7 +69,6 @@ export default function ChatPage() {
     requestAnimationFrame(scrollToBottom)
   }, [messageCount, loading])
 
-  // Auto resize textarea
   useEffect(() => {
     const el = textareaRef.current
     if (!el) return
@@ -107,7 +131,6 @@ export default function ChatPage() {
 
         <div className="rounded-3xl border border-black/30">
 
-          {/* Messages */}
           <div className="h-[60vh] md:h-[62vh] overflow-y-auto px-7 py-8 space-y-7">
             {messages.map((m, i) => (
               <div
@@ -142,11 +165,7 @@ export default function ChatPage() {
             {loading && (
               <div className="flex justify-start">
                 <div className="border border-black/20 px-5 py-4 rounded-2xl">
-                  <div className="flex gap-2">
-                    <div className="w-2 h-2 bg-black rounded-full animate-bounce" />
-                    <div className="w-2 h-2 bg-black rounded-full animate-bounce delay-100" />
-                    <div className="w-2 h-2 bg-black rounded-full animate-bounce delay-200" />
-                  </div>
+                  <ThinkingDots />
                 </div>
               </div>
             )}
@@ -154,9 +173,7 @@ export default function ChatPage() {
             <div ref={bottomRef} />
           </div>
 
-          {/* Input */}
           <div className="border-t border-black/20 p-6">
-
             <textarea
               ref={textareaRef}
               rows={1}
