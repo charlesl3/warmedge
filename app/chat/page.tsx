@@ -1,6 +1,13 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState, KeyboardEvent } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  KeyboardEvent,
+} from 'react'
+import Typewriter from '../components/Typewriter'
 
 type Message = {
   role: 'user' | 'assistant'
@@ -18,24 +25,32 @@ export default function ChatPage() {
   ])
   const [loading, setLoading] = useState(false)
 
-  const scrollerRef = useRef<HTMLDivElement | null>(null)
   const bottomRef = useRef<HTMLDivElement | null>(null)
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const hasMountedRef = useRef(false)
 
   const messageCount = useMemo(() => messages.length, [messages.length])
 
-  const scrollToBottom = (behavior: ScrollBehavior) => {
-    bottomRef.current?.scrollIntoView({ behavior, block: 'end' })
+  const scrollToBottom = () => {
+    bottomRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' })
   }
 
   useEffect(() => {
     if (!hasMountedRef.current) {
       hasMountedRef.current = true
-      requestAnimationFrame(() => scrollToBottom('auto'))
+      requestAnimationFrame(scrollToBottom)
       return
     }
-    requestAnimationFrame(() => scrollToBottom('smooth'))
+    requestAnimationFrame(scrollToBottom)
   }, [messageCount, loading])
+
+  // Auto resize textarea
+  useEffect(() => {
+    const el = textareaRef.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = el.scrollHeight + 'px'
+  }, [input])
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return
@@ -47,17 +62,24 @@ export default function ChatPage() {
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_CHAT_API_URL}/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: userMessage,
-          history: [],
-        }),
-      })
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_CHAT_API_URL}/chat`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: userMessage,
+            history: [],
+          }),
+        }
+      )
 
       const data = await res.json()
-      setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }])
+
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: data.reply },
+      ])
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -76,108 +98,94 @@ export default function ChatPage() {
   }
 
   return (
-    <main className="min-h-screen px-6 pt-28 pb-12 flex justify-center bg-transparent">
+    <main className="min-h-screen px-6 pt-28 pb-12 flex justify-center">
       <div className="w-full max-w-3xl">
+
         <h1 className="text-4xl font-semibold tracking-tight text-slate-900 mb-10 text-center">
           WarmGPT
         </h1>
 
-        {/* Fully transparent panel */}
-        <div
-          className="
-            rounded-2xl
-            bg-transparent
-            border border-neutral-700/40
-            shadow-[0_12px_30px_rgba(0,0,0,0.06)]
-            overflow-hidden
-          "
-        >
+        <div className="rounded-3xl border border-black/30">
+
           {/* Messages */}
-          <div
-            ref={scrollerRef}
-            className="h-[60vh] md:h-[62vh] overflow-y-auto px-7 py-8 space-y-7"
-          >
+          <div className="h-[60vh] md:h-[62vh] overflow-y-auto px-7 py-8 space-y-7">
             {messages.map((m, i) => (
               <div
                 key={i}
-                className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex ${
+                  m.role === 'user' ? 'justify-end' : 'justify-start'
+                }`}
               >
                 <div
-                  className={`
-                    max-w-[78%] rounded-2xl px-5 py-4 text-[15px] leading-relaxed
-                    ${m.role === 'user'
-                      ? `
-                        bg-transparent
-                        border border-[#1E5EFF]/60
-                        text-slate-900
-                        shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]
-                      `
-                      : `
-                        bg-transparent
-                        border border-neutral-700/25
-                        text-slate-900
-                        shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]
-                      `
-                    }
-                  `}
+                  className={`max-w-[75%] px-5 py-4 text-[15px] leading-relaxed rounded-2xl transition-all duration-200 ${
+                    m.role === 'user'
+                      ? 'border border-[#2F6BFF] text-slate-900'
+                      : 'border border-black/20 text-slate-900'
+                  }`}
                 >
-                  {m.content}
+                  {m.role === 'assistant' &&
+                   i === messages.length - 1 &&
+                   !loading ? (
+                    <Typewriter
+                      key={i}
+                      text={m.content}
+                      speed={18}
+                      showCursor
+                    />
+                  ) : (
+                    m.content
+                  )}
                 </div>
               </div>
             ))}
 
             {loading && (
-              <p className="text-sm text-slate-700/70">Thinking...</p>
+              <div className="flex justify-start">
+                <div className="border border-black/20 px-5 py-4 rounded-2xl">
+                  <div className="flex gap-2">
+                    <div className="w-2 h-2 bg-black rounded-full animate-bounce" />
+                    <div className="w-2 h-2 bg-black rounded-full animate-bounce delay-100" />
+                    <div className="w-2 h-2 bg-black rounded-full animate-bounce delay-200" />
+                  </div>
+                </div>
+              </div>
             )}
 
             <div ref={bottomRef} />
           </div>
 
           {/* Input */}
-          <div className="border-t border-neutral-700/25 p-6 bg-transparent">
-            <div className="space-y-4">
-              <textarea
-                rows={3}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Ask about blades, boots, technique..."
-                className="
-                  w-full rounded-xl
-                  border border-neutral-800/55
-                  bg-transparent
-                  px-5 py-4
-                  text-[15px] text-slate-900
-                  placeholder:text-slate-500/70
-                  shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]
-                  focus:outline-none
-                  focus:ring-2 focus:ring-[#1E5EFF]/60
-                  transition
-                  resize-none
-                "
-              />
+          <div className="border-t border-black/20 p-6">
 
-              <button
-                onClick={sendMessage}
-                disabled={loading}
-                className="
-                  w-full rounded-xl
-                  bg-[#1E5EFF]
-                  px-6 py-4
-                  text-white text-[15px] font-medium
-                  hover:bg-[#1748C8]
-                  transition
-                  disabled:opacity-60
-                "
-              >
-                {loading ? 'Sending...' : 'Send'}
-              </button>
-            </div>
+            <textarea
+              ref={textareaRef}
+              rows={1}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type your question..."
+              className="w-full rounded-2xl border border-[#1E293B] bg-transparent px-5 py-4 text-[15px] text-slate-900 placeholder:text-slate-500 focus:outline-none focus:border-[#2F6BFF] resize-none overflow-hidden transition-all duration-200"
+            />
 
-            <p className="mt-3 text-xs text-slate-600/70 text-center">
+            <button
+              onClick={sendMessage}
+              disabled={loading}
+              className="mt-4 w-full rounded-2xl bg-[#2F6BFF] px-6 py-4 text-white text-[15px] font-medium hover:bg-[#2554D6] transition disabled:opacity-60"
+            >
+              {loading ? (
+                <div className="flex justify-center">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : (
+                'Send'
+              )}
+            </button>
+
+            <p className="mt-3 text-xs text-slate-500 text-center">
               Press Enter to send, Shift+Enter for a new line.
             </p>
           </div>
+
         </div>
       </div>
     </main>
