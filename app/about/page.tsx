@@ -1,6 +1,6 @@
 export default function AboutPage() {
   return (
-    <main className="flex justify-center px-6 pt-44 pb-32 bg-gradient-to-b from-sky-50 to-white">
+    <main className="flex justify-center px-6 pt-44 pb-32">
       <div className="w-full max-w-3xl">
 
         <h1 className="text-4xl font-semibold tracking-tight text-slate-900 mb-16 text-center">
@@ -51,7 +51,7 @@ export default function AboutPage() {
           </p>
         </section>
 
-        <section className="pt-10 border-t border-slate-200">
+        <section className="pt-10 border-t border-black/20">
           <p className="text-lg text-slate-700 leading-relaxed">
             WarmEdge brings together physical design and intelligent systems.
             Because skating is already demanding. Your gear—and your information—
