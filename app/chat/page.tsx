@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, KeyboardEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, KeyboardEvent } from 'react'
 
 type Message = {
   role: 'user' | 'assistant'
@@ -13,10 +13,29 @@ export default function ChatPage() {
     {
       role: 'assistant',
       content:
-        "Hi, I’m WarmEdge. Ask me anything about figure skating technique, sharpening, boots, or competition rules.",
+        'Hi, I am WarmEdge. Ask me anything about figure skating technique, sharpening, boots, or competition rules.',
     },
   ])
   const [loading, setLoading] = useState(false)
+
+  const scrollerRef = useRef<HTMLDivElement | null>(null)
+  const bottomRef = useRef<HTMLDivElement | null>(null)
+  const hasMountedRef = useRef(false)
+
+  const messageCount = useMemo(() => messages.length, [messages.length])
+
+  const scrollToBottom = (behavior: ScrollBehavior) => {
+    bottomRef.current?.scrollIntoView({ behavior, block: 'end' })
+  }
+
+  useEffect(() => {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true
+      requestAnimationFrame(() => scrollToBottom('auto'))
+      return
+    }
+    requestAnimationFrame(() => scrollToBottom('smooth'))
+  }, [messageCount, loading])
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return
@@ -25,34 +44,24 @@ export default function ChatPage() {
     setInput('')
     setLoading(true)
 
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }])
+    setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_CHAT_API_URL}/chat`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: userMessage,
-            history: [],
-          }),
-        }
-      )
+      const res = await fetch(`${process.env.NEXT_PUBLIC_CHAT_API_URL}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: userMessage,
+          history: [],
+        }),
+      })
 
       const data = await res.json()
-
-      setMessages(prev => [
-        ...prev,
-        { role: 'assistant', content: data.reply },
-      ])
+      setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }])
     } catch {
-      setMessages(prev => [
+      setMessages((prev) => [
         ...prev,
-        {
-          role: 'assistant',
-          content: 'Something went wrong.',
-        },
+        { role: 'assistant', content: 'Something went wrong.' },
       ])
     } finally {
       setLoading(false)
@@ -67,60 +76,109 @@ export default function ChatPage() {
   }
 
   return (
-    <main className="flex justify-center px-8 pt-44 pb-32">
+    <main className="min-h-screen px-6 pt-28 pb-12 flex justify-center bg-transparent">
       <div className="w-full max-w-3xl">
-
-        {/* Title */}
-        <h1 className="text-4xl font-semibold tracking-tight text-slate-800 mb-14 text-center">
+        <h1 className="text-4xl font-semibold tracking-tight text-slate-900 mb-10 text-center">
           WarmGPT
         </h1>
 
-        {/* Chat messages */}
-        <div className="space-y-8 mb-10">
-          {messages.map((m, i) => (
-            <div
-              key={i}
-              className={`flex ${
-                m.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
-            >
-              <div
-                className={`max-w-[75%] rounded-lg px-6 py-5 text-base leading-relaxed ${
-                  m.role === 'user'
-                    ? 'bg-slate-700 text-white'
-                    : 'bg-white border border-black text-slate-800'
-                }`}
-              >
-                {m.content}
-              </div>
-            </div>
-          ))}
-
-          {loading && (
-            <p className="text-base text-slate-500">Thinking…</p>
-          )}
-        </div>
-
-        {/* Input */}
-        <div className="space-y-5">
-          <textarea
-            rows={4}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type your question..."
-            className="w-full rounded-lg border border-black bg-transparent px-6 py-5 text-base text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-black resize-none"
-          />
-
-          <button
-            onClick={sendMessage}
-            disabled={loading}
-            className="w-full rounded-lg bg-black px-6 py-4 text-white text-base font-medium hover:bg-gray-800 transition disabled:opacity-60"
+        {/* Fully transparent panel */}
+        <div
+          className="
+            rounded-2xl
+            bg-transparent
+            border border-neutral-700/40
+            shadow-[0_12px_30px_rgba(0,0,0,0.06)]
+            overflow-hidden
+          "
+        >
+          {/* Messages */}
+          <div
+            ref={scrollerRef}
+            className="h-[60vh] md:h-[62vh] overflow-y-auto px-7 py-8 space-y-7"
           >
-            {loading ? 'Sending...' : 'Send'}
-          </button>
-        </div>
+            {messages.map((m, i) => (
+              <div
+                key={i}
+                className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`
+                    max-w-[78%] rounded-2xl px-5 py-4 text-[15px] leading-relaxed
+                    ${m.role === 'user'
+                      ? `
+                        bg-transparent
+                        border border-[#1E5EFF]/60
+                        text-slate-900
+                        shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]
+                      `
+                      : `
+                        bg-transparent
+                        border border-neutral-700/25
+                        text-slate-900
+                        shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]
+                      `
+                    }
+                  `}
+                >
+                  {m.content}
+                </div>
+              </div>
+            ))}
 
+            {loading && (
+              <p className="text-sm text-slate-700/70">Thinking...</p>
+            )}
+
+            <div ref={bottomRef} />
+          </div>
+
+          {/* Input */}
+          <div className="border-t border-neutral-700/25 p-6 bg-transparent">
+            <div className="space-y-4">
+              <textarea
+                rows={3}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask about blades, boots, technique..."
+                className="
+                  w-full rounded-xl
+                  border border-neutral-800/55
+                  bg-transparent
+                  px-5 py-4
+                  text-[15px] text-slate-900
+                  placeholder:text-slate-500/70
+                  shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]
+                  focus:outline-none
+                  focus:ring-2 focus:ring-[#1E5EFF]/60
+                  transition
+                  resize-none
+                "
+              />
+
+              <button
+                onClick={sendMessage}
+                disabled={loading}
+                className="
+                  w-full rounded-xl
+                  bg-[#1E5EFF]
+                  px-6 py-4
+                  text-white text-[15px] font-medium
+                  hover:bg-[#1748C8]
+                  transition
+                  disabled:opacity-60
+                "
+              >
+                {loading ? 'Sending...' : 'Send'}
+              </button>
+            </div>
+
+            <p className="mt-3 text-xs text-slate-600/70 text-center">
+              Press Enter to send, Shift+Enter for a new line.
+            </p>
+          </div>
+        </div>
       </div>
     </main>
   )
