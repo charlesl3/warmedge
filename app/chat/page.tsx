@@ -14,26 +14,16 @@ type Message = {
   content: string
 }
 
+/* ------------------------------------------
+   Strong, visible bouncing loading dots
+------------------------------------------ */
+
 function ThinkingDots() {
   return (
-    <div className="flex items-end gap-4">
-      <div
-        className="w-3 h-3 rounded-full bg-[#2F6BFF]
-                   animate-[warmDotFloat_1.1s_ease-in-out_infinite]
-                   animate-[warmDotGlow_1.1s_ease-in-out_infinite]"
-      />
-      <div
-        className="w-3 h-3 rounded-full bg-[#2F6BFF]
-                   animate-[warmDotFloat_1.1s_ease-in-out_infinite]
-                   animate-[warmDotGlow_1.1s_ease-in-out_infinite]
-                   [animation-delay:150ms]"
-      />
-      <div
-        className="w-3 h-3 rounded-full bg-[#2F6BFF]
-                   animate-[warmDotFloat_1.1s_ease-in-out_infinite]
-                   animate-[warmDotGlow_1.1s_ease-in-out_infinite]
-                   [animation-delay:300ms]"
-      />
+    <div className="flex items-end gap-3 h-6">
+      <div className="dot" />
+      <div className="dot delay-150" />
+      <div className="dot delay-300" />
     </div>
   )
 }
@@ -130,6 +120,7 @@ export default function ChatPage() {
 
         <div className="rounded-3xl border border-black/30">
 
+          {/* Message Area */}
           <div className="h-[60vh] md:h-[62vh] overflow-y-auto px-7 py-8 space-y-7">
             {messages.map((m, i) => (
               <div
@@ -172,6 +163,7 @@ export default function ChatPage() {
             <div ref={bottomRef} />
           </div>
 
+          {/* Input Area */}
           <div className="border-t border-black/20 p-6">
             <textarea
               ref={textareaRef}
