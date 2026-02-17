@@ -2,14 +2,30 @@
 
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
   KeyboardEvent,
 } from 'react'
+import Typewriter from '../components/Typewriter'
 
 type Message = {
   role: 'user' | 'assistant'
   content: string
+}
+
+/* ------------------------------------------
+   Strong, visible bouncing loading dots
+------------------------------------------ */
+
+function ThinkingDots() {
+  return (
+    <div className="flex items-end gap-3 h-6">
+      <div className="dot" />
+      <div className="dot delay-150" />
+      <div className="dot delay-300" />
+    </div>
+  )
 }
 
 export default function ChatPage() {
@@ -18,20 +34,36 @@ export default function ChatPage() {
     {
       role: 'assistant',
       content:
-        'Hi, I am WarmGPT. Ask me anything about figure skating technique, skates, or test rules.',
+        'Hi, I am WarmGPT. Ask me anything about figure skating technique, skates, or test rules. Please ask a concrete and valid skating question.',
     },
   ])
   const [loading, setLoading] = useState(false)
 
   const bottomRef = useRef<HTMLDivElement | null>(null)
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+  const hasMountedRef = useRef(false)
+
+  const messageCount = useMemo(() => messages.length, [messages.length])
 
   const scrollToBottom = () => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    bottomRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' })
   }
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages, loading])
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true
+      requestAnimationFrame(scrollToBottom)
+      return
+    }
+    requestAnimationFrame(scrollToBottom)
+  }, [messageCount, loading])
+
+  useEffect(() => {
+    const el = textareaRef.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = el.scrollHeight + 'px'
+  }, [input])
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return
@@ -40,10 +72,7 @@ export default function ChatPage() {
     setInput('')
     setLoading(true)
 
-    setMessages((prev) => [
-      ...prev,
-      { role: 'user', content: userMessage },
-    ])
+    setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
 
     try {
       const res = await fetch(
@@ -82,90 +111,116 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-[100dvh]">
+  <main className="h-screen flex flex-col">
 
-      {/* Scrollable message area */}
-      <div className="flex-1 overflow-y-auto px-4 pt-6 pb-32">
-        <div className="max-w-2xl mx-auto space-y-6">
-          {messages.map((m, i) => (
-            <div key={i}>
-              <div className="text-xs text-slate-500 mb-1">
-                {m.role === 'assistant' ? 'WarmGPT' : 'You'}
-              </div>
-              <div className="bg-white/40 backdrop-blur rounded-xl p-4 text-slate-900">
-                {m.content}
-              </div>
+    {/* Scrollable Message Area */}
+    <div className="flex-1 overflow-y-auto px-6 pt-6 pb-4 space-y-10">
+
+      {messages.map((m, i) => (
+        <div key={i} className="w-full">
+
+          <div
+            className={`text-sm font-medium mb-2 ${
+              m.role === 'assistant'
+                ? 'text-slate-600'
+                : 'text-[#2F6BFF]'
+            }`}
+          >
+            {m.role === 'assistant' ? 'WarmGPT' : 'You'}
+          </div>
+
+          {m.role === 'assistant' ? (
+            <div
+              className="
+                rounded-2xl
+                border border-white/40
+                bg-white/20
+                backdrop-blur-md
+                px-6 py-5
+                text-[16px]
+                leading-relaxed
+                text-slate-900
+              "
+            >
+              {i === messages.length - 1 && !loading ? (
+                <Typewriter
+                  key={i}
+                  text={m.content}
+                  speed={18}
+                  showCursor
+                />
+              ) : (
+                m.content
+              )}
             </div>
-          ))}
-
-          {loading && (
-            <div>
-              <div className="text-xs text-slate-500 mb-1">
-                WarmGPT
-              </div>
-              <div className="bg-white/40 rounded-xl p-4">
-                Thinking...
-              </div>
+          ) : (
+            <div className="text-[16px] leading-relaxed text-slate-900">
+              {m.content}
             </div>
           )}
 
-          <div ref={bottomRef} />
         </div>
-      </div>
+      ))}
 
-      {/* Fixed input area */}
-      <div
+      {loading && (
+        <div>
+          <div className="text-sm font-medium mb-2 text-slate-600">
+            WarmGPT
+          </div>
+          <div className="rounded-2xl border border-white/40 bg-white/20 backdrop-blur-md px-6 py-5">
+            <ThinkingDots />
+          </div>
+        </div>
+      )}
+
+      <div ref={bottomRef} />
+    </div>
+
+    {/* Input Area */}
+    <div className="border-t border-white/30 p-6 pb-[env(safe-area-inset-bottom)]">
+
+      <textarea
+        ref={textareaRef}
+        rows={1}
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder="Ask a figure skating question..."
         className="
-          fixed
-          bottom-0
-          left-0
-          right-0
-          bg-white/70
-          backdrop-blur
-          border-t
-          px-4
+          w-full
+          rounded-2xl
+          border border-white/40
+          bg-white/20
+          backdrop-blur-sm
+          px-5 py-4
+          text-[16px]
+          resize-none
+          focus:outline-none
+          focus:border-[#2F6BFF]
+        "
+      />
+
+      <button
+        onClick={sendMessage}
+        disabled={loading}
+        className="
+          mt-4
+          w-full
+          rounded-2xl
+          bg-[#2F6BFF]
+          px-6
           py-4
-          pb-[calc(env(safe-area-inset-bottom)+16px)]
+          text-white
+          font-medium
+          disabled:opacity-60
         "
       >
-        <div className="max-w-2xl mx-auto">
-          <textarea
-            rows={1}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask a figure skating question..."
-            className="
-              w-full
-              rounded-xl
-              border
-              px-4
-              py-3
-              text-sm
-              focus:outline-none
-              focus:border-[#2F6BFF]
-              resize-none
-            "
-          />
+        {loading ? 'Thinking...' : 'Send'}
+      </button>
 
-          <button
-            onClick={sendMessage}
-            disabled={loading}
-            className="
-              mt-3
-              w-full
-              rounded-xl
-              bg-[#2F6BFF]
-              py-3
-              text-white
-              font-medium
-              disabled:opacity-60
-            "
-          >
-            Send
-          </button>
-        </div>
-      </div>
     </div>
-  )
+
+  </main>
+)
+
 }
