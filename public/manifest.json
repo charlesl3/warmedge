@@ -1,22 +1,25 @@
 {
   "name": "WarmEdge",
   "short_name": "WarmEdge",
-  "description": "AI-powered figure skating assistant and premium skating essentials.",
-  "start_url": "/chat",
+  "description": "AI-powered figure skating assistant.",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#eaf9ff",
   "theme_color": "#2F6BFF",
   "orientation": "portrait",
+  "scope": "/",
   "icons": [
     {
-      "src": "/icons/icon-192.png",
+      "src": "/icon/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "/icon/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

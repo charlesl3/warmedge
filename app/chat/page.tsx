@@ -95,27 +95,43 @@ export default function ChatPage() {
       {/* MESSAGE AREA */}
       <div className="flex-1 overflow-y-auto px-5 pt-6 pb-4 space-y-6">
 
-        {messages.map((m, i) => (
-          <div key={i}>
-            <div
-              className={`text-sm mb-1 ${
-                m.role === 'assistant'
-                  ? 'text-slate-600'
-                  : 'text-[#2F6BFF]'
-              }`}
-            >
-              {m.role === 'assistant' ? 'WarmGPT' : 'You'}
-            </div>
+        {messages.map((m, i) => {
+          const isLastAssistant =
+            m.role === 'assistant' &&
+            i === messages.length - 1 &&
+            !loading
 
-            {m.role === 'assistant' ? (
-              <div className="rounded-xl bg-white/20 backdrop-blur-sm px-4 py-3 text-slate-900">
-                {m.content}
+          return (
+            <div key={i}>
+              <div
+                className={`text-sm mb-1 ${
+                  m.role === 'assistant'
+                    ? 'text-slate-600'
+                    : 'text-[#2F6BFF]'
+                }`}
+              >
+                {m.role === 'assistant' ? 'WarmGPT' : 'You'}
               </div>
-            ) : (
-              <div className="text-slate-900">{m.content}</div>
-            )}
-          </div>
-        ))}
+
+              {m.role === 'assistant' ? (
+                <div className="rounded-xl bg-white/20 backdrop-blur-sm px-4 py-3 text-slate-900">
+                  {isLastAssistant ? (
+                    <Typewriter
+                      key={i}
+                      text={m.content}
+                      speed={18}
+                      showCursor
+                    />
+                  ) : (
+                    m.content
+                  )}
+                </div>
+              ) : (
+                <div className="text-slate-900">{m.content}</div>
+              )}
+            </div>
+          )
+        })}
 
         {loading && (
           <div>
@@ -130,7 +146,7 @@ export default function ChatPage() {
       </div>
 
       {/* INPUT AREA */}
-      <div className="border-t bg-white/10 backdrop-blur-md p-4 pb-safe">
+      <div className="border-t bg-white/10 backdrop-blur-md p-4 pb-[env(safe-area-inset-bottom)]">
 
         <textarea
           rows={1}
