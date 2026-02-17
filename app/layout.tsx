@@ -1,22 +1,18 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
-import Image from 'next/image'
-import Link from 'next/link'
 import ServiceWorkerRegister from './ServiceWorkerRegister'
-import Footer from './components/Footer'
 import './globals.css'
 
 const inter = Inter({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   display: 'swap',
-  variable: '--font-inter',
 })
 
 export const metadata: Metadata = {
   title: 'WarmEdge',
-  description: 'Designed for the rink. Nothing more.',
+  description: 'AI-powered figure skating assistant.',
   manifest: '/manifest.json',
   themeColor: '#2F6BFF',
   icons: {
@@ -42,31 +38,9 @@ export default function RootLayout({
       </head>
 
       <body className={`${inter.className} antialiased`}>
-
         <ServiceWorkerRegister />
-
-        {/* Top Center Logo (Clickable → Home) */}
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50">
-          <Link href="/">
-            <Image
-              src="/logo1.jpg"  // adjust if needed
-              alt="WarmEdge"
-              width={220}
-              height={80}
-              priority
-              className="cursor-pointer"
-            />
-          </Link>
-        </div>
-
-        {/* Main Content */}
-        <main className="min-h-screen pt-20">
-          {children}
-        </main>
-
-        <Footer />
+        {children}
         <Analytics />
-
       </body>
     </html>
   )
