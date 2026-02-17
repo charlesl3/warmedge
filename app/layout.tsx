@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
+import Image from 'next/image'
+import Link from 'next/link'
 import ServiceWorkerRegister from './ServiceWorkerRegister'
-import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import './globals.css'
 
@@ -39,12 +40,33 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="WarmEdge" />
       </head>
+
       <body className={`${inter.className} antialiased`}>
+
         <ServiceWorkerRegister />
-        <Navbar />
-        <main className="min-h-screen">{children}</main>
+
+        {/* Top Center Logo (Clickable → Home) */}
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50">
+          <Link href="/">
+            <Image
+              src="/logo1.jpg"  // adjust if needed
+              alt="WarmEdge"
+              width={220}
+              height={80}
+              priority
+              className="cursor-pointer"
+            />
+          </Link>
+        </div>
+
+        {/* Main Content */}
+        <main className="min-h-screen pt-20">
+          {children}
+        </main>
+
         <Footer />
         <Analytics />
+
       </body>
     </html>
   )
