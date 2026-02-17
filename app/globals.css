@@ -5,8 +5,16 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* ===============================
+   App-style full viewport layout
+   =============================== */
+
 html,
 body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden; /* prevents full-page scrolling */
+
   background:
     radial-gradient(
       circle at 50% 15%,
@@ -21,8 +29,6 @@ body {
       #c7ecff 60%,
       #b8e4ff 100%
     );
-
-  min-height: 100%;
 }
 
 /* ===============================

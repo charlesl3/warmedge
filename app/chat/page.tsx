@@ -111,50 +111,88 @@ export default function ChatPage() {
   }
 
   return (
-    <main className="min-h-screen px-6 pt-28 pb-12 flex justify-center">
-      <div className="w-full max-w-3xl">
+    <main className="min-h-screen px-6 pt-40 pb-12 flex justify-center">
+      <div className="w-full max-w-4xl">
 
-        <h1 className="text-4xl font-semibold tracking-tight text-slate-900 mb-10 text-center">
-           
-        </h1>
-
-        <div className="rounded-3xl border border-black/30">
+        {/* Soft Frame Container */}
+        <div
+          className="
+            w-full
+            rounded-3xl
+            border border-white/40
+            backdrop-blur-md
+            bg-white/10
+            shadow-[0_10px_40px_rgba(0,0,0,0.08)]
+          "
+        >
 
           {/* Message Area */}
-          <div className="h-[60vh] md:h-[62vh] overflow-y-auto px-7 py-8 space-y-7">
+          <div className="h-[65vh] overflow-y-auto px-10 py-10 space-y-10">
+
             {messages.map((m, i) => (
-              <div
-                key={i}
-                className={`flex ${
-                  m.role === 'user' ? 'justify-end' : 'justify-start'
-                }`}
-              >
+              <div key={i} className="w-full">
+
+                {/* Role Label */}
                 <div
-                  className={`max-w-[75%] px-5 py-4 text-[15px] leading-relaxed rounded-2xl ${
-                    m.role === 'user'
-                      ? 'border border-[#2F6BFF] text-slate-900'
-                      : 'border border-black/20 text-slate-900'
+                  className={`text-sm font-medium mb-2 ${
+                    m.role === 'assistant'
+                      ? 'text-slate-600'
+                      : 'text-[#2F6BFF]'
                   }`}
                 >
-                  {m.role === 'assistant' &&
-                   i === messages.length - 1 &&
-                   !loading ? (
-                    <Typewriter
-                      key={i}
-                      text={m.content}
-                      speed={18}
-                      showCursor
-                    />
-                  ) : (
-                    m.content
-                  )}
+                  {m.role === 'assistant' ? 'WarmGPT' : 'You'}
                 </div>
+
+                {/* Assistant Box vs User Text */}
+                {m.role === 'assistant' ? (
+                  <div
+                    className="
+                      rounded-2xl
+                      border border-white/40
+                      bg-white/20
+                      backdrop-blur-md
+                      px-6 py-5
+                      text-[16px]
+                      leading-relaxed
+                      text-slate-900
+                      shadow-[0_6px_20px_rgba(0,0,0,0.05)]
+                    "
+                  >
+                    {i === messages.length - 1 && !loading ? (
+                      <Typewriter
+                        key={i}
+                        text={m.content}
+                        speed={18}
+                        showCursor
+                      />
+                    ) : (
+                      m.content
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-[16px] leading-relaxed text-slate-900">
+                    {m.content}
+                  </div>
+                )}
+
               </div>
             ))}
 
             {loading && (
-              <div className="flex justify-start">
-                <div className="border border-black/20 px-5 py-4 rounded-2xl">
+              <div>
+                <div className="text-sm font-medium mb-2 text-slate-600">
+                  WarmGPT
+                </div>
+                <div
+                  className="
+                    rounded-2xl
+                    border border-white/40
+                    bg-white/20
+                    backdrop-blur-md
+                    px-6 py-5
+                    shadow-[0_6px_20px_rgba(0,0,0,0.05)]
+                  "
+                >
                   <ThinkingDots />
                 </div>
               </div>
@@ -164,21 +202,50 @@ export default function ChatPage() {
           </div>
 
           {/* Input Area */}
-          <div className="border-t border-black/20 p-6">
+          <div className="border-t border-white/30 p-8">
+
             <textarea
               ref={textareaRef}
               rows={1}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type your question..."
-              className="w-full rounded-2xl border border-[#1E293B] bg-transparent px-5 py-4 text-[15px] text-slate-900 placeholder:text-slate-500 focus:outline-none focus:border-[#2F6BFF] resize-none overflow-hidden transition-all duration-200"
+              placeholder="Ask a figure skating question..."
+              className="
+                w-full
+                rounded-2xl
+                border border-white/40
+                bg-white/20
+                backdrop-blur-sm
+                px-5 py-4
+                text-[16px]
+                text-slate-900
+                placeholder:text-slate-500
+                focus:outline-none
+                focus:border-[#2F6BFF]
+                resize-none
+                overflow-hidden
+                transition-all duration-200
+              "
             />
 
             <button
               onClick={sendMessage}
               disabled={loading}
-              className="mt-4 w-full rounded-2xl bg-[#2F6BFF] px-6 py-4 text-white text-[15px] font-medium hover:bg-[#2554D6] transition disabled:opacity-60"
+              className="
+                mt-4
+                w-full
+                rounded-2xl
+                bg-[#2F6BFF]
+                px-6
+                py-4
+                text-white
+                text-[15px]
+                font-medium
+                hover:bg-[#2554D6]
+                transition
+                disabled:opacity-60
+              "
             >
               {loading ? (
                 <div className="flex justify-center">
@@ -189,7 +256,7 @@ export default function ChatPage() {
               )}
             </button>
 
-            <p className="mt-3 text-xs text-slate-500 text-center">
+            <p className="mt-3 text-xs text-slate-600 text-center">
               Press Enter to send, Shift+Enter for a new line.
             </p>
           </div>
