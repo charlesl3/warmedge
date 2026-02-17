@@ -115,7 +115,7 @@ export default function ChatPage() {
       <div className="w-full max-w-3xl">
 
         <h1 className="text-4xl font-semibold tracking-tight text-slate-900 mb-10 text-center">
-          WarmGPT
+           
         </h1>
 
         <div className="rounded-3xl border border-black/30">
