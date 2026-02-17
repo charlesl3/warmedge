@@ -2,7 +2,6 @@
 
 import {
   useEffect,
-  useMemo,
   useRef,
   useState,
   KeyboardEvent,
@@ -14,13 +13,9 @@ type Message = {
   content: string
 }
 
-/* ------------------------------------------
-   Strong, visible bouncing loading dots
------------------------------------------- */
-
 function ThinkingDots() {
   return (
-    <div className="flex items-end gap-3 h-6">
+    <div className="flex items-end gap-2 h-5">
       <div className="dot" />
       <div className="dot delay-150" />
       <div className="dot delay-300" />
@@ -34,36 +29,20 @@ export default function ChatPage() {
     {
       role: 'assistant',
       content:
-        'Hi, I am WarmGPT. Ask me anything about figure skating technique, skates, or test rules. Please ask a concrete and valid skating question.',
+        'Hi, I am WarmGPT. Ask me anything about figure skating technique, skates, or test rules.',
     },
   ])
   const [loading, setLoading] = useState(false)
 
-  const bottomRef = useRef<HTMLDivElement | null>(null)
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
-  const hasMountedRef = useRef(false)
-
-  const messageCount = useMemo(() => messages.length, [messages.length])
+  const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
   const scrollToBottom = () => {
-    bottomRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' })
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
   useEffect(() => {
-    if (!hasMountedRef.current) {
-      hasMountedRef.current = true
-      requestAnimationFrame(scrollToBottom)
-      return
-    }
-    requestAnimationFrame(scrollToBottom)
-  }, [messageCount, loading])
-
-  useEffect(() => {
-    const el = textareaRef.current
-    if (!el) return
-    el.style.height = 'auto'
-    el.style.height = el.scrollHeight + 'px'
-  }, [input])
+    scrollToBottom()
+  }, [messages, loading])
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return
@@ -111,116 +90,66 @@ export default function ChatPage() {
   }
 
   return (
-  <main className="h-screen flex flex-col">
+    <div className="h-[100dvh] flex flex-col">
 
-    {/* Scrollable Message Area */}
-    <div className="flex-1 overflow-y-auto px-6 pt-6 pb-4 space-y-10">
+      {/* MESSAGE AREA */}
+      <div className="flex-1 overflow-y-auto px-5 pt-6 pb-4 space-y-6">
 
-      {messages.map((m, i) => (
-        <div key={i} className="w-full">
-
-          <div
-            className={`text-sm font-medium mb-2 ${
-              m.role === 'assistant'
-                ? 'text-slate-600'
-                : 'text-[#2F6BFF]'
-            }`}
-          >
-            {m.role === 'assistant' ? 'WarmGPT' : 'You'}
-          </div>
-
-          {m.role === 'assistant' ? (
+        {messages.map((m, i) => (
+          <div key={i}>
             <div
-              className="
-                rounded-2xl
-                border border-white/40
-                bg-white/20
-                backdrop-blur-md
-                px-6 py-5
-                text-[16px]
-                leading-relaxed
-                text-slate-900
-              "
+              className={`text-sm mb-1 ${
+                m.role === 'assistant'
+                  ? 'text-slate-600'
+                  : 'text-[#2F6BFF]'
+              }`}
             >
-              {i === messages.length - 1 && !loading ? (
-                <Typewriter
-                  key={i}
-                  text={m.content}
-                  speed={18}
-                  showCursor
-                />
-              ) : (
-                m.content
-              )}
+              {m.role === 'assistant' ? 'WarmGPT' : 'You'}
             </div>
-          ) : (
-            <div className="text-[16px] leading-relaxed text-slate-900">
-              {m.content}
+
+            {m.role === 'assistant' ? (
+              <div className="rounded-xl bg-white/20 backdrop-blur-sm px-4 py-3 text-slate-900">
+                {m.content}
+              </div>
+            ) : (
+              <div className="text-slate-900">{m.content}</div>
+            )}
+          </div>
+        ))}
+
+        {loading && (
+          <div>
+            <div className="text-sm mb-1 text-slate-600">WarmGPT</div>
+            <div className="rounded-xl bg-white/20 px-4 py-3">
+              <ThinkingDots />
             </div>
-          )}
-
-        </div>
-      ))}
-
-      {loading && (
-        <div>
-          <div className="text-sm font-medium mb-2 text-slate-600">
-            WarmGPT
           </div>
-          <div className="rounded-2xl border border-white/40 bg-white/20 backdrop-blur-md px-6 py-5">
-            <ThinkingDots />
-          </div>
-        </div>
-      )}
+        )}
 
-      <div ref={bottomRef} />
-    </div>
+        <div ref={messagesEndRef} />
+      </div>
 
-    {/* Input Area */}
-    <div className="border-t border-white/30 p-6 pb-[env(safe-area-inset-bottom)]">
+      {/* INPUT AREA */}
+      <div className="border-t bg-white/10 backdrop-blur-md p-4 pb-safe">
 
-      <textarea
-        ref={textareaRef}
-        rows={1}
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder="Ask a figure skating question..."
-        className="
-          w-full
-          rounded-2xl
-          border border-white/40
-          bg-white/20
-          backdrop-blur-sm
-          px-5 py-4
-          text-[16px]
-          resize-none
-          focus:outline-none
-          focus:border-[#2F6BFF]
-        "
-      />
+        <textarea
+          rows={1}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Ask a figure skating question..."
+          className="w-full rounded-xl bg-white/20 px-4 py-3 text-slate-900 focus:outline-none resize-none"
+        />
 
-      <button
-        onClick={sendMessage}
-        disabled={loading}
-        className="
-          mt-4
-          w-full
-          rounded-2xl
-          bg-[#2F6BFF]
-          px-6
-          py-4
-          text-white
-          font-medium
-          disabled:opacity-60
-        "
-      >
-        {loading ? 'Thinking...' : 'Send'}
-      </button>
+        <button
+          onClick={sendMessage}
+          disabled={loading}
+          className="mt-3 w-full rounded-xl bg-[#2F6BFF] py-3 text-white font-medium disabled:opacity-60"
+        >
+          {loading ? 'Sending...' : 'Send'}
+        </button>
+      </div>
 
     </div>
-
-  </main>
-)
-
+  )
 }
