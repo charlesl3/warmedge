@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import ServiceWorkerRegister from './ServiceWorkerRegister'
@@ -20,6 +20,14 @@ export const metadata: Metadata = {
   },
 }
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -27,25 +35,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        {/* 🔒 LOCK VIEWPORT */}
-        <meta
-          name="viewport"
-          content="
-            width=device-width,
-            initial-scale=1,
-            maximum-scale=1,
-            user-scalable=no,
-            viewport-fit=cover
-          "
-        />
-
-        {/* iOS PWA */}
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="WarmEdge" />
-      </head>
-
       <body className={`${inter.className} antialiased`}>
         <ServiceWorkerRegister />
         {children}
