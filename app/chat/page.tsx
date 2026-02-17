@@ -111,7 +111,7 @@ export default function ChatPage() {
   }
 
   return (
-    <main className="min-h-screen px-6 pt-40 pb-12 flex justify-center">
+    <main className="min-h-screen px-6 pt-25 pb-12 flex justify-center">
       <div className="w-full max-w-4xl">
 
         {/* Soft Frame Container */}
