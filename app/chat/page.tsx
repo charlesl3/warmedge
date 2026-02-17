@@ -34,7 +34,7 @@ export default function ChatPage() {
     {
       role: 'assistant',
       content:
-        'Hi, I am WarmEdge. Ask me anything about figure skating technique, sharpening, boots, or competition rules.',
+        'Hi, I am WarmGPT. Ask me anything about figure skating technique, skates, or test rules. Please ask a concrete and valid skating question.',
     },
   ])
   const [loading, setLoading] = useState(false)
