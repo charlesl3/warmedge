@@ -1,6 +1,6 @@
 {
-  "name": "WarmEdge",
-  "short_name": "WarmEdge",
+  "name": "WarmGPT",
+  "short_name": "WarmGPT",
   "description": "AI-powered figure skating assistant.",
   "start_url": "/",
   "display": "standalone",
