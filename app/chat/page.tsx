@@ -34,6 +34,9 @@ export default function ChatPage() {
   ])
   const [loading, setLoading] = useState(false)
 
+  // ✅ NEW: session memory
+  const [sessionId, setSessionId] = useState<string | null>(null)
+
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
   const scrollToBottom = () => {
@@ -51,7 +54,10 @@ export default function ChatPage() {
     setInput('')
     setLoading(true)
 
-    setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
+    setMessages((prev) => [
+      ...prev,
+      { role: 'user', content: userMessage },
+    ])
 
     try {
       const res = await fetch(
@@ -61,12 +67,17 @@ export default function ChatPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             message: userMessage,
-            history: [],
+            session_id: sessionId, // ✅ send session id
           }),
         }
       )
 
       const data = await res.json()
+
+      // ✅ store session id from backend
+      if (!sessionId && data.session_id) {
+        setSessionId(data.session_id)
+      }
 
       setMessages((prev) => [
         ...prev,
