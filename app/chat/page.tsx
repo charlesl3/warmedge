@@ -34,7 +34,7 @@ export default function ChatPage() {
   ])
   const [loading, setLoading] = useState(false)
 
-  // ✅ NEW: session memory
+  // session-based memory
   const [sessionId, setSessionId] = useState<string | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
@@ -47,6 +47,9 @@ export default function ChatPage() {
     scrollToBottom()
   }, [messages, loading])
 
+  // -------------------------
+  // SEND MESSAGE
+  // -------------------------
   const sendMessage = async () => {
     if (!input.trim() || loading) return
 
@@ -67,14 +70,14 @@ export default function ChatPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             message: userMessage,
-            session_id: sessionId, // ✅ send session id
+            session_id: sessionId,
           }),
         }
       )
 
       const data = await res.json()
 
-      // ✅ store session id from backend
+      // store session id if first response
       if (!sessionId && data.session_id) {
         setSessionId(data.session_id)
       }
@@ -93,6 +96,23 @@ export default function ChatPage() {
     }
   }
 
+  // -------------------------
+  // CLEAR CHAT (UI + MEMORY)
+  // -------------------------
+  const handleClearChat = () => {
+    setMessages([
+      {
+        role: 'assistant',
+        content:
+          'Hi, I am WarmGPT. Ask me anything about figure skating technique, skates, or test rules.',
+      },
+    ])
+    setSessionId(null)
+  }
+
+  // -------------------------
+  // KEYBOARD HANDLING
+  // -------------------------
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -104,7 +124,15 @@ export default function ChatPage() {
     <div className="h-[100dvh] flex flex-col">
 
       {/* MESSAGE AREA */}
-      <div className="flex-1 overflow-y-auto px-5 pt-6 pb-4 space-y-6">
+      <div className="relative flex-1 overflow-y-auto px-5 pt-6 pb-4 space-y-6">
+
+        {/* CLEAR BUTTON */}
+        <button
+          onClick={handleClearChat}
+          className="absolute top-4 right-5 text-xs text-slate-500 hover:text-red-500"
+        >
+          Clean screen with a new chat
+        </button>
 
         {messages.map((m, i) => {
           const isLastAssistant =
