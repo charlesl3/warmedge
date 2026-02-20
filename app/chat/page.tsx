@@ -40,9 +40,7 @@ export default function ChatPage() {
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
-  // -------------------------
   // Detect Mobile
-  // -------------------------
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
@@ -60,9 +58,6 @@ export default function ChatPage() {
     scrollToBottom()
   }, [messages, loading])
 
-  // -------------------------
-  // Send Message
-  // -------------------------
   const sendMessage = async () => {
     if (!input.trim() || loading) return
 
@@ -115,16 +110,11 @@ export default function ChatPage() {
     ])
   }
 
-  // -------------------------
-  // Sidebar Actions
-  // -------------------------
   const handleAboutClick = () => {
     injectAssistantMessage(
-`WarmGPT is an AI assistant built specifically for figure skaters.
+`WarmGPT is an AI assistant built specifically for figure skaters. It organizes real skating discussions, equipment questions, and test requirements into something searchable and practical. It is not a substitute for a coach or skate technician — but a tool to help you think more clearly.
 
-It is trained on real skating discussions, equipment questions, and test requirements to help organize collective skating knowledge into something practical and searchable. It is not a substitute for a coach or skate technician, but a tool to help you think more clearly.
-
-WarmGPT is powered by WarmEdge — a skating-focused design brand that creates minimal, purpose-built skate accessories designed to improve comfort, focus, and consistency.`
+WarmGPT is powered by WarmEdge, a skating-focused design brand creating minimal, purpose-built skate accessories to improve comfort, focus, and consistency.`
     )
 
     if (isMobile) setSidebarOpen(false)
@@ -132,11 +122,7 @@ WarmGPT is powered by WarmEdge — a skating-focused design brand that creates m
 
   const handleProductsClick = () => {
     injectAssistantMessage(
-`Please check out our skating products website:
-
-https://warmedge.org/
-
-We design minimal, purpose-built skate accessories for serious skaters.`
+`Please check out our skating products website: https://warmedge.org/`
     )
 
     if (isMobile) setSidebarOpen(false)
@@ -181,8 +167,7 @@ We design minimal, purpose-built skate accessories for serious skaters.`
       {/* SIDEBAR */}
       <div
         className={`
-          fixed md:relative z-20
-          h-full
+          fixed md:relative z-20 h-full
           transition-all duration-300 ease-in-out
           ${sidebarOpen ? 'w-72' : 'w-0'}
           overflow-hidden
@@ -190,12 +175,17 @@ We design minimal, purpose-built skate accessories for serious skaters.`
           flex flex-col
         `}
       >
-        <div className="p-4 border-b border-slate-700 font-semibold">
-          WarmGPT
+        {/* Logo Header */}
+        <div className="p-4 border-b border-slate-700 flex items-center justify-center">
+          <img
+            src="/logo1.jpg"
+            alt="WarmEdge"
+            className="h-30 w-auto object-contain"
+          />
         </div>
 
+        {/* Navigation */}
         <div className="p-4 space-y-2 text-sm">
-
           <button
             onClick={() => {
               injectAssistantMessage('How can I help you today?')
@@ -221,6 +211,7 @@ We design minimal, purpose-built skate accessories for serious skaters.`
           </button>
         </div>
 
+        {/* Restart */}
         <div className="mt-auto p-4 border-t border-slate-700">
           <button
             onClick={handleReloadChat}
@@ -242,12 +233,14 @@ We design minimal, purpose-built skate accessories for serious skaters.`
       <div className="flex-1 flex flex-col relative">
 
         {/* Drawer Toggle */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="absolute top-4 left-4 z-30 bg-white/30 backdrop-blur-md border border-white/40 shadow-md rounded-md px-3 py-1 text-sm hover:bg-white/40 transition"
-        >
-          {sidebarOpen ? '←' : '☰'}
-        </button>
+        {(!sidebarOpen || !isMobile) && (
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="absolute top-4 left-4 z-30 bg-white/30 backdrop-blur-md border border-white/40 shadow-md rounded-md px-3 py-1 text-sm hover:bg-white/40 transition"
+          >
+            {sidebarOpen ? '←' : '☰'}
+          </button>
+        )}
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-8 pt-16 pb-6 space-y-6">
@@ -306,7 +299,6 @@ We design minimal, purpose-built skate accessories for serious skaters.`
 
         {/* Input */}
         <div className="border-t border-white/30 bg-white/10 backdrop-blur-md p-6">
-
           <textarea
             rows={1}
             value={input}
