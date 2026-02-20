@@ -40,7 +40,6 @@ export default function ChatPage() {
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
-  // Detect Mobile
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
@@ -142,8 +141,6 @@ WarmGPT is powered by WarmEdge, a skating-focused design brand creating minimal,
       setSessionId(null)
       setReloading(false)
     }, 400)
-
-    if (isMobile) setSidebarOpen(false)
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -175,7 +172,6 @@ WarmGPT is powered by WarmEdge, a skating-focused design brand creating minimal,
           flex flex-col
         `}
       >
-        {/* Logo Header */}
         <div className="p-4 border-b border-slate-700 flex items-center justify-center">
           <img
             src="/logo1.jpg"
@@ -184,7 +180,6 @@ WarmGPT is powered by WarmEdge, a skating-focused design brand creating minimal,
           />
         </div>
 
-        {/* Navigation */}
         <div className="p-4 space-y-2 text-sm">
           <button
             onClick={() => {
@@ -210,27 +205,35 @@ WarmGPT is powered by WarmEdge, a skating-focused design brand creating minimal,
             Products
           </button>
         </div>
-
-        {/* Restart */}
-        <div className="mt-auto p-4 border-t border-slate-700">
-          <button
-            onClick={handleReloadChat}
-            className="w-full rounded-lg bg-blue-600 hover:bg-blue-700 transition px-4 py-2 text-sm flex items-center justify-center gap-2"
-          >
-            <span
-              className={`transition-transform ${
-                reloading ? 'rotate-180' : ''
-              }`}
-            >
-              ↻
-            </span>
-            Restart Chat
-          </button>
-        </div>
       </div>
 
       {/* CHAT AREA */}
       <div className="flex-1 flex flex-col relative">
+
+        {/* Restart Button */}
+        <button
+          onClick={handleReloadChat}
+          className="
+            absolute top-4 right-4 z-30
+            text-xs
+            text-slate-600
+            bg-white/20
+            hover:bg-white/30
+            backdrop-blur-md
+            border border-white/30
+            rounded-md
+            px-3 py-1
+            transition
+          "
+        >
+          <span
+            className={`inline-block transition-transform ${
+              reloading ? 'rotate-180' : ''
+            }`}
+          >
+            ↻
+          </span>
+        </button>
 
         {/* Drawer Toggle */}
         {(!sidebarOpen || !isMobile) && (
@@ -297,25 +300,28 @@ WarmGPT is powered by WarmEdge, a skating-focused design brand creating minimal,
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input */}
-        <div className="border-t border-white/30 bg-white/10 backdrop-blur-md p-6">
-          <textarea
-            rows={1}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask a figure skating question..."
-            className="w-full rounded-xl bg-white/20 border border-white/30 px-4 py-3 text-slate-900 focus:outline-none resize-none focus:ring-2 focus:ring-blue-400"
-          />
+{/* Input */}
+<div className="border-t border-white/30 bg-white/10 backdrop-blur-md p-6">
+  <div className="flex items-end gap-3">
+    <textarea
+      rows={1}
+      value={input}
+      onChange={(e) => setInput(e.target.value)}
+      onKeyDown={handleKeyDown}
+      placeholder="Ask a figure skating question..."
+      className="flex-1 rounded-xl bg-white/20 border border-white/30 px-4 py-3 text-slate-900 focus:outline-none resize-none focus:ring-2 focus:ring-blue-400"
+    />
 
-          <button
-            onClick={sendMessage}
-            disabled={loading}
-            className="mt-4 w-full rounded-xl bg-blue-600 hover:bg-blue-700 transition py-3 text-white font-medium disabled:opacity-60"
-          >
-            {loading ? 'Sending...' : 'Send'}
-          </button>
-        </div>
+    <button
+      onClick={sendMessage}
+      disabled={loading}
+      className="rounded-xl bg-blue-600 hover:bg-blue-700 transition px-5 py-3 text-white font-medium disabled:opacity-60 whitespace-nowrap"
+    >
+      {loading ? '...' : 'Send'}
+    </button>
+  </div>
+</div>
+
       </div>
     </div>
   )
