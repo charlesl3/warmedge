@@ -159,51 +159,82 @@ export default function ChatPage() {
         />
       )}
 
-      {/* SIDEBAR */}
-      <div
-        className={`
-          fixed md:relative z-20 h-full
-          transition-all duration-300 ease-in-out
-          ${sidebarOpen ? 'w-72' : 'w-0'}
-          overflow-hidden
-          bg-slate-900/95 backdrop-blur-md text-white
-          flex flex-col
-        `}
-      >
-        <div className="p-4 border-b border-slate-700 flex items-center justify-center">
-          <img
-            src="/logo1.jpg"
-            alt="WarmEdge"
-            className="h-30 w-auto object-contain"
-          />
-        </div>
+{/* SIDEBAR */}
+<div
+  className={`
+    fixed md:relative z-20 h-full
+    transition-all duration-300 ease-in-out
+    ${sidebarOpen ? 'w-72' : 'w-0'}
+    overflow-hidden
+    bg-white/10 backdrop-blur-xl
+    border-r border-white/20
+    shadow-xl
+    text-slate-700
+    flex flex-col
+  `}
+>
+  {/* Logo Area */}
+  <div className="p-5 border-b border-white/20 flex items-center justify-center">
+    <img
+      src="/logo1.jpg"
+      alt="WarmEdge"
+      className="h-50 w-auto object-contain"
+    />
+  </div>
 
-        <div className="p-4 space-y-2 text-sm">
-          <button
-            onClick={() => {
-              injectAssistantMessage('How can I help you today?')
-              if (isMobile) setSidebarOpen(false)
-            }}
-            className="w-full text-left rounded-lg px-3 py-2 hover:bg-white/10 transition"
-          >
-            Chat
-          </button>
+  {/* Navigation */}
+  <div className="p-5 space-y-3 text-sm">
 
-          <button
-            onClick={handleAboutClick}
-            className="w-full text-left rounded-lg px-3 py-2 hover:bg-white/10 transition"
-          >
-            About
-          </button>
+    <button
+      onClick={() => {
+        injectAssistantMessage('How can I help you today?')
+        if (isMobile) setSidebarOpen(false)
+      }}
+      className="
+        w-full text-left
+        rounded-lg
+        px-4 py-2.5
+        text-slate-700
+        hover:bg-white/30
+        hover:text-slate-900
+        transition
+      "
+    >
+      Chat
+    </button>
 
-          <button
-            onClick={handleProductsClick}
-            className="w-full text-left rounded-lg px-3 py-2 hover:bg-white/10 transition"
-          >
-            Products
-          </button>
-        </div>
-      </div>
+    <button
+      onClick={handleAboutClick}
+      className="
+        w-full text-left
+        rounded-lg
+        px-4 py-2.5
+        text-slate-700
+        hover:bg-white/30
+        hover:text-slate-900
+        transition
+      "
+    >
+      About
+    </button>
+
+    <button
+      onClick={handleProductsClick}
+      className="
+        w-full text-left
+        rounded-lg
+        px-4 py-2.5
+        text-slate-700
+        hover:bg-white/30
+        hover:text-slate-900
+        transition
+      "
+    >
+      Products
+    </button>
+
+  </div>
+</div>
 
       {/* CHAT AREA */}
       <div className="flex-1 flex flex-col relative">
