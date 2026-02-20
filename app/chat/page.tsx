@@ -34,10 +34,23 @@ export default function ChatPage() {
   ])
   const [loading, setLoading] = useState(false)
   const [sessionId, setSessionId] = useState<string | null>(null)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [reloading, setReloading] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
+
+  // -------------------------
+  // Detect Mobile
+  // -------------------------
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -47,6 +60,9 @@ export default function ChatPage() {
     scrollToBottom()
   }, [messages, loading])
 
+  // -------------------------
+  // Send Message
+  // -------------------------
   const sendMessage = async () => {
     if (!input.trim() || loading) return
 
@@ -99,18 +115,31 @@ export default function ChatPage() {
     ])
   }
 
+  // -------------------------
+  // Sidebar Actions
+  // -------------------------
   const handleAboutClick = () => {
-  injectAssistantMessage(
-`WarmGPT is an AI assistant built specifically for figure skaters. It is trained on real skating discussions, equipment questions, and test requirements to help organize collective skating knowledge into something practical and searchable. It is not a substitute for a coach or skate technician, but a tool to help you think more clearly and prepare better questions.
+    injectAssistantMessage(
+`WarmGPT is an AI assistant built specifically for figure skaters.
 
-WarmGPT is powered by WarmEdge — a skating-focused design brand founded by Charles Liu, an Engineering PhD from Dartmouth College and an adult figure skater. WarmEdge creates minimal, purpose-built skate accessories designed to improve comfort, focus, and consistency. The belief is simple: small skating problems deserve thoughtful design.`
-  )
-}
+It is trained on real skating discussions, equipment questions, and test requirements to help organize collective skating knowledge into something practical and searchable. It is not a substitute for a coach or skate technician, but a tool to help you think more clearly.
+
+WarmGPT is powered by WarmEdge — a skating-focused design brand that creates minimal, purpose-built skate accessories designed to improve comfort, focus, and consistency.`
+    )
+
+    if (isMobile) setSidebarOpen(false)
+  }
 
   const handleProductsClick = () => {
     injectAssistantMessage(
-      `Please check out our skating products website: https://warmedge.org/`
+`Please check out our skating products website:
+
+https://warmedge.org/
+
+We design minimal, purpose-built skate accessories for serious skaters.`
     )
+
+    if (isMobile) setSidebarOpen(false)
   }
 
   const handleReloadChat = () => {
@@ -127,6 +156,8 @@ WarmGPT is powered by WarmEdge — a skating-focused design brand founded by Cha
       setSessionId(null)
       setReloading(false)
     }, 400)
+
+    if (isMobile) setSidebarOpen(false)
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -137,13 +168,27 @@ WarmGPT is powered by WarmEdge — a skating-focused design brand founded by Cha
   }
 
   return (
-    <div className="h-[100dvh] flex bg-gradient-to-br from-blue-200 via-blue-100 to-blue-300">
+    <div className="h-[100dvh] flex bg-gradient-to-br from-blue-200 via-blue-100 to-blue-300 relative">
+
+      {/* Overlay (Mobile Only) */}
+      {isMobile && sidebarOpen && (
+        <div
+          className="fixed inset-0 z-10"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
       {/* SIDEBAR */}
       <div
-        className={`transition-all duration-300 ease-in-out ${
-          sidebarOpen ? 'w-72' : 'w-0'
-        } overflow-hidden bg-slate-900/95 backdrop-blur-md text-white flex flex-col`}
+        className={`
+          fixed md:relative z-20
+          h-full
+          transition-all duration-300 ease-in-out
+          ${sidebarOpen ? 'w-72' : 'w-0'}
+          overflow-hidden
+          bg-slate-900/95 backdrop-blur-md text-white
+          flex flex-col
+        `}
       >
         <div className="p-4 border-b border-slate-700 font-semibold">
           WarmGPT
@@ -152,7 +197,10 @@ WarmGPT is powered by WarmEdge — a skating-focused design brand founded by Cha
         <div className="p-4 space-y-2 text-sm">
 
           <button
-            onClick={() => injectAssistantMessage('How can I help you today?')}
+            onClick={() => {
+              injectAssistantMessage('How can I help you today?')
+              if (isMobile) setSidebarOpen(false)
+            }}
             className="w-full text-left rounded-lg px-3 py-2 hover:bg-white/10 transition"
           >
             Chat
@@ -196,9 +244,9 @@ WarmGPT is powered by WarmEdge — a skating-focused design brand founded by Cha
         {/* Drawer Toggle */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="absolute top-4 left-4 z-20 bg-white/30 backdrop-blur-md border border-white/40 shadow-md rounded-md px-3 py-1 text-sm hover:bg-white/40 transition"
+          className="absolute top-4 left-4 z-30 bg-white/30 backdrop-blur-md border border-white/40 shadow-md rounded-md px-3 py-1 text-sm hover:bg-white/40 transition"
         >
-          {sidebarOpen ? '←' : '→'}
+          {sidebarOpen ? '←' : '☰'}
         </button>
 
         {/* Messages */}
