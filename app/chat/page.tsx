@@ -382,7 +382,7 @@ const sendMessageFromEdit = async (text: string) => {
                       rows={2}
                     />
                   ) : m.role === 'assistant' ? (
-                    <div className="rounded-xl bg-white/20 backdrop-blur-md border border-white/30 px-5 py-3 text-slate-900 whitespace-pre-line">
+                    <div className="rounded-xl bg-white/20 backdrop-blur-md border border-white/30 px-5 py-3 text-slate-900 whitespace-pre-line select-text">
                       {isLastAssistant ? (
                         <Typewriter
                           key={i}
@@ -395,21 +395,20 @@ const sendMessageFromEdit = async (text: string) => {
                       )}
                     </div>
                   ) : (
-                    <div className="bg-white/40 rounded-xl px-5 py-3 text-slate-900">
+                    <div className="bg-white/40 rounded-xl px-5 py-3 text-slate-900 select-text">
                       {m.content}
                     </div>
                   )}
 
                   {/* Hover Controls */}
                   {editingIndex !== i && (
-                    <div
-                      className="
-                        absolute top-2 right-2
-                        flex gap-2
-                        opacity-0 group-hover:opacity-100
-                        transition
-                      "
-                    >
+  <div
+    className={`absolute top-2 right-2 flex gap-2 transition ${
+      isMobile
+        ? 'opacity-100'
+        : 'opacity-0 group-hover:opacity-100'
+    }`}
+  >
                       {/* Copy */}
                       <button
   onClick={() => handleCopy(m.content, i)}
