@@ -29,7 +29,7 @@ export default function ChatPage() {
     {
       role: 'assistant',
       content:
-        'Hi, I am WarmGPT. Ask me anything about figure skating technique, skates, or test rules.',
+            'Hi, I am WarmGPT. Ask me anything about figure skating technique, skates, or test rules. The answers are primarily based on skaters’ shared experiences from internet posts and forums. This is not a substitute for advice from a professional skate technician or coach.',
     },
   ])
   const [loading, setLoading] = useState(false)
