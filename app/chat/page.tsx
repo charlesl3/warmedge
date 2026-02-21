@@ -341,9 +341,6 @@ const sendMessageFromEdit = async (text: string) => {
           </button>
         )}
 
-
-
-
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-8 pt-16 pb-6 space-y-6">
 
@@ -365,7 +362,7 @@ const sendMessageFromEdit = async (text: string) => {
                   {m.role === 'assistant' ? 'WarmGPT' : 'You'}
                 </div>
 
-                <div className="relative">
+                <div className="relative group">
 
                   {/* EDIT MODE */}
                   {editingIndex === i ? (
@@ -403,14 +400,15 @@ const sendMessageFromEdit = async (text: string) => {
                     </div>
                   )}
 
-                  
-
-{/* Hover Controls */}
-{!isMobile && editingIndex !== i && (
-  <div className="absolute top-2 right-2 flex gap-2 opacity-0 hover:opacity-100 transition">
-
-
-    
+                  {/* Hover Controls */}
+                  {editingIndex !== i && (
+  <div
+    className={`absolute top-2 right-2 flex gap-2 transition ${
+      isMobile
+        ? 'opacity-100'
+        : 'opacity-0 group-hover:opacity-100'
+    }`}
+  >
                       {/* Copy */}
                       <button
   onClick={() => handleCopy(m.content, i)}
