@@ -42,9 +42,7 @@ export default function ChatPage() {
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
   const [editingText, setEditingText] = useState('')
 
-  const [showActionSheet, setShowActionSheet] = useState(false)
-  const [activeIndex, setActiveIndex] = useState<number | null>(null)
-  const longPressTimer = useRef<NodeJS.Timeout | null>(null)
+  
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
@@ -130,20 +128,6 @@ export default function ChatPage() {
     )
     if (isMobile) setSidebarOpen(false)
   }
-
-  const handleTouchStart = (index: number) => {
-  longPressTimer.current = setTimeout(() => {
-    setActiveIndex(index)
-    setShowActionSheet(true)
-  }, 500)
-}
-
-const handleTouchEnd = () => {
-  if (longPressTimer.current) {
-    clearTimeout(longPressTimer.current)
-    longPressTimer.current = null
-  }
-}
 
   const handleReloadChat = () => {
     setReloading(true)
@@ -336,11 +320,7 @@ const handleTouchEnd = () => {
                     />
                   ) : (
                     <div
-  onTouchStart={() => isMobile && handleTouchStart(i)}
-  onTouchEnd={handleTouchEnd}
-  onMouseDown={() => !isMobile && handleTouchStart(i)}
-  onMouseUp={handleTouchEnd}
-  className={`rounded-xl px-5 py-3 whitespace-pre-line ${
+                      className={`rounded-xl px-5 py-3 whitespace-pre-line ${
                         m.role === 'assistant'
                           ? 'bg-white/20 backdrop-blur-md border'
                           : 'bg-white/40'
@@ -384,43 +364,27 @@ const handleTouchEnd = () => {
 )}
 </div>
 
-{showActionSheet && activeIndex !== null && (
-  <div className="fixed inset-0 z-50 flex items-end">
-    <div
-      className="absolute inset-0 bg-black/30"
-      onClick={() => setShowActionSheet(false)}
-    />
-    <div className="relative w-full bg-white rounded-t-2xl p-5 space-y-4">
+{/* MOBILE ICONS BELOW */}
+{isMobile && editingIndex !== i && (
+  <div className="flex justify-end mt-3 gap-2">
+    <button
+      onClick={() => handleCopy(m.content, i)}
+      className="p-1.5 rounded-md bg-white/20 border border-white/20 backdrop-blur-sm"
+    >
+      {copiedIndex === i ? '✓' : '⧉'}
+    </button>
+
+    {m.role === 'user' && (
       <button
-        className="w-full text-left py-3"
         onClick={() => {
-          handleCopy(messages[activeIndex].content, activeIndex)
-          setShowActionSheet(false)
+          setEditingIndex(i)
+          setEditingText(m.content)
         }}
+        className="p-1.5 rounded-md bg-white/20 border border-white/20 backdrop-blur-sm"
       >
-        Copy
+        ✎
       </button>
-
-      {messages[activeIndex].role === 'user' && (
-        <button
-          className="w-full text-left py-3"
-          onClick={() => {
-            setEditingIndex(activeIndex)
-            setEditingText(messages[activeIndex].content)
-            setShowActionSheet(false)
-          }}
-        >
-          Edit
-        </button>
-      )}
-
-      <button
-        className="w-full text-left py-3 text-red-500"
-        onClick={() => setShowActionSheet(false)}
-      >
-        Cancel
-      </button>
-    </div>
+    )}
   </div>
 )}
 
