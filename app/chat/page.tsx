@@ -152,6 +152,69 @@ export default function ChatPage() {
     }
   }
 
+  const handleCopy = async (text: string, index: number) => {
+  try {
+    await navigator.clipboard.writeText(text)
+    setCopiedIndex(index)
+    setTimeout(() => setCopiedIndex(null), 1200)
+  } catch (err) {
+    console.error('Copy failed', err)
+  }
+}
+
+const handleEditSave = (index: number) => {
+  const updated = [...messages]
+  updated[index].content = editingText
+
+  // remove old assistant responses after edited message
+  const trimmed = updated.slice(0, index + 1)
+
+  setMessages(trimmed)
+  setEditingIndex(null)
+  setEditingText('')
+
+  // regenerate response
+  const editedUserText = editingText
+  setTimeout(() => {
+    sendMessageFromEdit(editedUserText)
+  }, 50)
+}
+
+const sendMessageFromEdit = async (text: string) => {
+  if (!text.trim()) return
+
+  setLoading(true)
+
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_CHAT_API_URL}/chat`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: text,
+          session_id: sessionId,
+        }),
+      }
+    )
+
+    const data = await res.json()
+
+    setMessages((prev) => [
+      ...prev,
+      { role: 'assistant', content: data.reply },
+    ])
+  } catch {
+    setMessages((prev) => [
+      ...prev,
+      { role: 'assistant', content: 'Something went wrong.' },
+    ])
+  } finally {
+    setLoading(false)
+  }
+}
+
+
   return (
     <div className="h-[100dvh] flex bg-gradient-to-br from-blue-200 via-blue-100 to-blue-300 relative">
 
@@ -299,22 +362,111 @@ export default function ChatPage() {
                   {m.role === 'assistant' ? 'WarmGPT' : 'You'}
                 </div>
 
-                {m.role === 'assistant' ? (
-                  <div className="rounded-xl bg-white/20 backdrop-blur-md border border-white/30 px-5 py-3 text-slate-900 whitespace-pre-line">
-                    {isLastAssistant ? (
-                      <Typewriter
-                        key={i}
-                        text={m.content}
-                        speed={18}
-                        showCursor
-                      />
-                    ) : (
-                      m.content
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-slate-900">{m.content}</div>
-                )}
+                <div className="relative group">
+
+                  {/* EDIT MODE */}
+                  {editingIndex === i ? (
+                    <textarea
+                      value={editingText}
+                      onChange={(e) => setEditingText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault()
+                          handleEditSave(i)
+                        }
+                        if (e.key === 'Escape') {
+                          setEditingIndex(null)
+                        }
+                      }}
+                      className="w-full rounded-xl bg-white/30 border border-white/40 px-4 py-3 text-slate-900 focus:outline-none resize-none"
+                      rows={2}
+                    />
+                  ) : m.role === 'assistant' ? (
+                    <div className="rounded-xl bg-white/20 backdrop-blur-md border border-white/30 px-5 py-3 text-slate-900 whitespace-pre-line">
+                      {isLastAssistant ? (
+                        <Typewriter
+                          key={i}
+                          text={m.content}
+                          speed={18}
+                          showCursor
+                        />
+                      ) : (
+                        m.content
+                      )}
+                    </div>
+                  ) : (
+                    <div className="bg-white/40 rounded-xl px-5 py-3 text-slate-900">
+                      {m.content}
+                    </div>
+                  )}
+
+                  {/* Hover Controls */}
+                  {editingIndex !== i && (
+                    <div
+                      className="
+                        absolute top-2 right-2
+                        flex gap-2
+                        opacity-0 group-hover:opacity-100
+                        transition
+                      "
+                    >
+                      {/* Copy */}
+                      <button
+  onClick={() => handleCopy(m.content, i)}
+  className="p-1.5 rounded-md bg-white/40 hover:bg-white/60 backdrop-blur-md border border-white/30 transition"
+>
+  {copiedIndex === i ? (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      className="w-4 h-4 text-green-600"
+    >
+      <path d="M20 6L9 17l-5-5" />
+    </svg>
+  ) : (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      className="w-4 h-4 text-slate-600"
+    >
+      <rect x="9" y="9" width="13" height="13" rx="2" />
+      <path d="M5 15V5a2 2 0 012-2h10" />
+    </svg>
+  )}
+</button>
+
+                      {/* Edit (user only) */}
+                      {m.role === 'user' && (
+<button
+  onClick={() => {
+    setEditingIndex(i)
+    setEditingText(m.content)
+  }}
+  className="p-1.5 rounded-md bg-white/40 hover:bg-white/60 backdrop-blur-md border border-white/30 transition"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    className="w-4 h-4 text-slate-600"
+  >
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z" />
+  </svg>
+</button>
+                      )}
+                    </div>
+                  )}
+
+                </div>
               </div>
             )
           })}
