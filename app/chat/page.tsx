@@ -297,11 +297,40 @@ export default function ChatPage() {
 
             return (
               <div key={i}>
-                <div className="text-sm mb-1">
-                  {m.role === 'assistant' ? 'WarmGPT' : 'You'}
-                </div>
+                <div className="flex items-center justify-between text-sm mb-1">
 
-                <div className="relative group">
+  <span>
+    {m.role === 'assistant' ? 'WarmGPT' : 'You'}
+  </span>
+
+  {editingIndex !== i && (
+    <div className="flex items-center gap-2">
+
+      <button
+        onClick={() => handleCopy(m.content, i)}
+        className="text-xs px-2 py-0.5 rounded-md bg-white/20 border border-white/20 backdrop-blur-sm hover:bg-white/30 transition"
+      >
+        {copiedIndex === i ? '✓' : 'Copy'}
+      </button>
+
+      {m.role === 'user' && (
+        <button
+          onClick={() => {
+            setEditingIndex(i)
+            setEditingText(m.content)
+          }}
+          className="text-xs px-2 py-0.5 rounded-md bg-white/20 border border-white/20 backdrop-blur-sm hover:bg-white/30 transition"
+        >
+          Edit
+        </button>
+      )}
+
+    </div>
+  )}
+
+</div>
+
+                <div>
 
                   {editingIndex === i ? (
                     <textarea
@@ -339,54 +368,8 @@ export default function ChatPage() {
                     </div>
                   )}
 
-{/* DESKTOP ICONS */}
-{!isMobile && editingIndex !== i && (
-  <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition">
-    <button
-      onClick={() => handleCopy(m.content, i)}
-      className="p-1.5 rounded-md bg-white/20 border border-white/20 backdrop-blur-sm"
-    >
-      {copiedIndex === i ? '✓' : '⧉'}
-    </button>
 
-    {m.role === 'user' && (
-      <button
-        onClick={() => {
-          setEditingIndex(i)
-          setEditingText(m.content)
-        }}
-        className="p-1.5 rounded-md bg-white/20 border border-white/20 backdrop-blur-sm"
-      >
-        ✎
-      </button>
-    )}
-  </div>
-)}
 </div>
-
-{/* MOBILE ICONS BELOW */}
-{isMobile && editingIndex !== i && (
-  <div className="flex justify-end mt-3 gap-2">
-    <button
-      onClick={() => handleCopy(m.content, i)}
-      className="p-1.5 rounded-md bg-white/20 border border-white/20 backdrop-blur-sm"
-    >
-      {copiedIndex === i ? '✓' : '⧉'}
-    </button>
-
-    {m.role === 'user' && (
-      <button
-        onClick={() => {
-          setEditingIndex(i)
-          setEditingText(m.content)
-        }}
-        className="p-1.5 rounded-md bg-white/20 border border-white/20 backdrop-blur-sm"
-      >
-        ✎
-      </button>
-    )}
-  </div>
-)}
 
                 
               </div>
