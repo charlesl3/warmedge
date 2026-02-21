@@ -338,16 +338,16 @@ export default function ChatPage() {
                   )}
 
                   {editingIndex !== i && (
-                    <div
-                      className={`absolute top-2 right-2 flex gap-2 ${
-                        isMobile
-                          ? 'opacity-100'
-                          : 'opacity-0 group-hover:opacity-100'
-                      }`}
-                    >
+  <div
+    className={
+      isMobile
+        ? 'flex justify-end mt-2 gap-2'
+        : 'absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition'
+    }
+  >
                       <button
                         onClick={() => handleCopy(m.content, i)}
-                        className="p-1.5 rounded-md bg-white/40"
+                        className="p-1.5 rounded-md bg-white/20 border border-white/20 backdrop-blur-sm"
                       >
                         {copiedIndex === i ? '✓' : '⧉'}
                       </button>
@@ -358,7 +358,7 @@ export default function ChatPage() {
                             setEditingIndex(i)
                             setEditingText(m.content)
                           }}
-                          className="p-1.5 rounded-md bg-white/40"
+                          className="p-1.5 rounded-md bg-white/20 border border-white/20 backdrop-blur-sm"
                         >
                           ✎
                         </button>
