@@ -27,10 +27,15 @@ export default function ChatPage() {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState<Message[]>([
     {
-      role: 'assistant',
-      content:
-        'Hi, I am WarmGPT. Ask me anything about figure skating technique, skates, or test rules. The answers are primarily based on skaters’ shared experiences from internet posts and forums. This is not a substitute for advice from a professional skate technician or coach.',
-    },
+  role: 'assistant',
+  content: `Hi, I am WarmGPT. You can ask me about figure skating technique, equipment, competition structure, test levels, and daily skating questions. Please kindly note:
+
+1. My answers are based on real skating discussions, structured rule summaries, and shared rink experience. I focus on organizing practical information in a clear and usable way.
+2. I am not designed to generate Wikipedia-style textbook explanations.
+3. I am designed to help you think through skating questions more clearly, not to replace a coach, judge, or skate technician. For detailed technical correction, equipment adjustments, or medical concerns, always consult a qualified professional.
+4. If your question has multiple possible meanings, I may ask for clarification before answering. My goal is accuracy and clarity, not guessing.
+5. I am continuously improving. If you see something that can be made clearer or more accurate, I appreciate thoughtful feedback at charlesatlife@gmail.com`
+},
   ])
   const [loading, setLoading] = useState(false)
   const [sessionId, setSessionId] = useState<string | null>(null)
