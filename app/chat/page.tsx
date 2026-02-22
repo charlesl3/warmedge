@@ -211,6 +211,27 @@ Please kindly note:
     }
   }
 
+  const speakText = (text: string) => {
+  if (typeof window === 'undefined') return
+  if (!('speechSynthesis' in window)) return
+
+  window.speechSynthesis.cancel() // stop previous speech if any
+
+  const utterance = new SpeechSynthesisUtterance(text)
+  utterance.rate = 1        // speed (0.5 - 2)
+  utterance.pitch = 1       // tone
+  utterance.volume = 1      // 0 - 1
+
+  // Optional: choose a specific voice
+  const voices = window.speechSynthesis.getVoices()
+  const preferred = voices.find(v =>
+    v.name.includes('Google') || v.lang.includes('en')
+  )
+  if (preferred) utterance.voice = preferred
+
+  window.speechSynthesis.speak(utterance)
+}
+
   return (
     <div className="h-[100dvh] flex bg-gradient-to-br from-blue-200 via-blue-100 to-blue-300 relative">
 
@@ -330,6 +351,35 @@ Please kindly note:
           Edit
         </button>
       )}
+
+{m.role === 'assistant' && (
+  <button
+    onClick={() => speakText(m.content)}
+    title="Read aloud"
+    className="
+      flex items-center justify-center
+      h-7 w-7
+      rounded-lg
+      bg-white/20
+      border border-white/20
+      backdrop-blur-sm
+      text-slate-700
+      hover:bg-white/40
+      hover:scale-105
+      active:scale-95
+      transition-all duration-150
+    "
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className="w-4 h-4"
+    >
+      <path d="M11 5 6 9H3v6h3l5 4V5zM15.5 8.5a5 5 0 0 1 0 7m2.5-9.5a8 8 0 0 1 0 12" stroke="currentColor" strokeWidth="1.5" fill="none" />
+    </svg>
+  </button>
+)}
 
     </div>
   )}
