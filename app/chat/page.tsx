@@ -47,6 +47,8 @@ Please kindly note:
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
   const [editingText, setEditingText] = useState('')
+  const [speakingIndex, setSpeakingIndex] = useState<number | null>(null)
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
 
   
 
@@ -211,23 +213,45 @@ Please kindly note:
     }
   }
 
-  const speakText = (text: string) => {
+const stopSpeech = () => {
+  if (typeof window === 'undefined') return
+  if (!('speechSynthesis' in window)) return
+  window.speechSynthesis.cancel()
+  utteranceRef.current = null
+  setSpeakingIndex(null)
+}
+
+const speakText = (text: string, index: number) => {
   if (typeof window === 'undefined') return
   if (!('speechSynthesis' in window)) return
 
-  window.speechSynthesis.cancel() // stop previous speech if any
+  // stop anything currently speaking
+  window.speechSynthesis.cancel()
 
   const utterance = new SpeechSynthesisUtterance(text)
-  utterance.rate = 1        // speed (0.5 - 2)
-  utterance.pitch = 1       // tone
-  utterance.volume = 1      // 0 - 1
+  utteranceRef.current = utterance
 
-  // Optional: choose a specific voice
+  utterance.rate = 1
+  utterance.pitch = 1
+  utterance.volume = 1
+
   const voices = window.speechSynthesis.getVoices()
   const preferred = voices.find(v =>
     v.name.includes('Google') || v.lang.includes('en')
   )
   if (preferred) utterance.voice = preferred
+
+  setSpeakingIndex(index)
+
+  utterance.onend = () => {
+    setSpeakingIndex(null)
+    utteranceRef.current = null
+  }
+
+  utterance.onerror = () => {
+    setSpeakingIndex(null)
+    utteranceRef.current = null
+  }
 
   window.speechSynthesis.speak(utterance)
 }
@@ -354,7 +378,7 @@ Please kindly note:
 
 {m.role === 'assistant' && (
   <button
-    onClick={() => speakText(m.content)}
+    onClick={() => speakText(m.content, i)}
     title="Read aloud"
     className="
       flex items-center justify-center
@@ -377,6 +401,34 @@ Please kindly note:
       className="w-4 h-4"
     >
       <path d="M11 5 6 9H3v6h3l5 4V5zM15.5 8.5a5 5 0 0 1 0 7m2.5-9.5a8 8 0 0 1 0 12" stroke="currentColor" strokeWidth="1.5" fill="none" />
+    </svg>
+  </button>
+)}
+
+{m.role === 'assistant' && speakingIndex === i && (
+  <button
+    onClick={stopSpeech}
+    title="Stop reading"
+    className="
+      flex items-center justify-center
+      h-7 w-7
+      rounded-lg
+      bg-white/20
+      border border-white/20
+      backdrop-blur-sm
+      text-slate-700
+      hover:bg-white/40
+      active:scale-95
+      transition-all duration-150
+    "
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className="w-4 h-4"
+    >
+      <path d="M7 7h10v10H7z" />
     </svg>
   </button>
 )}
