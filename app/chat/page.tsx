@@ -28,14 +28,13 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
   role: 'assistant',
-  content: `Hi, I am WarmGPT. You can ask me about figure skating technique, equipment, test levels, and daily skating questions. 
+  content: `Hi, I am WarmGPT, your AI assistant for figrue skating. You can ask me about figure skating technique, equipment, USFSA test, and daily skating questions. 
   
 Please kindly note:
-1. My answers are based on real skating discussions and shared rink experience. I focus on organizing practical information in a clear and usable way.
-2. I am not designed to generate Wikipedia-style textbook explanations.
-3. I am designed to help you think through skating questions more clearly, not to replace a coach, judge, or skate technician. For detailed technical correction, equipment adjustments, or medical concerns, always consult a qualified professional.
-4. If your question has multiple possible meanings, I may ask for clarification before answering. My goal is accuracy and clarity, not guessing.
-5. I am continuously improving. If you see something that can be made clearer or more accurate, I appreciate thoughtful feedback at charlesatlife@gmail.com.`
+1. My answers are based on real skating discussions and shared rink experience, not aiming to providing Wikipedia-style textbook explanations.
+2. I am designed to help you think through skating questions more clearly, not to replace a coach, judge, or skate technician. For detailed technical correction, equipment adjustments, or medical concerns, always consult a qualified professional.
+3. If your question has multiple possible meanings, I may ask for clarification before answering.
+4. I am continuously improving. If you see something that can be made clearer or more accurate, I appreciate thoughtful feedback at charlesatlife@gmail.com.`
 },
   ])
   const [loading, setLoading] = useState(false)
