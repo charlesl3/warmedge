@@ -130,11 +130,14 @@ Please kindly note:
   }
 
   const handleProductsClick = () => {
-    injectAssistantMessage(
-`Please check out our skating products website: https://warmedge.org/`
-    )
-    if (isMobile) setSidebarOpen(false)
-  }
+  window.open(
+    'https://warmedge.org/collections/all',
+    '_blank',
+    'noopener,noreferrer'
+  )
+
+  if (isMobile) setSidebarOpen(false)
+}
 
   const handleReloadChat = () => {
     setReloading(true)
@@ -308,11 +311,12 @@ const speakText = (text: string, index: number) => {
           </button>
 
           <button
-            onClick={handleProductsClick}
-            className="w-full text-left rounded-lg px-4 py-2.5 hover:bg-white/30 transition"
-          >
-            Products
-          </button>
+  onClick={handleProductsClick}
+  className="w-full text-left rounded-lg px-4 py-2.5 hover:bg-white/30 transition flex justify-between items-center"
+>
+  Products
+  <span className="text-xs opacity-70">↗</span>
+</button>
 
         </div>
       </div>
