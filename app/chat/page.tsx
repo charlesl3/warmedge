@@ -331,12 +331,22 @@ const speakText = (text: string, index: number) => {
       {/* CHAT AREA */}
       <div className="flex-1 flex flex-col relative">
 
-        <button
+<button
   onClick={handleReloadChat}
+  disabled={reloading}
   title="Clear screen and start a new session"
-  className="absolute top-4 right-4 z-30 bg-white/30 backdrop-blur-md border border-white/40 rounded-md px-3 py-1"
+  className={`
+    absolute top-4 right-4 z-30
+    bg-white/30 backdrop-blur-md
+    border border-white/40
+    rounded-md px-3 py-1
+    transition-all duration-200
+    ${reloading ? 'opacity-60 cursor-not-allowed' : 'hover:bg-white/50'}
+  `}
 >
-  ↻
+  <span className={reloading ? 'inline-block animate-spin' : ''}>
+    ↻
+  </span>
 </button>
 
         {(!sidebarOpen || !isMobile) && (
