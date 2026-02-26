@@ -161,12 +161,19 @@ Please kindly note:
   }
 
   const handleCopy = async (text: string, index: number) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedIndex(index)
-      setTimeout(() => setCopiedIndex(null), 1200)
-    } catch {}
+  try {
+    await navigator.clipboard.writeText(text)
+
+    setCopiedIndex(index)
+
+    // reset after 1.5s
+    setTimeout(() => {
+      setCopiedIndex((prev) => (prev === index ? null : prev))
+    }, 1500)
+  } catch (err) {
+    console.error('Clipboard error:', err)
   }
+}
 
   const handleEditSave = (index: number) => {
     const updated = [...messages]
@@ -361,11 +368,18 @@ const speakText = (text: string, index: number) => {
     <div className="flex items-center gap-2">
 
       <button
-        onClick={() => handleCopy(m.content, i)}
-        className="text-xs px-2 py-0.5 rounded-md bg-white/20 border border-white/20 backdrop-blur-sm hover:bg-white/30 transition"
-      >
-        {copiedIndex === i ? '✓' : 'Copy'}
-      </button>
+  onClick={() => handleCopy(m.content, i)}
+  className={`
+    text-xs px-2 py-0.5 rounded-md border backdrop-blur-sm transition
+    ${
+      copiedIndex === i
+        ? 'bg-green-500 text-white border-green-500'
+        : 'bg-white/20 border-white/20 hover:bg-white/30'
+    }
+  `}
+>
+  {copiedIndex === i ? '✓ Copied' : 'Copy'}
+</button>
 
       {m.role === 'user' && (
         <button
