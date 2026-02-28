@@ -367,7 +367,7 @@ const speakText = (text: string, index: number) => {
               !loading
 
             return (
-              <div key={i} className="msg-animate">
+              <div key={i}>
                 <div className="flex items-center justify-between text-sm mb-1">
 
   <span>
@@ -484,11 +484,13 @@ const speakText = (text: string, index: number) => {
                     />
                   ) : (
                     <div
-                      className={`rounded-xl px-5 py-3 whitespace-pre-line ${
-                        m.role === 'assistant'
-                          ? 'bg-white/20 backdrop-blur-md border'
-                          : 'bg-white/40'
-                      }`}
+  className={`${
+    isLastAssistant ? '' : 'msg-animate'
+  } rounded-xl px-5 py-3 whitespace-pre-line ${
+    m.role === 'assistant'
+      ? 'bg-white/20 backdrop-blur-md border'
+      : 'bg-white/40'
+  }`}
                       style={{
                         WebkitUserSelect: 'text',
                         userSelect: 'text',
