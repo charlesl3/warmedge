@@ -367,7 +367,7 @@ const speakText = (text: string, index: number) => {
               !loading
 
             return (
-              <div key={i}>
+              <div key={i} className="msg-animate">
                 <div className="flex items-center justify-between text-sm mb-1">
 
   <span>
@@ -512,7 +512,7 @@ const speakText = (text: string, index: number) => {
           })}
 
           {loading && (
-            <div className="rounded-xl bg-white/20 px-5 py-3">
+            <div className="msg-animate rounded-xl bg-white/20 px-5 py-3">
               <ThinkingDots />
             </div>
           )}
