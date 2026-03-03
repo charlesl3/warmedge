@@ -339,7 +339,16 @@ transition-colors duration-150
 "
 >
   Products
-  <span className="text-xs opacity-70">↗</span>
+  <svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  strokeWidth="1.5"
+  className="w-4 h-4 text-slate-500 group-hover:text-black transition-colors duration-150"
+>
+  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+</svg>
 </button>
 
         </div>
@@ -418,7 +427,13 @@ transition-colors duration-150
             setEditingIndex(i)
             setEditingText(m.content)
           }}
-          className="text-xs px-2 py-0.5 rounded-md bg-white/20 border border-white/20 backdrop-blur-sm hover:bg-white/30 transition"
+          className={`
+  text-xs px-2 py-0.5 rounded-md
+  bg-white
+  border border-slate-300
+  hover:bg-slate-100
+  transition-colors duration-150
+`}
         >
           Edit
         </button>
