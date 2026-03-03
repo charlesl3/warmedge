@@ -266,7 +266,7 @@ const speakText = (text: string, index: number) => {
 }
 
   return (
-    <div className="h-[100dvh] flex bg-gradient-to-br from-blue-200 via-blue-100 to-blue-300 relative">
+    <div className="h-[100dvh] flex bg-white relative">
 
       {/* Mobile Overlay */}
       {isMobile && sidebarOpen && (
@@ -283,9 +283,7 @@ const speakText = (text: string, index: number) => {
           transition-all duration-300 ease-in-out
           ${sidebarOpen ? 'w-72' : 'w-0'}
           overflow-hidden
-          bg-white/10 backdrop-blur-xl
-          border-r border-white/20
-          shadow-xl
+          bg-white border-r border-black
           text-slate-700
           flex flex-col
         `}
@@ -294,7 +292,7 @@ const speakText = (text: string, index: number) => {
           <img
             src="/logo1.jpg"
             alt="WarmEdge"
-            className="h-40 w-auto object-contain"
+            className="h-50 w-auto object-contain"
           />
         </div>
 
@@ -305,21 +303,40 @@ const speakText = (text: string, index: number) => {
               injectAssistantMessage('How can I help you today?')
               if (isMobile) setSidebarOpen(false)
             }}
-            className="w-full text-left rounded-lg px-4 py-2.5 hover:bg-white/30 transition"
+            className="
+w-full text-left rounded-md px-4 py-2.5
+border border-transparent
+hover:border-slate-300
+hover:bg-slate-100
+transition-colors duration-150
+"
           >
             Chat
           </button>
 
           <button
             onClick={handleAboutClick}
-            className="w-full text-left rounded-lg px-4 py-2.5 hover:bg-white/30 transition"
+            className="
+w-full text-left rounded-md px-4 py-2.5
+border border-transparent
+hover:border-slate-300
+hover:bg-slate-100
+transition-colors duration-150
+"
           >
             About
           </button>
 
           <button
   onClick={handleProductsClick}
-  className="w-full text-left rounded-lg px-4 py-2.5 hover:bg-white/30 transition flex justify-between items-center"
+  className="
+w-full text-left rounded-md px-4 py-2.5
+flex justify-between items-center
+border border-transparent
+hover:border-slate-300
+hover:bg-slate-100
+transition-colors duration-150
+"
 >
   Products
   <span className="text-xs opacity-70">↗</span>
@@ -336,13 +353,17 @@ const speakText = (text: string, index: number) => {
   disabled={reloading}
   title="Clear screen and start a new session"
   className={`
-    absolute top-4 right-4 z-30
-    bg-white/30 backdrop-blur-md
-    border border-white/40
-    rounded-md px-3 py-1
-    transition-all duration-200
-    ${reloading ? 'opacity-60 cursor-not-allowed' : 'hover:bg-white/50'}
-  `}
+  absolute top-4 right-4 z-30
+  flex items-center justify-center
+  h-9 w-9
+  rounded-md
+  bg-white
+  border border-slate-300
+  transition-colors duration-150
+  ${reloading
+    ? 'opacity-60 cursor-not-allowed'
+    : 'hover:bg-slate-100 hover:border-slate-400'}
+`}
 >
   <span className={reloading ? 'inline-block animate-spin' : ''}>
     ↻
@@ -352,7 +373,7 @@ const speakText = (text: string, index: number) => {
         {(!sidebarOpen || !isMobile) && (
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="absolute top-4 left-4 z-30 bg-white/30 backdrop-blur-md border border-white/40 rounded-md px-3 py-1"
+            className="absolute top-4 left-4 z-30 bg-white border border-slate-300 hover:bg-slate-50 rounded-md px-3 py-1"
           >
             {sidebarOpen ? '←' : '☰'}
           </button>
@@ -384,7 +405,7 @@ const speakText = (text: string, index: number) => {
     ${
       copiedIndex === i
         ? 'bg-green-500 text-white border-green-500'
-        : 'bg-white/20 border-white/20 hover:bg-white/30'
+        : 'bg-white border border-slate-300 hover:bg-slate-100'
     }
   `}
 >
@@ -536,7 +557,16 @@ const speakText = (text: string, index: number) => {
             <button
               onClick={sendMessage}
               disabled={loading}
-              className="rounded-xl bg-blue-600 hover:bg-blue-700 transition px-5 py-3 text-white"
+              className="
+h-11 px-6
+rounded-md
+border border-black
+bg-white
+text-black
+font-medium
+hover:bg-slate-100
+transition-colors duration-150
+"
             >
               {loading ? '...' : 'Send'}
             </button>
