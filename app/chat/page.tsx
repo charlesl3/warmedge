@@ -356,39 +356,40 @@ transition-colors duration-150
 
       {/* CHAT AREA */}
       <div className="flex-1 flex flex-col relative">
+      
+      {/* HEADER BAR */}
+<div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-white">
+  {/* Sidebar toggle */}
+  <button
+    onClick={() => setSidebarOpen(!sidebarOpen)}
+    className="flex items-center justify-center h-9 w-9 rounded-md border border-slate-300 hover:bg-slate-100"
+  >
+    {sidebarOpen ? '←' : '☰'}
+  </button>
 
-<button
-  onClick={handleReloadChat}
-  disabled={reloading}
-  title="Clear screen and start a new session"
-  className={`
-  absolute top-4 right-4 z-30
-  flex items-center justify-center
-  h-9 w-9
-  rounded-md
-  bg-white
-  border border-slate-300
-  transition-colors duration-150
-  ${reloading
-    ? 'opacity-60 cursor-not-allowed'
-    : 'hover:bg-slate-100 hover:border-slate-400'}
-`}
->
-  <span className={reloading ? 'inline-block animate-spin' : ''}>
-    ↻
-  </span>
-</button>
+  {/* Reload chat */}
+  <button
+    onClick={handleReloadChat}
+    disabled={reloading}
+    title="Start new chat"
+    className="
+      flex items-center justify-center
+      h-9 w-9
+      rounded-md
+      border border-slate-300
+      hover:bg-slate-100
+    "
+  >
+    <span className={reloading ? 'animate-spin' : ''}>↻</span>
+  </button>
 
-        {(!sidebarOpen || !isMobile) && (
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="absolute top-4 left-4 z-30 bg-white border border-slate-300 hover:bg-slate-50 rounded-md px-3 py-1"
-          >
-            {sidebarOpen ? '←' : '☰'}
-          </button>
-        )}
+</div>
 
-        <div className="flex-1 overflow-y-auto px-8 pt-16 pb-6 space-y-6">
+
+
+
+
+        <div className="flex-1 overflow-y-auto px-8 pt-6 pb-6 space-y-6">
 
           {messages.map((m, i) => {
             const isLastAssistant =
