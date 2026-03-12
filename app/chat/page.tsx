@@ -398,7 +398,10 @@ transition-colors duration-150
               !loading
 
             return (
-              <div key={i}>
+              <div
+  key={i}
+  className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}
+>
                 <div className="flex items-center justify-between text-sm mb-1">
 
   <span>
@@ -521,13 +524,13 @@ transition-colors duration-150
                     />
                   ) : (
                     <div
-  className={`${
-    isLastAssistant ? '' : 'msg-animate'
-  } rounded-xl px-5 py-3 whitespace-pre-line ${
-    m.role === 'assistant'
-      ? 'bg-white/20 backdrop-blur-md border'
-      : 'bg-white/40'
-  }`}
+className={`${
+  isLastAssistant ? '' : 'msg-animate'
+} rounded-xl px-5 py-3 whitespace-pre-line border ${
+  m.role === 'assistant'
+    ? 'bg-white/20 backdrop-blur-md'
+    : 'bg-white border'
+}`}
                       style={{
                         WebkitUserSelect: 'text',
                         userSelect: 'text',
