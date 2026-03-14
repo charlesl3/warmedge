@@ -13,6 +13,12 @@ type Message = {
   content: string
 }
 
+type ChatSession = {
+  id: string
+  title: string
+  messages: Message[]
+}
+
 function ThinkingDots() {
   return (
     <div className="flex items-end gap-2 h-5">
@@ -23,22 +29,25 @@ function ThinkingDots() {
   )
 }
 
+const defaultGreeting: Message = {
+  role: 'assistant',
+  content: `Hi, I am WarmGPT, your AI assistant for figure skating. You can ask me about figure skating technique, equipment, USFSA tests, and daily skating questions.
+
+Please kindly note:
+1. My answers are based on real skating discussions and shared rink experience, not Wikipedia-style explanations.
+2. I help you think through skating questions, but I do not replace a coach, judge, or technician.
+3. If a question has multiple interpretations, I may ask clarification.
+4. Feedback is welcome at charlesatlife@gmail.com.`
+}
+
 export default function ChatPage() {
   const [input, setInput] = useState('')
-  const [messages, setMessages] = useState<Message[]>([
-    {
-  role: 'assistant',
-  content: `Hi, I am WarmGPT, your AI assistant for figrue skating. You can ask me about figure skating technique, equipment, USFSA test, and daily skating questions. 
-  
-Please kindly note:
-1. My answers are based on real skating discussions and shared rink experience, not aiming to providing Wikipedia-style textbook explanations.
-2. I am designed to help you think through skating questions more clearly, not to replace a coach, judge, or skate technician. For detailed technical correction, equipment adjustments, or medical concerns, always consult a qualified professional.
-3. If your question has multiple possible meanings, I may ask for clarification before answering.
-4. I am continuously improving. If you see something that can be made clearer or more accurate, I appreciate thoughtful feedback at charlesatlife@gmail.com.`
-},
-  ])
-  const [loading, setLoading] = useState(false)
-  const [sessionId, setSessionId] = useState<string | null>(null)
+const [messages, setMessages] = useState<Message[]>([])
+const [chatSessions, setChatSessions] = useState<ChatSession[]>([])
+const [currentChatId, setCurrentChatId] = useState<string | null>(null)
+
+const [loading, setLoading] = useState(false)
+const [sessionId, setSessionId] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [reloading, setReloading] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -51,24 +60,123 @@ Please kindly note:
 
   
 
-  const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+const createNewChat = (firstMessage: Message) => {
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  const id = Date.now().toString()
+
+  const newChat: ChatSession = {
+    id,
+    title: firstMessage.content.slice(0, 40),
+    messages: [firstMessage]
   }
 
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages, loading])
+  const updated = [newChat, ...chatSessions]
+
+  setChatSessions(updated)
+  setCurrentChatId(id)
+  setMessages([firstMessage])
+}
+
+
+  const messagesEndRef = useRef<HTMLDivElement | null>(null)
+
+useEffect(() => {
+  const checkMobile = () => {
+    setIsMobile(window.innerWidth < 768)
+  }
+
+  checkMobile()
+
+  window.addEventListener("resize", checkMobile)
+
+  return () => window.removeEventListener("resize", checkMobile)
+}, [])
+
+useEffect(() => {
+
+  const saved = sessionStorage.getItem("warmgpt_chats")
+
+  if (!saved) {
+    setMessages([defaultGreeting])
+    return
+  }
+
+  try {
+
+    const parsed: ChatSession[] = JSON.parse(saved)
+
+    if (parsed.length === 0) {
+      setMessages([defaultGreeting])
+      return
+    }
+
+    setChatSessions(parsed)
+    setCurrentChatId(parsed[0].id)
+    setMessages(parsed[0].messages)
+
+  } catch (err) {
+    console.error("Failed loading chats", err)
+    setMessages([defaultGreeting])
+  }
+
+}, [])
+
+useEffect(() => {
+
+  try {
+    sessionStorage.setItem(
+      "warmgpt_chats",
+      JSON.stringify(chatSessions)
+    )
+  } catch (err) {
+    console.error("Failed saving chats", err)
+  }
+
+}, [chatSessions])
+
+useEffect(() => {
+
+  if (!currentChatId) return
+
+  setChatSessions(prev =>
+    prev.map(chat =>
+      chat.id === currentChatId
+        ? { ...chat, messages }
+        : chat
+    )
+  )
+
+}, [messages])
+
+
+
+const defaultWelcome: Message = {
+  role: "assistant",
+  content: `Hi, I am WarmGPT, your AI assistant for figure skating.
+
+You can ask me about technique, equipment, USFSA tests, and daily skating questions.
+
+Please note:
+1. My answers are based on real skating discussions.
+2. I am not a replacement for a coach or skate technician.
+3. I may ask clarification questions when needed.
+4. Feedback is welcome at charlesatlife@gmail.com.`
+}
+
+
+
+
+
+const scrollToBottom = () => {
+  messagesEndRef.current?.scrollIntoView({
+    behavior: "smooth"
+  })
+}
+
+
+
+
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return
@@ -77,10 +185,40 @@ Please kindly note:
     setInput('')
     setLoading(true)
 
-    setMessages((prev) => [
-      ...prev,
-      { role: 'user', content: userMessage },
-    ])
+    const newMessage: Message = { role: 'user', content: userMessage }
+
+    // rename chat title if this is the first user message
+if (currentChatId) {
+
+  setChatSessions(prev =>
+    prev.map(chat => {
+
+      if (chat.id !== currentChatId) return chat
+
+      // if only assistant welcome exists
+      const isFirstUserMessage =
+        chat.messages.length <= 1
+
+      if (isFirstUserMessage) {
+        return {
+          ...chat,
+          title: userMessage.slice(0, 40)
+        }
+      }
+
+      return chat
+
+    })
+  )
+
+}
+
+
+  if (!currentChatId) {
+    createNewChat(newMessage)
+  } else {
+    setMessages((prev) => [...prev, newMessage])
+  }
 
     try {
       const res = await fetch(
@@ -98,8 +236,8 @@ Please kindly note:
       const data = await res.json()
 
       if (!sessionId && data.session_id) {
-        setSessionId(data.session_id)
-      }
+  setSessionId(data.session_id)
+}
 
       setMessages((prev) => [
         ...prev,
@@ -140,18 +278,38 @@ Please kindly note:
 }
 
   const handleReloadChat = () => {
-    setReloading(true)
-    setTimeout(() => {
-      setMessages([
-        {
-          role: 'assistant',
-          content:
-        'You have started a new session. I may not retain context from earlier conversations in this thread. Please restate your question clearly and include any relevant details so I can respond accurately.'      },
-      ])
-      setSessionId(null)
-      setReloading(false)
-    }, 400)
-  }
+
+  setReloading(true)
+
+  setTimeout(() => {
+
+    const welcomeMessage: Message = {
+      role: "assistant",
+      content:
+      "You have started a new session. I may not retain context from earlier conversations in this thread. Please restate your question clearly."
+    }
+
+    // create a new chat session
+    const id = Date.now().toString()
+
+    const newChat: ChatSession = {
+      id,
+      title: "New chat",
+      messages: [welcomeMessage]
+    }
+
+    setChatSessions(prev => [newChat, ...prev])
+
+    setCurrentChatId(id)
+    setMessages([welcomeMessage])
+
+    // reset backend memory
+    setSessionId(null)
+
+    setReloading(false)
+
+  }, 300)
+}
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -230,6 +388,23 @@ const stopSpeech = () => {
   setSpeakingIndex(null)
 }
 
+const clearAllChats = () => {
+
+  sessionStorage.removeItem("warmgpt_chats")
+
+  setChatSessions([])
+  setCurrentChatId(null)
+  setSessionId(null)
+
+  setMessages([
+    {
+      role: "assistant",
+      content: "Chat history cleared. You can start a new conversation."
+    }
+  ])
+
+}
+
 const speakText = (text: string, index: number) => {
   if (typeof window === 'undefined') return
   if (!('speechSynthesis' in window)) return
@@ -264,6 +439,27 @@ const speakText = (text: string, index: number) => {
 
   window.speechSynthesis.speak(utterance)
 }
+
+const loadChatSession = async (sid: string) => {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_CHAT_API_URL}/chat/${sid}`
+    )
+
+    const data = await res.json()
+
+    if (data.messages) {
+      setMessages(data.messages)
+      setSessionId(sid)
+    }
+
+    if (isMobile) setSidebarOpen(false)
+
+  } catch (err) {
+    console.error("Failed to load chat", err)
+  }
+}
+
 
   return (
     <div className="h-[100dvh] flex bg-white relative">
@@ -351,8 +547,53 @@ transition-colors duration-150
 </svg>
 </button>
 
-        </div>
-      </div>
+
+<button
+  onClick={clearAllChats}
+  className="
+w-full text-left rounded-md px-4 py-2.5
+border border-transparent
+hover:border-red-300
+hover:bg-red-50
+transition-colors duration-150
+text-red-600
+"
+>
+  Clear chat history
+</button>
+
+{/* INSERT THIS BLOCK HERE */}
+
+<div className="mt-6 space-y-1 border-t pt-4">
+
+{chatSessions.map(chat => (
+
+<button
+key={chat.id}
+onClick={() => {
+
+  setCurrentChatId(chat.id)
+  setMessages(chat.messages)
+
+  if (isMobile) setSidebarOpen(false)
+
+}}
+className="
+w-full text-left px-3 py-2
+rounded-md
+hover:bg-slate-100
+text-sm
+truncate
+"
+>
+{chat.title}
+</button>
+
+))}
+
+</div>
+</div>
+</div>
 
       {/* CHAT AREA */}
       <div className="flex-1 flex flex-col relative">
