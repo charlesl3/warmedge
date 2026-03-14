@@ -496,13 +496,7 @@ const loadChatSession = async (sid: string) => {
 
           <button
             onClick={() => {
-              injectAssistantMessage(`Hi, I am WarmGPT, your AI assistant for figure skating. You can ask me about figure skating technique, equipment, USFSA tests, and daily skating questions.
-
-Please kindly note:
-1. My answers are based on real skating discussions and shared rink experience, not Wikipedia-style explanations.
-2. I help you think through skating questions, but I do not replace a coach, judge, or technician.
-3. If a question has multiple interpretations, I may ask clarification.
-4. Feedback is welcome at charlesatlife@gmail.com.`)
+              injectAssistantMessage('Hi, how can I help you today?')
               if (isMobile) setSidebarOpen(false)
             }}
             className="
