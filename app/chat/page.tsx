@@ -643,14 +643,16 @@ truncate
   key={i}
   className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}
 >
-                <div className="flex items-center justify-between text-sm mb-1">
+                <div className="flex items-center justify-between text-sm mb-2">
 
-  <span>
+  <div className="flex items-center gap-3 ml-3">
+  <span className="font-medium">
     {m.role === 'assistant' ? 'WarmGPT' : 'You'}
   </span>
+</div>
 
   {editingIndex !== i && (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-3 ml-3">
 
       <button
   onClick={() => handleCopy(m.content, i)}
