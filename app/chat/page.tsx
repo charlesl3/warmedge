@@ -17,6 +17,7 @@ type ChatSession = {
   id: string
   title: string
   messages: Message[]
+  pinned?: boolean
 }
 
 function ThinkingDots() {
@@ -76,6 +77,50 @@ const createNewChat = (firstMessage: Message) => {
   setChatSessions(updated)
   setCurrentChatId(id)
   setMessages([firstMessage])
+}
+
+const renameChat = (id: string, newTitle: string) => {
+
+  setChatSessions(prev =>
+    prev.map(chat =>
+      chat.id === id
+        ? { ...chat, title: newTitle }
+        : chat
+    )
+  )
+
+}
+
+const togglePinChat = (id: string) => {
+
+  setChatSessions(prev =>
+    prev.map(chat =>
+      chat.id === id
+        ? { ...chat, pinned: !chat.pinned }
+        : chat
+    )
+  )
+
+}
+
+const deleteChat = (id: string) => {
+
+  const updated = chatSessions.filter(chat => chat.id !== id)
+
+  setChatSessions(updated)
+
+  if (currentChatId === id) {
+
+    if (updated.length > 0) {
+      setCurrentChatId(updated[0].id)
+      setMessages(updated[0].messages)
+    } else {
+      setCurrentChatId(null)
+      setMessages([defaultGreeting])
+    }
+
+  }
+
 }
 
 
@@ -460,6 +505,15 @@ const loadChatSession = async (sid: string) => {
   }
 }
 
+const sortedChats = [...chatSessions].sort((a, b) => {
+
+  if (a.pinned && !b.pinned) return -1
+  if (!a.pinned && b.pinned) return 1
+
+  return 0
+
+})
+
 
   return (
     <div className="h-[100dvh] flex bg-white relative">
@@ -562,14 +616,22 @@ text-red-600
   Clear chat history
 </button>
 
+
+
 {/* INSERT THIS BLOCK HERE */}
 
 <div className="mt-6 space-y-1 border-t pt-4">
 
-{chatSessions.map(chat => (
+  
+
+{sortedChats.map(chat => (
+
+<div
+key={chat.id}
+className="flex items-center justify-between group"
+>
 
 <button
-key={chat.id}
 onClick={() => {
 
   setCurrentChatId(chat.id)
@@ -579,15 +641,111 @@ onClick={() => {
 
 }}
 className="
-w-full text-left px-3 py-2
+flex-1 text-left px-3 py-2
 rounded-md
 hover:bg-slate-100
 text-sm
 truncate
+transition-colors
 "
 >
 {chat.title}
 </button>
+
+<div className="opacity-0 group-hover:opacity-100 flex items-center gap-2 mr-1">
+
+{/* Rename */}
+
+<button
+onClick={(e) => {
+
+  e.stopPropagation()
+
+  const newTitle = prompt("Rename chat", chat.title)
+
+  if (newTitle) renameChat(chat.id, newTitle)
+
+}}
+className="p-1 rounded hover:bg-slate-200 transition"
+title="Rename chat"
+>
+
+<svg
+xmlns="http://www.w3.org/2000/svg"
+viewBox="0 0 24 24"
+fill="none"
+stroke="currentColor"
+strokeWidth="1.6"
+className="w-4 h-4 text-slate-600"
+>
+<path d="M4 21h4l11-11-4-4L4 17v4z"/>
+</svg>
+
+</button>
+
+{/* Pin */}
+
+{/* Pin */}
+
+<button
+onClick={(e) => {
+
+  e.stopPropagation()
+  togglePinChat(chat.id)
+
+}}
+className="p-1 rounded hover:bg-slate-200 transition"
+title="Star chat"
+>
+
+<svg
+xmlns="http://www.w3.org/2000/svg"
+viewBox="0 0 24 24"
+stroke="currentColor"
+strokeWidth="1.6"
+className={`w-4 h-4 ${
+  chat.pinned
+    ? "fill-yellow-400 stroke-yellow-500"
+    : "fill-none stroke-slate-600"
+}`}
+>
+<path d="M12 2l2.9 6.1 6.7.6-5 4.4 1.5 6.5L12 16.9 5.9 19.6l1.5-6.5-5-4.4 6.7-.6L12 2z"/>
+</svg>
+
+</button>
+
+{/* Delete */}
+
+<button
+onClick={(e) => {
+
+  e.stopPropagation()
+
+  if (confirm("Delete this chat?")) {
+    deleteChat(chat.id)
+  }
+
+}}
+className="p-1 rounded hover:bg-red-100 transition"
+title="Delete chat"
+>
+
+<svg
+xmlns="http://www.w3.org/2000/svg"
+viewBox="0 0 24 24"
+fill="none"
+stroke="currentColor"
+strokeWidth="1.6"
+className="w-4 h-4 text-red-500"
+>
+<path d="M6 6l12 12M6 18L18 6"/>
+</svg>
+
+</button>
+
+</div>
+
+</div>
 
 ))}
 
