@@ -652,7 +652,7 @@ transition-colors
 {chat.title}
 </button>
 
-<div className="opacity-0 group-hover:opacity-100 flex items-center gap-2 mr-1">
+<div className="flex items-center gap-2 mr-1">
 
 {/* Rename */}
 
@@ -666,7 +666,7 @@ onClick={(e) => {
   if (newTitle) renameChat(chat.id, newTitle)
 
 }}
-className="p-1 rounded hover:bg-slate-200 transition"
+className="p-1 rounded hover:bg-slate-200 transition opacity-0 group-hover:opacity-100"
 title="Rename chat"
 >
 
@@ -726,7 +726,7 @@ onClick={(e) => {
   }
 
 }}
-className="p-1 rounded hover:bg-red-100 transition"
+className="p-1 rounded hover:bg-red-100 transition opacity-0 group-hover:opacity-100"
 title="Delete chat"
 >
 
