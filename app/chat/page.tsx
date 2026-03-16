@@ -666,7 +666,7 @@ onClick={(e) => {
   if (newTitle) renameChat(chat.id, newTitle)
 
 }}
-className="p-1 rounded hover:bg-slate-200 transition opacity-0 group-hover:opacity-100"
+className="p-1 rounded hover:bg-slate-200 transition"
 title="Rename chat"
 >
 
@@ -726,7 +726,7 @@ onClick={(e) => {
   }
 
 }}
-className="p-1 rounded hover:bg-red-100 transition opacity-0 group-hover:opacity-100"
+className="p-1 rounded hover:bg-red-100 transition"
 title="Delete chat"
 >
 
