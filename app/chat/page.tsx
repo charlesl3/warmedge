@@ -778,24 +778,20 @@ transition-colors
                           onClick={() => speakText(m.content, i)}
                           title="Read aloud"
                           className="
-      flex items-center justify-center
-      h-7 w-7
-      rounded-lg
-      bg-white/20
-      border border-white/20
-      backdrop-blur-sm
-      text-slate-700
-      hover:bg-white/40
-      hover:scale-105
-      active:scale-95
-      transition-all duration-150
-    "
+    flex items-center justify-center
+    h-7 w-7
+    rounded-lg
+    border border-slate-300
+    bg-white
+    hover:bg-slate-100
+    transition-all duration-150
+  "
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
                             fill="currentColor"
-                            className="w-4 h-4"
+                            className="w-4 h-4 text-slate-600"
                           >
                             <path
                               d="M11 5 6 9H3v6h3l5 4V5zM15.5 8.5a5 5 0 0 1 0 7m2.5-9.5a8 8 0 0 1 0 12"
