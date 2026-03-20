@@ -7,6 +7,7 @@ type Message = {
   id?: string
   role: 'user' | 'assistant'
   content: string
+  sources?: string[]
 }
 
 type ChatSession = {
@@ -236,6 +237,7 @@ Please note:
           id: data.message_id,
           role: 'assistant',
           content: data.reply,
+          sources: data.sources,
         },
       ])
     } catch {
@@ -358,6 +360,7 @@ Please note:
           id: data.message_id,
           role: 'assistant',
           content: data.reply,
+          sources: data.sources,
         },
       ])
     } catch {
@@ -916,6 +919,15 @@ transition-colors
                     </div>
                   )}
                 </div>
+
+                {m.role === 'assistant' && m.sources && (
+                  <div className="text-xs text-slate-400 mt-2 px-1">
+                    Sources:{' '}
+                    {m.sources
+                      .map((s) => s.split('/').pop()?.replace('.md', ''))
+                      .join(' · ')}
+                  </div>
+                )}
               </div>
             )
           })}
