@@ -953,11 +953,11 @@ focus:outline-none focus:ring-2 focus:ring-slate-200
               className="
 h-11 px-6
 rounded-full
-bg-slate-700
-text-white
+bg-slate-200
+text-black
 font-medium
 shadow-md
-hover:bg-slate-600
+hover:bg-slate-300
 active:scale-95
 transition-all duration-150
 "
