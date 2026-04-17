@@ -477,7 +477,7 @@ Please note:
   })
 
   return (
-    <div className="h-[100dvh] flex bg-white relative">
+    <div className="h-[100dvh] flex bg-slate-50 relative">
       {/* Mobile Overlay */}
       {isMobile && sidebarOpen && (
         <div
@@ -493,31 +493,30 @@ Please note:
           transition-all duration-300 ease-in-out
           ${sidebarOpen ? 'w-72' : 'w-0'}
           overflow-hidden
-          bg-white border-r border-black
+          bg-white border-r border-slate-200
           text-slate-700
           flex flex-col
         `}
       >
-        <div className="p-5 border-b border-white/20 flex items-center justify-center">
+        <div className="px-6 py-6 border-b border-slate-100 flex items-center justify-center">
           <img
             src="/logo1.jpg"
             alt="WarmEdge"
-            className="h-50 w-auto object-contain"
+            className="h-50 w-auto object-contain opacity-90"
           />
         </div>
 
-        <div className="p-5 space-y-3 text-sm">
+        <div className="px-4 py-5 space-y-2 text-sm">
           <button
             onClick={() => {
               injectAssistantMessage('Hi, how can I help you today?')
               if (isMobile) setSidebarOpen(false)
             }}
             className="
-w-full text-left rounded-md px-4 py-2.5
-border border-transparent
-hover:border-slate-300
+w-full text-left rounded-lg px-4 py-2.5
+text-slate-700
 hover:bg-slate-100
-transition-colors duration-150
+transition-all duration-150
 "
           >
             Chat
@@ -526,11 +525,10 @@ transition-colors duration-150
           <button
             onClick={handleAboutClick}
             className="
-w-full text-left rounded-md px-4 py-2.5
-border border-transparent
-hover:border-slate-300
+w-full text-left rounded-lg px-4 py-2.5
+text-slate-700
 hover:bg-slate-100
-transition-colors duration-150
+transition-all duration-150
 "
           >
             About
@@ -539,37 +537,19 @@ transition-colors duration-150
           <button
             onClick={handleProductsClick}
             className="
-w-full text-left rounded-md px-4 py-2.5
-flex justify-between items-center
-border border-transparent
-hover:border-slate-300
+w-full text-left rounded-lg px-4 py-2.5
+text-slate-700
 hover:bg-slate-100
-transition-colors duration-150
+transition-all duration-150
 "
           >
             Products
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              className="w-4 h-4 text-slate-500 group-hover:text-black transition-colors duration-150"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
           </button>
 
           <button
             onClick={clearAllChats}
             className="
-w-full text-left rounded-md px-4 py-2.5
-border border-transparent
-hover:border-red-300
+w-full text-left rounded-lg px-4 py-2.5
 hover:bg-red-50
 transition-colors duration-150
 text-red-600
@@ -580,11 +560,11 @@ text-red-600
 
           {/* INSERT THIS BLOCK HERE */}
 
-          <div className="mt-6 space-y-1 border-t pt-4">
+          <div className="mt-6 space-y-1 border-t border-slate-100 pt-4">
             {sortedChats.map((chat) => (
               <div
                 key={chat.id}
-                className="flex items-center justify-between group"
+                className="flex items-center justify-between group px-2 py-1"
               >
                 <button
                   onClick={() => {
@@ -594,12 +574,14 @@ text-red-600
                     if (isMobile) setSidebarOpen(false)
                   }}
                   className="
-flex-1 text-left px-3 py-2
-rounded-md
-hover:bg-slate-100
+flex-1 text-left px-3 py-2.5
+rounded-lg
 text-sm
 truncate
-transition-colors
+bg-transparent
+hover:bg-white
+hover:shadow-sm
+transition-all duration-150
 "
                 >
                   {chat.title}
@@ -616,7 +598,7 @@ transition-colors
 
                       if (newTitle) renameChat(chat.id, newTitle)
                     }}
-                    className="p-1 rounded hover:bg-slate-200 transition"
+                    className="p-1.5 rounded-md hover:bg-slate-200 transition"
                     title="Rename chat"
                   >
                     <svg
@@ -640,7 +622,7 @@ transition-colors
                       e.stopPropagation()
                       togglePinChat(chat.id)
                     }}
-                    className="p-1 rounded hover:bg-slate-200 transition"
+                    className="p-1.5 rounded-md hover:bg-slate-200 transition"
                     title="Star chat"
                   >
                     <svg
@@ -733,7 +715,9 @@ transition-colors
             return (
               <div
                 key={`${m.role}-${i}-${m.content.slice(0, 20)}`}
-                className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}
+                className={`flex flex-col ${
+                  m.role === 'user' ? 'items-end pr-2' : 'items-start pl-2'
+                }`}
               >
                 <div className="flex items-center justify-between text-sm mb-2">
                   <div className="flex items-center gap-3 ml-3">
@@ -900,22 +884,25 @@ transition-colors
                     <div
                       className={`${
                         isLastAssistant ? '' : 'msg-animate'
-                      } rounded-xl px-5 py-3 whitespace-pre-line border ${
-                        m.role === 'assistant'
-                          ? 'bg-white/20 backdrop-blur-md'
-                          : 'bg-white border'
-                      }`}
+                      } max-w-[720px] rounded-2xl px-5 py-4 whitespace-pre-line
+  ${
+    m.role === 'assistant'
+      ? 'bg-white shadow-sm'
+      : 'bg-white border border-slate-200'
+  }`}
                       style={{
                         WebkitUserSelect: 'text',
                         userSelect: 'text',
                         WebkitTouchCallout: 'default',
                       }}
                     >
-                      {isLastAssistant ? (
-                        <Typewriter text={m.content} speed={12} showCursor />
-                      ) : (
-                        m.content
-                      )}
+                      <div className="text-[15px] leading-7 text-slate-800">
+                        {isLastAssistant ? (
+                          <Typewriter text={m.content} speed={12} showCursor />
+                        ) : (
+                          m.content
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -941,7 +928,7 @@ transition-colors
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="border-t bg-white/10 backdrop-blur-md p-6">
+        <div className="border-t border-slate-100 bg-white p-6">
           <div className="flex items-end gap-3">
             <textarea
               rows={1}
@@ -949,7 +936,15 @@ transition-colors
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask a figure skating question..."
-              className="flex-1 rounded-xl bg-white/20 border px-4 py-3 resize-none"
+              className="
+flex-1 rounded-full
+bg-white
+shadow-md
+border border-slate-200
+px-5 py-3
+resize-none
+focus:outline-none focus:ring-2 focus:ring-slate-200
+"
             />
 
             <button
@@ -957,13 +952,14 @@ transition-colors
               disabled={loading}
               className="
 h-11 px-6
-rounded-md
-border border-black
-bg-white
-text-black
+rounded-full
+bg-slate-700
+text-white
 font-medium
-hover:bg-slate-100
-transition-colors duration-150
+shadow-md
+hover:bg-slate-600
+active:scale-95
+transition-all duration-150
 "
             >
               {loading ? '...' : 'Send'}
