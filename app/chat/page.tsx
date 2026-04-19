@@ -716,7 +716,7 @@ transition-all duration-150
               <div
                 key={`${m.role}-${i}-${m.content.slice(0, 20)}`}
                 className={`flex flex-col ${
-                  m.role === 'user' ? 'items-end pr-2' : 'items-start pl-2'
+                  m.role === 'user' ? 'items-end pr-4' : 'items-start pl-4'
                 }`}
               >
                 <div className="flex items-center justify-between text-sm mb-2">
@@ -882,12 +882,12 @@ transition-all duration-150
                     />
                   ) : (
                     <div
-                      className={`${
-                        isLastAssistant ? '' : 'msg-animate'
-                      } max-w-[720px] rounded-2xl px-5 py-4 whitespace-pre-line
+                      className={`${isLastAssistant ? '' : 'msg-animate'}
+  ${m.role === 'assistant' ? 'max-w-[820px]' : 'max-w-[280px]'}
+  rounded-2xl px-6 py-5 whitespace-pre-line
   ${
     m.role === 'assistant'
-      ? 'bg-white shadow-sm'
+      ? 'bg-white shadow-sm border border-slate-100'
       : 'bg-white border border-slate-200'
   }`}
                       style={{
@@ -896,11 +896,21 @@ transition-all duration-150
                         WebkitTouchCallout: 'default',
                       }}
                     >
-                      <div className="text-[15px] leading-7 text-slate-800">
+                      <div className="text-[15px] leading-7 tracking-[0.01em] text-slate-800">
                         {isLastAssistant ? (
                           <Typewriter text={m.content} speed={12} showCursor />
                         ) : (
-                          m.content
+                          m.content.split('\n').map((line, idx) => {
+                            if (line.trim() === '') {
+                              return <div key={idx} className="h-3" />
+                            }
+
+                            return (
+                              <p key={idx} className="mb-2 last:mb-0">
+                                {line}
+                              </p>
+                            )
+                          })
                         )}
                       </div>
                     </div>
