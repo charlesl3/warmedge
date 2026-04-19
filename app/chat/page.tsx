@@ -900,7 +900,7 @@ transition-all duration-150
                         {isLastAssistant ? (
                           <Typewriter text={m.content} speed={12} showCursor />
                         ) : (
-                          m.content.split('\n').map((line, idx) => {
+                          m.content.split(/\n+/).map((line, idx) => {
                             if (line.trim() === '') {
                               return <div key={idx} className="h-3" />
                             }
