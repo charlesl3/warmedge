@@ -679,28 +679,70 @@ transition-all duration-150
         {/* HEADER BAR */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-white">
           {/* Sidebar toggle */}
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="flex items-center justify-center h-9 w-9 rounded-md border border-slate-300 hover:bg-slate-100"
-          >
-            {sidebarOpen ? '←' : '☰'}
-          </button>
+          <div className="relative group">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="flex items-center justify-center h-9 w-9 rounded-md border border-slate-300 hover:bg-slate-100"
+            >
+              {sidebarOpen ? '←' : '☰'}
+            </button>
+
+            <div
+              className="
+      absolute top-1/2 left-full ml-2
+      -translate-y-1/2
+      px-2 py-1
+      text-xs
+      bg-slate-700 text-white
+      rounded
+      shadow
+      opacity-0 group-hover:opacity-100
+      transition-opacity duration-150
+      pointer-events-none
+      whitespace-nowrap
+      z-50
+    "
+            >
+              {sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+            </div>
+          </div>
 
           {/* Reload chat */}
-          <button
-            onClick={handleReloadChat}
-            disabled={reloading}
-            title="Start new chat"
-            className="
+          {/* Reload chat */}
+          <div className="relative group">
+            <button
+              onClick={handleReloadChat}
+              disabled={reloading}
+              className="
       flex items-center justify-center
       h-9 w-9
       rounded-md
       border border-slate-300
       hover:bg-slate-100
     "
-          >
-            <span className={reloading ? 'animate-spin' : ''}>↻</span>
-          </button>
+            >
+              <span className={reloading ? 'animate-spin' : ''}>↻</span>
+            </button>
+
+            <div
+              className="
+      absolute top-1/2 right-full mr-2
+      -translate-y-1/2
+      px-2 py-1
+      text-xs
+      bg-slate-700 text-white
+      rounded
+      shadow
+      opacity-0 group-hover:opacity-100
+      transition-opacity duration-150
+      pointer-events-none
+      whitespace-nowrap
+      z-50
+    "
+            >
+              Start new chat
+            </div>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto px-8 pt-6 pb-6 space-y-6">
