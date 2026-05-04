@@ -57,6 +57,13 @@ export default function ChatPage() {
   const [speakingIndex, setSpeakingIndex] = useState<number | null>(null)
   const [likedSet, setLikedSet] = useState<Set<string>>(new Set())
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
+  const [actionLoading, setActionLoading] = useState(false)
+  const [finishedTypingIndex, setFinishedTypingIndex] = useState<number | null>(
+    null
+  )
+  const [actionTargetIndex, setActionTargetIndex] = useState<number | null>(
+    null
+  )
 
   const createNewChat = (firstMessage: Message) => {
     const id = Date.now().toString()
@@ -373,6 +380,121 @@ Please note:
       ])
     } finally {
       setLoading(false)
+    }
+  }
+
+  const sendActionMessage = async (
+    action: 'drills' | 'simplify' | 'deeper' | 'diagnose',
+    linkedQuestion: string | null,
+    assistantAnswer: string,
+    index: number
+  ) => {
+    if (loading || actionLoading) return // ✅ FIRST check
+
+    setActionTargetIndex(index) // ✅ THEN set target
+    setActionLoading(true)
+
+    let actionPrompt = ''
+
+    if (action === 'drills') {
+      actionPrompt = `Give me practical drills for this skating question: ${linkedQuestion || assistantAnswer}`
+    }
+
+    if (action === 'simplify') {
+      actionPrompt = `Explain this in a simpler way: ${assistantAnswer}`
+    }
+
+    if (action === 'deeper') {
+      actionPrompt = `Go deeper technically on this skating question: ${linkedQuestion || assistantAnswer}`
+    }
+
+    if (action === 'diagnose') {
+      actionPrompt = `Help diagnose this skating issue: ${linkedQuestion || assistantAnswer}`
+    }
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_CHAT_API_URL}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: actionPrompt,
+          session_id: sessionId,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!sessionId && data.session_id) {
+        setSessionId(data.session_id)
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: data.message_id,
+          role: 'assistant',
+          content: data.reply,
+          sources: data.sources,
+          repaired: data.repaired,
+        },
+      ])
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: 'Something went wrong.' },
+      ])
+    } finally {
+      setActionLoading(false)
+      setActionTargetIndex(null)
+    }
+  }
+
+  const sendMessageFromAction = async (text: string) => {
+    if (!text.trim() || loading) return
+
+    setLoading(true)
+
+    const userMessage: Message = {
+      role: 'user',
+      content: text,
+    }
+
+    setMessages((prev) => [...prev, userMessage])
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_CHAT_API_URL}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: text,
+          session_id: sessionId,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!sessionId && data.session_id) {
+        setSessionId(data.session_id)
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: data.message_id,
+          role: 'assistant',
+          content: data.reply,
+          sources: data.sources,
+          repaired: data.repaired,
+        },
+      ])
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: 'Something went wrong.' },
+      ])
+    } finally {
+      setLoading(false)
+      setInput('')
     }
   }
 
@@ -943,7 +1065,12 @@ transition-all duration-150
                     >
                       <div className="text-[15px] leading-7 tracking-[0.01em] text-slate-800">
                         {isLastAssistant ? (
-                          <Typewriter text={m.content} speed={12} showCursor />
+                          <Typewriter
+                            text={m.content}
+                            speed={12}
+                            showCursor
+                            onComplete={() => setFinishedTypingIndex(i)}
+                          />
                         ) : (
                           m.content.split(/\n+/).map((line, idx) => {
                             if (line.trim() === '') {
@@ -962,6 +1089,110 @@ transition-all duration-150
                   )}
                 </div>
 
+                {m.role === 'assistant' &&
+                  !loading &&
+                  linkedQuestion && // 🔥 ONLY show if tied to a user question
+                  finishedTypingIndex === i && (
+                    <div className="mt-3 flex flex-wrap gap-2 px-1">
+                      <button
+                        onClick={() =>
+                          sendActionMessage(
+                            'drills',
+                            linkedQuestion,
+                            m.content,
+                            i
+                          )
+                        }
+                        disabled={actionLoading}
+                        className={`
+text-xs px-3 py-1.5
+rounded-full
+bg-white
+border border-slate-200
+text-slate-600
+transition-all duration-150
+${actionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100'}
+`}
+                      >
+                        Try drills
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          sendActionMessage(
+                            'simplify',
+                            linkedQuestion,
+                            m.content,
+                            i
+                          )
+                        }
+                        disabled={actionLoading}
+                        className={`
+text-xs px-3 py-1.5
+rounded-full
+bg-white
+border border-slate-200
+text-slate-600
+transition-all duration-150
+${actionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100'}
+`}
+                      >
+                        Simplify
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          sendActionMessage(
+                            'deeper',
+                            linkedQuestion,
+                            m.content,
+                            i
+                          )
+                        }
+                        disabled={actionLoading}
+                        className={`
+text-xs px-3 py-1.5
+rounded-full
+bg-white
+border border-slate-200
+text-slate-600
+transition-all duration-150
+${actionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100'}
+`}
+                      >
+                        Go deeper
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          sendActionMessage(
+                            'diagnose',
+                            linkedQuestion,
+                            m.content,
+                            i
+                          )
+                        }
+                        disabled={actionLoading}
+                        className={`
+text-xs px-3 py-1.5
+rounded-full
+bg-white
+border border-slate-200
+text-slate-600
+transition-all duration-150
+${actionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100'}
+`}
+                      >
+                        Diagnose me
+                      </button>
+                    </div>
+                  )}
+                {actionLoading && actionTargetIndex === i && (
+                  <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
+                    <ThinkingDots />
+                    <span>Thinking deeper...</span>
+                  </div>
+                )}
                 {m.role === 'assistant' && m.repaired && (
                   <div className="text-xs text-slate-400 mt-2 px-1 italic">
                     ✨ refined for clarity
