@@ -383,6 +383,13 @@ Please note:
     }
   }
 
+  const isLikelyInfoQuery = (text: string = '') => {
+    return (
+      /^(who|what|when|where|why|is|are|do|does|did)\b/i.test(text.trim()) &&
+      text.length < 120
+    )
+  }
+
   const sendActionMessage = async (
     action: 'drills' | 'simplify' | 'deeper' | 'diagnose',
     linkedQuestion: string | null,
@@ -394,22 +401,55 @@ Please note:
     setActionTargetIndex(index) // ✅ THEN set target
     setActionLoading(true)
 
+    const context = linkedQuestion || assistantAnswer || ''
+    const isInfo = isLikelyInfoQuery(linkedQuestion || '')
+
     let actionPrompt = ''
 
     if (action === 'drills') {
-      actionPrompt = `Give me practical drills for this skating question: ${linkedQuestion || assistantAnswer}`
+      actionPrompt = `
+If the previous context is about a skating skill or issue, give practical drills.
+
+If it is NOT (e.g. asking about a person or general info), then:
+- identify key skating skills related to the topic
+- suggest beginner-friendly drills for those skills
+
+Context:
+${context}
+`
     }
 
     if (action === 'simplify') {
-      actionPrompt = `Explain this in a simpler way: ${assistantAnswer}`
+      actionPrompt = `
+Explain this more simply and concisely using clear language and fewer words.
+
+Content:
+${assistantAnswer}
+`
     }
 
     if (action === 'deeper') {
-      actionPrompt = `Go deeper technically on this skating question: ${linkedQuestion || assistantAnswer}`
+      actionPrompt = `
+Go deeper technically.
+
+Include mechanics, reasoning, and nuanced details.
+
+Context:
+${context}
+`
     }
 
     if (action === 'diagnose') {
-      actionPrompt = `Help diagnose this skating issue: ${linkedQuestion || assistantAnswer}`
+      actionPrompt = `
+If the previous context describes a skating issue, diagnose possible causes.
+
+If it does NOT describe a personal issue, then:
+- explain common mistakes related to this topic
+- suggest how a skater could self-check
+
+Context:
+${context}
+`
     }
 
     try {
