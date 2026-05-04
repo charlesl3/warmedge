@@ -1067,7 +1067,7 @@ transition-all duration-150
                         {isLastAssistant ? (
                           <Typewriter
                             text={m.content}
-                            speed={12}
+                            speed={6}
                             showCursor
                             onComplete={() => setFinishedTypingIndex(i)}
                           />
