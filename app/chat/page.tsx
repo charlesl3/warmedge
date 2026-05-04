@@ -408,11 +408,15 @@ Please note:
 
     if (action === 'drills') {
       actionPrompt = `
-If the previous context is about a skating skill or issue, give practical drills.
+Mode: drills
 
-If it is NOT (e.g. asking about a person or general info), then:
-- identify key skating skills related to the topic
+If the context is about a skating skill or issue, give practical drills and exercises.
+
+If it is NOT about a personal skating issue, do not force a diagnosis.
+Instead:
+- identify 1-2 skating skills related to the topic
 - suggest beginner-friendly drills for those skills
+- briefly explain why those drills are related
 
 Context:
 ${context}
@@ -421,7 +425,10 @@ ${context}
 
     if (action === 'simplify') {
       actionPrompt = `
-Explain this more simply and concisely using clear language and fewer words.
+Mode: simplify
+
+Explain the following more simply and concisely.
+Use clear language, fewer words, and avoid technical detail unless necessary.
 
 Content:
 ${assistantAnswer}
@@ -430,9 +437,11 @@ ${assistantAnswer}
 
     if (action === 'deeper') {
       actionPrompt = `
-Go deeper technically.
+Mode: deeper
 
-Include mechanics, reasoning, and nuanced details.
+Go deeper technically.
+Include mechanics, reasoning, nuance, and practical implications.
+A longer answer is okay.
 
 Context:
 ${context}
@@ -441,11 +450,15 @@ ${context}
 
     if (action === 'diagnose') {
       actionPrompt = `
-If the previous context describes a skating issue, diagnose possible causes.
+Mode: diagnose
 
-If it does NOT describe a personal issue, then:
+If the context describes a personal skating issue, diagnose possible causes.
+
+If it does NOT describe a personal issue, do not pretend there is one.
+Instead:
 - explain common mistakes related to this topic
 - suggest how a skater could self-check
+- give practical warning signs to watch for
 
 Context:
 ${context}
