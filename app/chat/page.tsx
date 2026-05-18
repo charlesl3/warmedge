@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, KeyboardEvent } from 'react'
 import Typewriter from '../components/Typewriter'
+import { supabase } from '../lib/supabase'
 
 type Message = {
   id?: string
@@ -41,6 +42,9 @@ Please kindly note:
 
 export default function ChatPage() {
   const [input, setInput] = useState('')
+  const [session, setSession] = useState<any>(null)
+  const [authEmail, setAuthEmail] = useState('')
+  const [authPassword, setAuthPassword] = useState('')
   const [messages, setMessages] = useState<Message[]>([])
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([])
   const [currentChatId, setCurrentChatId] = useState<string | null>(null)
@@ -112,6 +116,22 @@ export default function ChatPage() {
   }
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session)
+    })
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [])
 
   useEffect(() => {
     const checkMobile = () => {
@@ -647,6 +667,36 @@ ${context}
     }
   }
 
+  const handleSignup = async () => {
+    const { error } = await supabase.auth.signUp({
+      email: authEmail,
+      password: authPassword,
+    })
+
+    if (error) {
+      alert(error.message)
+    } else {
+      alert('Signup successful')
+    }
+  }
+
+  const handleLogin = async () => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email: authEmail,
+      password: authPassword,
+    })
+
+    if (error) {
+      alert(error.message)
+    } else {
+      alert('Login successful')
+    }
+  }
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+  }
+
   const sortedChats = [...chatSessions].sort((a, b) => {
     if (a.pinned && !b.pinned) return -1
     if (!a.pinned && b.pinned) return 1
@@ -882,25 +932,25 @@ transition-all duration-150
             </div>
           </div>
 
-          {/* Reload chat */}
-          {/* Reload chat */}
-          <div className="relative group">
-            <button
-              onClick={handleReloadChat}
-              disabled={reloading}
-              className="
+          <div className="flex items-center gap-4">
+            {/* Reload chat */}
+            <div className="relative group">
+              <button
+                onClick={handleReloadChat}
+                disabled={reloading}
+                className="
       flex items-center justify-center
       h-9 w-9
       rounded-md
       border border-slate-300
       hover:bg-slate-100
     "
-            >
-              <span className={reloading ? 'animate-spin' : ''}>↻</span>
-            </button>
+              >
+                <span className={reloading ? 'animate-spin' : ''}>↻</span>
+              </button>
 
-            <div
-              className="
+              <div
+                className="
       absolute top-1/2 right-full mr-2
       -translate-y-1/2
       px-2 py-1
@@ -914,12 +964,87 @@ transition-all duration-150
       whitespace-nowrap
       z-50
     "
-            >
-              Start new chat
+              >
+                Start new chat
+              </div>
             </div>
+
+            {session ? (
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-slate-600">
+                  {session.user.email}
+                </span>
+
+                <button
+                  onClick={handleLogout}
+                  className="
+      px-3 py-1
+      text-sm
+      rounded-md
+      border border-slate-300
+      hover:bg-slate-100
+      "
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <input
+                  type="email"
+                  placeholder="email"
+                  value={authEmail}
+                  onChange={(e) => setAuthEmail(e.target.value)}
+                  className="
+      border border-slate-300
+      rounded-md
+      px-2 py-1
+      text-sm
+      "
+                />
+
+                <input
+                  type="password"
+                  placeholder="password"
+                  value={authPassword}
+                  onChange={(e) => setAuthPassword(e.target.value)}
+                  className="
+      border border-slate-300
+      rounded-md
+      px-2 py-1
+      text-sm
+      "
+                />
+
+                <button
+                  onClick={handleSignup}
+                  className="
+      px-3 py-1
+      text-sm
+      rounded-md
+      border border-slate-300
+      hover:bg-slate-100
+      "
+                >
+                  Sign up
+                </button>
+
+                <button
+                  onClick={handleLogin}
+                  className="
+      px-3 py-1
+      text-sm
+      rounded-md
+      border border-slate-300
+      hover:bg-slate-100
+      "
+                >
+                  Login
+                </button>
+              </div>
+            )}
           </div>
         </div>
-
         <div className="flex-1 overflow-y-auto px-8 pt-6 pb-6 space-y-6">
           {messages.map((m, i) => {
             const linkedQuestion =
