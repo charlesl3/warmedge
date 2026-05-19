@@ -14,7 +14,6 @@ export const metadata: Metadata = {
   title: 'WarmEdge',
   description: 'AI-powered figure skating assistant.',
   manifest: '/manifest.json',
-  themeColor: '#2F6BFF',
   icons: {
     apple: '/icon/icon-192.png',
   },
@@ -22,6 +21,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   width: 'device-width',
+  themeColor: '#2F6BFF',
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
