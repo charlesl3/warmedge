@@ -56,6 +56,7 @@ export default function ChatPage() {
   const [skaterLevel, setSkaterLevel] = useState('beginner')
   const [profileModalOpen, setProfileModalOpen] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
+  const [profileLoaded, setProfileLoaded] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([])
   const [currentChatId, setCurrentChatId] = useState<string | null>(null)
@@ -131,12 +132,20 @@ export default function ChatPage() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session)
+
+      if (data.session?.user?.id) {
+        loadProfile(data.session.user.id)
+      }
     })
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
+
+      if (session?.user?.id) {
+        loadProfile(session.user.id)
+      }
     })
 
     return () => {
@@ -210,6 +219,30 @@ Please note:
 2. I am not a replacement for a coach or skate technician.
 3. I may ask clarification questions when needed.
 4. Feedback is welcome at charlesatlife@gmail.com.`,
+  }
+
+  const loadProfile = async (userId: string) => {
+    setProfileLoaded(false)
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('first_name, last_name, skater_level')
+      .eq('id', userId)
+      .single()
+
+    if (error) {
+      console.error('Failed to load profile:', error.message)
+      setProfileLoaded(true)
+      return
+    }
+
+    if (data) {
+      setAuthFirstName(data.first_name || '')
+      setAuthLastName(data.last_name || '')
+      setSkaterLevel(data.skater_level || 'beginner')
+    }
+
+    setProfileLoaded(true)
   }
 
   const showToast = (message: string) => {
@@ -696,31 +729,56 @@ ${context}
   }
 
   const handleSignup = async () => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: authEmail,
       password: authPassword,
     })
 
     if (error) {
       alert(error.message)
-    } else {
-      setAuthModalOpen(false)
-      showToast('✓ Account created')
+      return
     }
+
+    const user = data.user
+
+    if (user) {
+      const { error: profileError } = await supabase.from('profiles').upsert({
+        id: user.id,
+        email: authEmail,
+        first_name: authFirstName,
+        last_name: authLastName,
+        skater_level: skaterLevel,
+        updated_at: new Date().toISOString(),
+      })
+
+      if (profileError) {
+        console.error('Profile creation failed:', profileError.message)
+        alert(profileError.message)
+        return
+      }
+    }
+
+    setAuthModalOpen(false)
+    showToast('✓ Account created')
   }
 
   const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: authEmail,
       password: authPassword,
     })
 
     if (error) {
       alert(error.message)
-    } else {
-      setAuthModalOpen(false)
-      showToast('✓ Signed in')
+      return
     }
+
+    if (data.user?.id) {
+      await loadProfile(data.user.id)
+    }
+
+    setAuthModalOpen(false)
+    showToast('✓ Signed in')
   }
 
   const handleLogout = async () => {
@@ -999,32 +1057,58 @@ transition-all duration-150
               </div>
             </div>
 
-            {session ? (
+            {session && profileLoaded ? (
               <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setProfileModalOpen(true)}
-                  className="
-  text-sm text-slate-700 font-medium
+                <div className="relative group">
+                  <button
+                    onClick={() => setProfileModalOpen(true)}
+                    className="
+    text-sm text-slate-700 font-medium
 
-  px-3 py-1.5
-  rounded-lg
+    px-3 py-1.5
+    rounded-lg
 
-  border border-transparent
+    border border-transparent
 
-  hover:border-slate-300
-  hover:bg-slate-100
-  hover:text-slate-900
+    hover:border-slate-300
+    hover:bg-slate-100
+    hover:text-slate-900
 
-  transition-all duration-150
-  "
-                >
-                  {authFirstName || 'Skater'} (
-                  {skaterLevel === 'non_skater'
-                    ? 'Non-skater'
-                    : skaterLevel.charAt(0).toUpperCase() +
-                      skaterLevel.slice(1)}
-                  )
-                </button>
+    transition-all duration-150
+    "
+                  >
+                    {authFirstName || 'Skater'} (
+                    {skaterLevel === 'non_skater'
+                      ? 'Non-skater'
+                      : skaterLevel.charAt(0).toUpperCase() +
+                        skaterLevel.slice(1)}
+                    )
+                  </button>
+
+                  <div
+                    className="
+    absolute top-full right-0 mt-2
+
+    px-2 py-1
+    text-xs
+
+    bg-slate-700 text-white
+    rounded-md
+    shadow-lg
+
+    opacity-0
+    group-hover:opacity-100
+
+    transition-opacity duration-150
+
+    pointer-events-none
+    whitespace-nowrap
+    z-50
+    "
+                  >
+                    Edit your profile
+                  </div>
+                </div>
 
                 <button
                   onClick={handleLogout}
@@ -1507,7 +1591,10 @@ transition-all duration-150
                 </p>
 
                 <div className="space-y-2">
-                  <label className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-50">
+                  <label
+                    title="New skater or learning basic skating skills"
+                    className="flex items-center gap-3 cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-50"
+                  >
                     <input
                       type="radio"
                       value="beginner"
@@ -1518,7 +1605,10 @@ transition-all duration-150
                     <span className="text-sm text-slate-700">Beginner</span>
                   </label>
 
-                  <label className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-50">
+                  <label
+                    title="Typically passed Juvenile level or Adult Gold level"
+                    className="flex items-center gap-3 cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-50"
+                  >
                     <input
                       type="radio"
                       value="intermediate"
@@ -1529,7 +1619,10 @@ transition-all duration-150
                     <span className="text-sm text-slate-700">Intermediate</span>
                   </label>
 
-                  <label className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-50">
+                  <label
+                    title="Typically passed Novice level or higher"
+                    className="flex items-center gap-3 cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-50"
+                  >
                     <input
                       type="radio"
                       value="advanced"
@@ -1540,7 +1633,10 @@ transition-all duration-150
                     <span className="text-sm text-slate-700">Advanced</span>
                   </label>
 
-                  <label className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-50">
+                  <label
+                    title="Parent, fan, or non-skating user"
+                    className="flex items-center gap-3 cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-50"
+                  >
                     <input
                       type="radio"
                       value="non_skater"
@@ -1554,7 +1650,26 @@ transition-all duration-150
               </div>
 
               <button
-                onClick={() => setProfileModalOpen(false)}
+                onClick={async () => {
+                  if (!session?.user?.id) return
+
+                  const { error } = await supabase.from('profiles').upsert({
+                    id: session.user.id,
+                    email: session.user.email,
+                    first_name: authFirstName,
+                    last_name: authLastName,
+                    skater_level: skaterLevel,
+                    updated_at: new Date().toISOString(),
+                  })
+
+                  if (error) {
+                    alert(error.message)
+                    return
+                  }
+
+                  setProfileModalOpen(false)
+                  showToast('✓ Profile saved')
+                }}
                 className="
           w-full
           rounded-xl
