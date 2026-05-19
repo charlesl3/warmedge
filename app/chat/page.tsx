@@ -43,8 +43,19 @@ Please kindly note:
 export default function ChatPage() {
   const [input, setInput] = useState('')
   const [session, setSession] = useState<any>(null)
+
+  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
+
+  const [authFirstName, setAuthFirstName] = useState('')
+  const [authLastName, setAuthLastName] = useState('')
+
   const [authEmail, setAuthEmail] = useState('')
   const [authPassword, setAuthPassword] = useState('')
+
+  const [skaterLevel, setSkaterLevel] = useState('beginner')
+  const [profileModalOpen, setProfileModalOpen] = useState(false)
+  const [toastMessage, setToastMessage] = useState('')
   const [messages, setMessages] = useState<Message[]>([])
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([])
   const [currentChatId, setCurrentChatId] = useState<string | null>(null)
@@ -201,6 +212,14 @@ Please note:
 4. Feedback is welcome at charlesatlife@gmail.com.`,
   }
 
+  const showToast = (message: string) => {
+    setToastMessage(message)
+
+    setTimeout(() => {
+      setToastMessage('')
+    }, 1500)
+  }
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({
       behavior: 'smooth',
@@ -244,9 +263,18 @@ Please note:
     }
 
     try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const accessToken = session?.access_token
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_CHAT_API_URL}/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
         body: JSON.stringify({
           message: userMessage,
           session_id: sessionId,
@@ -676,7 +704,8 @@ ${context}
     if (error) {
       alert(error.message)
     } else {
-      alert('Signup successful')
+      setAuthModalOpen(false)
+      showToast('✓ Account created')
     }
   }
 
@@ -689,7 +718,8 @@ ${context}
     if (error) {
       alert(error.message)
     } else {
-      alert('Login successful')
+      setAuthModalOpen(false)
+      showToast('✓ Signed in')
     }
   }
 
@@ -971,9 +1001,30 @@ transition-all duration-150
 
             {session ? (
               <div className="flex items-center gap-3">
-                <span className="text-sm text-slate-600">
-                  {session.user.email}
-                </span>
+                <button
+                  onClick={() => setProfileModalOpen(true)}
+                  className="
+  text-sm text-slate-700 font-medium
+
+  px-3 py-1.5
+  rounded-lg
+
+  border border-transparent
+
+  hover:border-slate-300
+  hover:bg-slate-100
+  hover:text-slate-900
+
+  transition-all duration-150
+  "
+                >
+                  {authFirstName || 'Skater'} (
+                  {skaterLevel === 'non_skater'
+                    ? 'Non-skater'
+                    : skaterLevel.charAt(0).toUpperCase() +
+                      skaterLevel.slice(1)}
+                  )
+                </button>
 
                 <button
                   onClick={handleLogout}
@@ -989,59 +1040,30 @@ transition-all duration-150
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <input
-                  type="email"
-                  placeholder="email"
-                  value={authEmail}
-                  onChange={(e) => setAuthEmail(e.target.value)}
-                  className="
-      border border-slate-300
-      rounded-md
-      px-2 py-1
-      text-sm
-      "
-                />
-
-                <input
-                  type="password"
-                  placeholder="password"
-                  value={authPassword}
-                  onChange={(e) => setAuthPassword(e.target.value)}
-                  className="
-      border border-slate-300
-      rounded-md
-      px-2 py-1
-      text-sm
-      "
-                />
-
-                <button
-                  onClick={handleSignup}
-                  className="
-      px-3 py-1
-      text-sm
-      rounded-md
-      border border-slate-300
-      hover:bg-slate-100
-      "
+              <button
+                onClick={() => setAuthModalOpen(true)}
+                className="
+    flex items-center justify-center
+    h-10 w-10
+    rounded-full
+    border border-slate-300
+    hover:bg-slate-100
+    transition-all duration-150
+    "
+                title="Sign in"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  className="w-5 h-5 text-slate-700"
                 >
-                  Sign up
-                </button>
-
-                <button
-                  onClick={handleLogin}
-                  className="
-      px-3 py-1
-      text-sm
-      rounded-md
-      border border-slate-300
-      hover:bg-slate-100
-      "
-                >
-                  Login
-                </button>
-              </div>
+                  <path d="M20 21a8 8 0 1 0-16 0" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </button>
             )}
           </div>
         </div>
@@ -1428,6 +1450,380 @@ transition-all duration-150
           </div>
         </div>
       </div>
+      {profileModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className="w-[380px] rounded-2xl bg-white p-8 shadow-2xl border border-slate-200">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-800">
+                  Profile
+                </h2>
+
+                <p className="text-sm text-slate-500 mt-1">
+                  Update your skating profile.
+                </p>
+              </div>
+
+              <button
+                onClick={() => setProfileModalOpen(false)}
+                className="text-slate-400 hover:text-slate-700"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <input
+                type="text"
+                placeholder="First name"
+                value={authFirstName}
+                onChange={(e) => setAuthFirstName(e.target.value)}
+                className="
+          w-full
+          rounded-xl
+          border border-slate-300
+          px-4 py-3
+          focus:outline-none focus:ring-2 focus:ring-slate-200
+          "
+              />
+
+              <input
+                type="text"
+                placeholder="Last name (optional)"
+                value={authLastName}
+                onChange={(e) => setAuthLastName(e.target.value)}
+                className="
+          w-full
+          rounded-xl
+          border border-slate-300
+          px-4 py-3
+          focus:outline-none focus:ring-2 focus:ring-slate-200
+          "
+              />
+
+              <div className="pt-2">
+                <p className="text-sm font-medium text-slate-700 mb-3">
+                  Skating level
+                </p>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-50">
+                    <input
+                      type="radio"
+                      value="beginner"
+                      checked={skaterLevel === 'beginner'}
+                      onChange={(e) => setSkaterLevel(e.target.value)}
+                    />
+
+                    <span className="text-sm text-slate-700">Beginner</span>
+                  </label>
+
+                  <label className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-50">
+                    <input
+                      type="radio"
+                      value="intermediate"
+                      checked={skaterLevel === 'intermediate'}
+                      onChange={(e) => setSkaterLevel(e.target.value)}
+                    />
+
+                    <span className="text-sm text-slate-700">Intermediate</span>
+                  </label>
+
+                  <label className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-50">
+                    <input
+                      type="radio"
+                      value="advanced"
+                      checked={skaterLevel === 'advanced'}
+                      onChange={(e) => setSkaterLevel(e.target.value)}
+                    />
+
+                    <span className="text-sm text-slate-700">Advanced</span>
+                  </label>
+
+                  <label className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-50">
+                    <input
+                      type="radio"
+                      value="non_skater"
+                      checked={skaterLevel === 'non_skater'}
+                      onChange={(e) => setSkaterLevel(e.target.value)}
+                    />
+
+                    <span className="text-sm text-slate-700">Non-skater</span>
+                  </label>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setProfileModalOpen(false)}
+                className="
+          w-full
+          rounded-xl
+          bg-slate-800
+          text-white
+          py-3
+          font-medium
+          hover:bg-slate-700
+          transition-all
+          "
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {toastMessage && (
+        <div
+          className="
+    fixed inset-0 z-[100]
+    flex items-center justify-center
+    pointer-events-none
+    "
+        >
+          <div
+            className="
+      px-5 py-3
+
+      rounded-2xl
+
+      bg-slate-800/95
+      backdrop-blur-sm
+
+      text-white text-sm font-medium
+
+      shadow-2xl
+      border border-slate-700
+
+      animate-[fadeIn_0.2s_ease]
+      "
+          >
+            {toastMessage}
+          </div>
+        </div>
+      )}
+
+      {authModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="w-[380px] rounded-2xl bg-white p-8 shadow-2xl border border-slate-200">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-800">
+                  Welcome to WarmGPT
+                </h2>
+
+                <p className="text-sm text-slate-500 mt-1">
+                  Save your skating profile and conversations.
+                </p>
+              </div>
+
+              <button
+                onClick={() => setAuthModalOpen(false)}
+                className="text-slate-400 hover:text-slate-700"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex rounded-xl bg-slate-100 p-1 mb-5">
+              <button
+                onClick={() => setAuthMode('login')}
+                className={`
+    flex-1 rounded-lg py-2 text-sm font-medium transition-all
+    ${
+      authMode === 'login'
+        ? 'bg-white shadow-sm text-slate-800'
+        : 'text-slate-500'
+    }
+    `}
+              >
+                Sign In
+              </button>
+
+              <button
+                onClick={() => setAuthMode('signup')}
+                className={`
+    flex-1 rounded-lg py-2 text-sm font-medium transition-all
+    ${
+      authMode === 'signup'
+        ? 'bg-white shadow-sm text-slate-800'
+        : 'text-slate-500'
+    }
+    `}
+              >
+                Create Account
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {authMode === 'signup' && (
+                <>
+                  <input
+                    type="text"
+                    placeholder="First name"
+                    value={authFirstName}
+                    onChange={(e) => setAuthFirstName(e.target.value)}
+                    className="
+  w-full
+  rounded-xl
+  border border-slate-300
+  px-4 py-3
+  focus:outline-none focus:ring-2 focus:ring-slate-200
+  "
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Last name (optional)"
+                    value={authLastName}
+                    onChange={(e) => setAuthLastName(e.target.value)}
+                    className="
+  w-full
+  rounded-xl
+  border border-slate-300
+  px-4 py-3
+  focus:outline-none focus:ring-2 focus:ring-slate-200
+  "
+                  />
+                </>
+              )}
+
+              <input
+                type="email"
+                placeholder="Email"
+                value={authEmail}
+                onChange={(e) => setAuthEmail(e.target.value)}
+                className="
+          w-full
+          rounded-xl
+          border border-slate-300
+          px-4 py-3
+          focus:outline-none focus:ring-2 focus:ring-slate-200
+          "
+              />
+
+              <input
+                type="password"
+                placeholder="Password"
+                value={authPassword}
+                onChange={(e) => setAuthPassword(e.target.value)}
+                className="
+          w-full
+          rounded-xl
+          border border-slate-300
+          px-4 py-3
+          focus:outline-none focus:ring-2 focus:ring-slate-200
+          "
+              />
+
+              {authMode === 'signup' && (
+                <>
+                  <div className="pt-2">
+                    <p className="text-sm font-medium text-slate-700 mb-3">
+                      What best describes your skating level?
+                    </p>
+
+                    <div className="space-y-2">
+                      <label
+                        title="New skater or learning basic skating skills"
+                        className="flex items-center gap-3 cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-50"
+                      >
+                        <input
+                          type="radio"
+                          value="beginner"
+                          checked={skaterLevel === 'beginner'}
+                          onChange={(e) => setSkaterLevel(e.target.value)}
+                        />
+
+                        <span className="text-sm text-slate-700">Beginner</span>
+                      </label>
+
+                      <label
+                        title="Typically passed Juvenile level or Adult Gold level"
+                        className="flex items-center gap-3 cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-50"
+                      >
+                        <input
+                          type="radio"
+                          value="intermediate"
+                          checked={skaterLevel === 'intermediate'}
+                          onChange={(e) => setSkaterLevel(e.target.value)}
+                        />
+
+                        <span className="text-sm text-slate-700">
+                          Intermediate
+                        </span>
+                      </label>
+
+                      <label
+                        title="Typically passed Novice level or higher"
+                        className="flex items-center gap-3 cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-50"
+                      >
+                        <input
+                          type="radio"
+                          value="advanced"
+                          checked={skaterLevel === 'advanced'}
+                          onChange={(e) => setSkaterLevel(e.target.value)}
+                        />
+
+                        <span className="text-sm text-slate-700">Advanced</span>
+                      </label>
+
+                      <label
+                        title="Parent, fan, or non-skating user"
+                        className="flex items-center gap-3 cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-50"
+                      >
+                        <input
+                          type="radio"
+                          value="non_skater"
+                          checked={skaterLevel === 'non_skater'}
+                          onChange={(e) => setSkaterLevel(e.target.value)}
+                        />
+
+                        <span className="text-sm text-slate-700">
+                          Non-skater
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {authMode === 'login' ? (
+                <button
+                  onClick={handleLogin}
+                  className="
+    w-full
+    rounded-xl
+    bg-slate-800
+    text-white
+    py-3
+    font-medium
+    hover:bg-slate-700
+    transition-all
+    "
+                >
+                  Sign In
+                </button>
+              ) : (
+                <button
+                  onClick={handleSignup}
+                  className="
+    w-full
+    rounded-xl
+    bg-slate-800
+    text-white
+    py-3
+    font-medium
+    hover:bg-slate-700
+    transition-all
+    "
+                >
+                  Create Account
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
