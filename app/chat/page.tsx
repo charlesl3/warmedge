@@ -54,8 +54,12 @@ export default function ChatPage() {
   const [authPassword, setAuthPassword] = useState('')
 
   const [skaterLevel, setSkaterLevel] = useState('beginner')
+  const [highestJump, setHighestJump] = useState('')
+  const [highestTestLevel, setHighestTestLevel] = useState('')
   const [profileModalOpen, setProfileModalOpen] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
+  const [profileUpdateCandidate, setProfileUpdateCandidate] =
+    useState<any>(null)
   const [profileLoaded, setProfileLoaded] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([])
@@ -226,7 +230,15 @@ Please note:
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('first_name, last_name, skater_level')
+      .select(
+        `
+  first_name,
+  last_name,
+  skater_level,
+  highest_jump,
+  highest_test_level
+`
+      )
       .eq('id', userId)
       .single()
 
@@ -240,6 +252,8 @@ Please note:
       setAuthFirstName(data.first_name || '')
       setAuthLastName(data.last_name || '')
       setSkaterLevel(data.skater_level || 'beginner')
+      setHighestJump(data.highest_jump || '')
+      setHighestTestLevel(data.highest_test_level || '')
     }
 
     setProfileLoaded(true)
@@ -315,6 +329,9 @@ Please note:
       })
 
       const data = await res.json()
+      if (data.profile_update_candidate) {
+        setProfileUpdateCandidate(data.profile_update_candidate)
+      }
 
       if (!sessionId && data.session_id) {
         setSessionId(data.session_id)
@@ -748,6 +765,8 @@ ${context}
         first_name: authFirstName,
         last_name: authLastName,
         skater_level: skaterLevel,
+        highest_jump: highestJump,
+        highest_test_level: highestTestLevel,
         updated_at: new Date().toISOString(),
       })
 
@@ -791,6 +810,18 @@ ${context}
 
     return 0
   })
+
+  const fieldLabel = (field: string) => {
+    if (field === 'highest_jump') {
+      return 'Highest jump'
+    }
+
+    if (field === 'highest_test_level') {
+      return 'Highest test level'
+    }
+
+    return field
+  }
 
   return (
     <div className="h-[100dvh] flex bg-slate-50 relative">
@@ -1649,6 +1680,36 @@ transition-all duration-150
                 </div>
               </div>
 
+              <div className="space-y-4 pt-3">
+                <input
+                  type="text"
+                  placeholder="Highest jump (optional)"
+                  value={highestJump}
+                  onChange={(e) => setHighestJump(e.target.value)}
+                  className="
+      w-full
+      rounded-xl
+      border border-slate-300
+      px-4 py-3
+      focus:outline-none focus:ring-2 focus:ring-slate-200
+    "
+                />
+
+                <input
+                  type="text"
+                  placeholder="Highest test level (optional)"
+                  value={highestTestLevel}
+                  onChange={(e) => setHighestTestLevel(e.target.value)}
+                  className="
+      w-full
+      rounded-xl
+      border border-slate-300
+      px-4 py-3
+      focus:outline-none focus:ring-2 focus:ring-slate-200
+    "
+                />
+              </div>
+
               <button
                 onClick={async () => {
                   if (!session?.user?.id) return
@@ -1659,6 +1720,8 @@ transition-all duration-150
                     first_name: authFirstName,
                     last_name: authLastName,
                     skater_level: skaterLevel,
+                    highest_jump: highestJump,
+                    highest_test_level: highestTestLevel,
                     updated_at: new Date().toISOString(),
                   })
 
@@ -1687,6 +1750,138 @@ transition-all duration-150
           </div>
         </div>
       )}
+
+      {profileUpdateCandidate && (
+        <div
+          className="
+    fixed bottom-6 right-6 z-[90]
+
+    w-[340px]
+
+    rounded-2xl
+    border border-slate-200
+    bg-white
+
+    shadow-2xl
+
+    p-5
+
+    animate-[fadeIn_0.2s_ease]
+    "
+        >
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-slate-800">
+                Possible profile update
+              </h3>
+
+              <p className="text-sm text-slate-500 mt-1 leading-relaxed">
+                WarmGPT noticed a possible skating progression update.
+              </p>
+            </div>
+
+            <div className="rounded-xl bg-slate-50 px-4 py-3">
+              <div className="text-xs uppercase tracking-wide text-slate-400 mb-2">
+                {fieldLabel(profileUpdateCandidate.field)}
+              </div>
+
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-slate-500">
+                  {profileUpdateCandidate.old_value}
+                </span>
+
+                <span className="text-slate-400">→</span>
+
+                <span className="font-semibold text-slate-800">
+                  {profileUpdateCandidate.new_value}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => {
+                  setProfileUpdateCandidate(null)
+                }}
+                className="
+          px-4 py-2
+          text-sm
+          rounded-xl
+          border border-slate-300
+          hover:bg-slate-100
+          transition-all
+          "
+              >
+                Dismiss
+              </button>
+
+              <button
+                onClick={async () => {
+                  try {
+                    const {
+                      data: { session },
+                    } = await supabase.auth.getSession()
+
+                    const accessToken = session?.access_token
+
+                    const res = await fetch(
+                      `${process.env.NEXT_PUBLIC_CHAT_API_URL}/profile/update`,
+                      {
+                        method: 'POST',
+
+                        headers: {
+                          'Content-Type': 'application/json',
+
+                          Authorization: `Bearer ${accessToken}`,
+                        },
+
+                        body: JSON.stringify({
+                          field: profileUpdateCandidate.field,
+
+                          new_value: profileUpdateCandidate.new_value,
+                        }),
+                      }
+                    )
+
+                    const data = await res.json()
+
+                    if (!data.success) {
+                      alert(data.error || 'Update failed')
+                      return
+                    }
+
+                    // optimistic frontend update
+
+                    if (profileUpdateCandidate.field === 'highest_jump') {
+                      setHighestJump(profileUpdateCandidate.new_value)
+                    }
+
+                    showToast('✓ Profile updated')
+
+                    setProfileUpdateCandidate(null)
+                  } catch (err) {
+                    console.error(err)
+
+                    alert('Profile update failed')
+                  }
+                }}
+                className="
+          px-4 py-2
+          text-sm
+          rounded-xl
+          bg-slate-800
+          text-white
+          hover:bg-slate-700
+          transition-all
+          "
+              >
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {toastMessage && (
         <div
           className="
@@ -1898,6 +2093,35 @@ transition-all duration-150
                         </span>
                       </label>
                     </div>
+                  </div>
+                  <div className="space-y-4 pt-3">
+                    <input
+                      type="text"
+                      placeholder="Highest jump (optional)"
+                      value={highestJump}
+                      onChange={(e) => setHighestJump(e.target.value)}
+                      className="
+      w-full
+      rounded-xl
+      border border-slate-300
+      px-4 py-3
+      focus:outline-none focus:ring-2 focus:ring-slate-200
+    "
+                    />
+
+                    <input
+                      type="text"
+                      placeholder="Highest test level (optional)"
+                      value={highestTestLevel}
+                      onChange={(e) => setHighestTestLevel(e.target.value)}
+                      className="
+      w-full
+      rounded-xl
+      border border-slate-300
+      px-4 py-3
+      focus:outline-none focus:ring-2 focus:ring-slate-200
+    "
+                    />
                   </div>
                 </>
               )}
