@@ -489,7 +489,7 @@ Please note:
   }
 
   const sendActionMessage = async (
-    action: 'drills' | 'simplify' | 'deeper' | 'diagnose',
+    action: 'simplify' | 'deeper',
     linkedQuestion: string | null,
     assistantAnswer: string,
     index: number
@@ -504,29 +504,19 @@ Please note:
 
     let actionPrompt = ''
 
-    if (action === 'drills') {
-      actionPrompt = `
-Mode: drills
-
-If the context is about a skating skill or issue, give practical drills and exercises.
-
-If it is NOT about a personal skating issue, do not force a diagnosis.
-Instead:
-- identify 1-2 skating skills related to the topic
-- suggest beginner-friendly drills for those skills
-- briefly explain why those drills are related
-
-Context:
-${context}
-`
-    }
-
     if (action === 'simplify') {
       actionPrompt = `
 Mode: simplify
 
-Explain the following more simply and concisely.
-Use clear language, fewer words, and avoid technical detail unless necessary.
+Rewrite the answer into a MUCH shorter version.
+
+Strict rules:
+- Reduce the text length by at least 70%.
+- Keep only the core point.
+- Use simple language.
+- Remove extra nuance, caveats, examples, and repeated explanation.
+- Maximum 3 very short sentences.
+- Do not add new information.
 
 Content:
 ${assistantAnswer}
@@ -537,29 +527,21 @@ ${assistantAnswer}
       actionPrompt = `
 Mode: deeper
 
-Go deeper technically.
-Include mechanics, reasoning, nuance, and practical implications.
-A longer answer is okay.
+Expand this into a significantly deeper answer.
+
+Strict rules:
+- The new answer must be much longer than the original.
+- Add technical reasoning, mechanics, common mistakes, practical cues, and realistic skating nuance.
+- Explain why things happen, not only what to do.
+- Add several useful details that were not in the original.
+- Stay organized and practical.
+- Do not mention sources or internal systems.
 
 Context:
 ${context}
-`
-    }
 
-    if (action === 'diagnose') {
-      actionPrompt = `
-Mode: diagnose
-
-If the context describes a personal skating issue, diagnose possible causes.
-
-If it does NOT describe a personal issue, do not pretend there is one.
-Instead:
-- explain common mistakes related to this topic
-- suggest how a skater could self-check
-- give practical warning signs to watch for
-
-Context:
-${context}
+Original answer:
+${assistantAnswer}
 `
     }
 
@@ -1412,29 +1394,6 @@ transition-all duration-150
                       <button
                         onClick={() =>
                           sendActionMessage(
-                            'drills',
-                            linkedQuestion,
-                            m.content,
-                            i
-                          )
-                        }
-                        disabled={actionLoading}
-                        className={`
-text-xs px-3 py-1.5
-rounded-full
-bg-white
-border border-slate-200
-text-slate-600
-transition-all duration-150
-${actionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100'}
-`}
-                      >
-                        Try drills
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          sendActionMessage(
                             'simplify',
                             linkedQuestion,
                             m.content,
@@ -1476,29 +1435,6 @@ ${actionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100'}
 `}
                       >
                         Go deeper
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          sendActionMessage(
-                            'diagnose',
-                            linkedQuestion,
-                            m.content,
-                            i
-                          )
-                        }
-                        disabled={actionLoading}
-                        className={`
-text-xs px-3 py-1.5
-rounded-full
-bg-white
-border border-slate-200
-text-slate-600
-transition-all duration-150
-${actionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100'}
-`}
-                      >
-                        Diagnose me
                       </button>
                     </div>
                   )}
