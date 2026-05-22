@@ -1441,7 +1441,7 @@ ${actionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100'}
                 {actionLoading && actionTargetIndex === i && (
                   <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
                     <ThinkingDots />
-                    <span>Thinking deeper...</span>
+                    <span>Regenerating your answer...</span>
                   </div>
                 )}
                 {m.role === 'assistant' && m.repaired && (
