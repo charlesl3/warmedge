@@ -1370,6 +1370,10 @@ transition-all duration-150
                                   return 'session-day-heavy'
                                 }
 
+                                if (hours >= 1.5) {
+                                  return 'session-day-medium-heavy'
+                                }
+
                                 if (hours >= 1) {
                                   return 'session-day-medium'
                                 }

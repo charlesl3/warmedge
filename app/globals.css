@@ -134,6 +134,12 @@ body {
   border-radius: 12px;
 }
 
+.warm-calendar .session-day-medium-heavy {
+  background: #3b82f6 !important;
+  color: white !important;
+  border-radius: 12px;
+}
+
 .warm-calendar .session-day-medium {
   background: #60a5fa !important;
   color: white !important;
