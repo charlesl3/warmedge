@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, KeyboardEvent } from 'react'
 import Typewriter from '../components/Typewriter'
 import { supabase } from '../lib/supabase'
+import Calendar from 'react-calendar'
+import 'react-calendar/dist/Calendar.css'
 
 type Message = {
   id?: string
@@ -66,8 +68,20 @@ export default function ChatPage() {
   const [currentChatId, setCurrentChatId] = useState<string | null>(null)
 
   const [loading, setLoading] = useState(false)
+  const [bladeTracker, setBladeTracker] = useState<any>(null)
+
+  const [trackerLoading, setTrackerLoading] = useState(false)
+  const [sharpeningLoading, setSharpeningLoading] = useState(false)
+  const [sessionLoggingLoading, setSessionLoggingLoading] = useState(false)
+
+  const [sessionHours, setSessionHours] = useState('')
+
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().slice(0, 10)
+  )
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [activeView, setActiveView] = useState<'chat' | 'blade_tracker'>('chat')
   const [reloading, setReloading] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -139,6 +153,8 @@ export default function ChatPage() {
 
       if (data.session?.user?.id) {
         loadProfile(data.session.user.id)
+
+        loadBladeTracker()
       }
     })
 
@@ -149,6 +165,10 @@ export default function ChatPage() {
 
       if (session?.user?.id) {
         loadProfile(session.user.id)
+
+        loadBladeTracker()
+      } else {
+        setBladeTracker(null)
       }
     })
 
@@ -257,6 +277,171 @@ Please note:
     }
 
     setProfileLoaded(true)
+  }
+
+  const loadBladeTracker = async () => {
+    try {
+      setTrackerLoading(true)
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const accessToken = session?.access_token
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_CHAT_API_URL}/blade-tracker`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      )
+
+      const data = await res.json()
+
+      if (data.success) {
+        setBladeTracker(data.tracker)
+      }
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setTrackerLoading(false)
+    }
+  }
+
+  const handleLogSession = async () => {
+    if (!sessionHours) return
+    const numericHours = parseFloat(sessionHours)
+
+    const existingSession = bladeTracker?.sessions?.find(
+      (s: any) => s.session_date === selectedDate
+    )
+
+    // 0 hrs behavior
+    if (numericHours === 0) {
+      // existing record → delete it
+      if (existingSession) {
+        await handleDeleteSession(selectedDate)
+
+        setSessionHours('')
+
+        showToast('✓ Session removed')
+      }
+
+      // no existing record → do nothing
+      return
+    }
+
+    try {
+      setSessionLoggingLoading(true)
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const accessToken = session?.access_token
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_CHAT_API_URL}/blade-tracker/session`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            hours: numericHours,
+            session_date: selectedDate,
+          }),
+        }
+      )
+
+      const data = await res.json()
+
+      if (data.success) {
+        setBladeTracker(data.tracker)
+        setSessionHours('')
+        showToast('✓ Session logged')
+      }
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setSessionLoggingLoading(false)
+    }
+  }
+
+  const handleSharpened = async () => {
+    try {
+      setSharpeningLoading(true)
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const accessToken = session?.access_token
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_CHAT_API_URL}/blade-tracker/sharpened`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            sharpened_at: selectedDate,
+          }),
+        }
+      )
+
+      const data = await res.json()
+
+      if (data.success) {
+        setBladeTracker(data.tracker)
+
+        showToast('✓ Sharpening recorded')
+      }
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setSharpeningLoading(false)
+    }
+  }
+
+  const handleDeleteSession = async (sessionDate: string) => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const accessToken = session?.access_token
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_CHAT_API_URL}/blade-tracker/session`,
+        {
+          method: 'DELETE',
+
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+
+          body: JSON.stringify({
+            session_date: sessionDate,
+          }),
+        }
+      )
+
+      const data = await res.json()
+
+      if (data.success) {
+        setBladeTracker(data.tracker)
+
+        showToast('✓ Session deleted')
+      }
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   const showToast = (message: string) => {
@@ -805,6 +990,20 @@ ${assistantAnswer}
     return field
   }
 
+  const sessionDateSet = new Set(
+    bladeTracker?.sessions?.map((s: any) => s.session_date)
+  )
+
+  const sessionHoursByDate: Record<string, number> = {}
+
+  bladeTracker?.sessions?.forEach((s: any) => {
+    sessionHoursByDate[s.session_date] = Number(s.hours)
+  })
+
+  const sharpenDateSet = new Set(
+    bladeTracker?.last_sharpened_at ? [bladeTracker.last_sharpened_at] : []
+  )
+
   return (
     <div className="h-[100dvh] flex bg-slate-50 relative">
       {/* Mobile Overlay */}
@@ -838,8 +1037,11 @@ ${assistantAnswer}
         <div className="px-4 py-5 space-y-2 text-sm">
           <button
             onClick={() => {
-              injectAssistantMessage('Hi, how can I help you today?')
-              if (isMobile) setSidebarOpen(false)
+              setActiveView('chat')
+
+              if (isMobile) {
+                setSidebarOpen(false)
+              }
             }}
             className="
 w-full text-left rounded-lg px-4 py-2.5
@@ -873,6 +1075,25 @@ transition-all duration-150
 "
           >
             Products
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveView('blade_tracker')
+              loadBladeTracker()
+
+              if (isMobile) {
+                setSidebarOpen(false)
+              }
+            }}
+            className="
+w-full text-left rounded-lg px-4 py-2.5
+text-slate-700
+hover:bg-slate-100
+transition-all duration-150
+"
+          >
+            Blade Sharpening Tracker
           </button>
 
           <button
@@ -1002,19 +1223,304 @@ transition-all duration-150
 
       {/* CHAT AREA */}
       <div className="flex-1 flex flex-col relative">
-        {/* HEADER BAR */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-white">
-          {/* Sidebar toggle */}
-          <div className="relative group">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="flex items-center justify-center h-9 w-9 rounded-md border border-slate-300 hover:bg-slate-100"
-            >
-              {sidebarOpen ? '←' : '☰'}
-            </button>
+        {activeView === 'blade_tracker' ? (
+          <div className="flex-1 overflow-y-auto p-8 bg-slate-50">
+            <div className="max-w-3xl mx-auto space-y-6">
+              <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <h2 className="text-2xl font-semibold mb-4">
+                  Blade Sharpening Tracker
+                </h2>
 
-            <div
-              className="
+                {session && bladeTracker ? (
+                  <>
+                    <div className="mb-4">
+                      <div className="text-sm text-slate-500 mb-1">
+                        Hours since sharpening
+                      </div>
+
+                      <div className="text-3xl font-bold">
+                        {bladeTracker.hours_since_sharpening} /{' '}
+                        {bladeTracker.threshold_hours} hrs
+                      </div>
+                      <div className="text-sm text-slate-500 mt-2">
+                        Last sharpened:
+                        <span className="ml-2 font-medium text-slate-700">
+                          {bladeTracker.last_sharpened_at || 'Not recorded'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="w-full h-4 bg-slate-200 rounded-full overflow-hidden mb-4">
+                      <div
+                        className={`h-full transition-all duration-700 ${
+                          bladeTracker.should_sharpen
+                            ? 'bg-red-500'
+                            : 'bg-slate-700'
+                        }`}
+                        style={{
+                          width: `${Math.min(
+                            100,
+                            (bladeTracker.hours_since_sharpening /
+                              bladeTracker.threshold_hours) *
+                              100
+                          )}%`,
+                        }}
+                      />
+                    </div>
+
+                    {bladeTracker.should_sharpen && (
+                      <div className="text-red-600 font-medium mb-4">
+                        Your blades may need sharpening.
+                      </div>
+                    )}
+
+                    {!bladeTracker.last_sharpened_at && (
+                      <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                        Please record your last sharpening date before tracking
+                        skating hours.
+                      </div>
+                    )}
+
+                    <div className="flex gap-3 mb-6">
+                      <input
+                        type="number"
+                        step="0.5"
+                        placeholder="Hours"
+                        value={sessionHours}
+                        onChange={(e) => setSessionHours(e.target.value)}
+                        className="border rounded-lg px-3 py-2 w-32"
+                      />
+
+                      <button
+                        onClick={handleLogSession}
+                        disabled={sessionLoggingLoading}
+                        className={`
+    px-4 py-2 rounded-lg
+    border border-slate-300
+    transition-all duration-200
+
+    ${
+      sessionLoggingLoading
+        ? 'bg-slate-200 text-slate-500'
+        : 'bg-white text-slate-800 hover:bg-slate-100'
+    }
+  `}
+                      >
+                        {sessionLoggingLoading ? 'Logging...' : 'Log Session'}
+                      </button>
+
+                      <button
+                        onClick={handleSharpened}
+                        disabled={sharpeningLoading}
+                        className={`
+    px-4 py-2 rounded-lg
+    border border-slate-300
+    transition-all duration-200
+
+    ${sharpeningLoading ? 'bg-slate-200 text-slate-500' : 'hover:bg-slate-100'}
+  `}
+                      >
+                        {sharpeningLoading
+                          ? 'Recording...'
+                          : 'Record Sharpening'}
+                      </button>
+                    </div>
+
+                    <div>
+                      <div className="mb-8">
+                        <h3 className="font-semibold mb-4">Skating Calendar</h3>
+
+                        <div className="rounded-2xl border border-slate-200 p-4 bg-white">
+                          <Calendar
+                            className="warm-calendar"
+                            calendarType="gregory"
+                            value={new Date(selectedDate)}
+                            onChange={(value: any) => {
+                              const d = new Date(value)
+
+                              const yyyy = d.getFullYear()
+                              const mm = String(d.getMonth() + 1).padStart(
+                                2,
+                                '0'
+                              )
+                              const dd = String(d.getDate()).padStart(2, '0')
+
+                              setSelectedDate(`${yyyy}-${mm}-${dd}`)
+                            }}
+                            tileClassName={({ date, view }) => {
+                              if (view !== 'month') return ''
+
+                              const yyyy = date.getFullYear()
+                              const mm = String(date.getMonth() + 1).padStart(
+                                2,
+                                '0'
+                              )
+                              const dd = String(date.getDate()).padStart(2, '0')
+
+                              const key = `${yyyy}-${mm}-${dd}`
+
+                              if (sharpenDateSet.has(key)) {
+                                return 'sharpen-day'
+                              }
+
+                              const hours = sessionHoursByDate[key]
+
+                              if (hours) {
+                                if (hours >= 2) {
+                                  return 'session-day-heavy'
+                                }
+
+                                if (hours >= 1) {
+                                  return 'session-day-medium'
+                                }
+
+                                return 'session-day-light'
+                              }
+
+                              return ''
+                            }}
+                            tileContent={({ date, view }) => {
+                              if (view !== 'month') return null
+
+                              const yyyy = date.getFullYear()
+                              const mm = String(date.getMonth() + 1).padStart(
+                                2,
+                                '0'
+                              )
+                              const dd = String(date.getDate()).padStart(2, '0')
+
+                              const key = `${yyyy}-${mm}-${dd}`
+                              const hours = sessionHoursByDate[key]
+
+                              if (!hours) return null
+
+                              return (
+                                <div className="calendar-hour-tooltip">
+                                  {hours} hrs
+                                </div>
+                              )
+                            }}
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-5 mt-4 text-sm text-slate-500">
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 rounded bg-blue-600" />
+                            Session logged
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 rounded bg-yellow-400" />
+                              Sharpened
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <h3 className="font-semibold mb-3">Recent Sessions</h3>
+
+                      <div className="space-y-2">
+                        {bladeTracker.sessions?.map((s: any) => (
+                          <div
+                            key={s.id}
+                            className="
+    flex justify-between items-center
+    bg-slate-50
+    rounded-lg
+    px-4 py-3
+  "
+                          >
+                            <div>{s.session_date}</div>
+
+                            <div className="flex items-center gap-4">
+                              <div className="font-medium">{s.hours} hrs</div>
+
+                              <button
+                                onClick={() =>
+                                  handleDeleteSession(s.session_date)
+                                }
+                                className="
+        text-xs
+        text-red-500
+        hover:text-red-700
+      "
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="py-16 text-center">
+                    <div className="text-6xl mb-6">⛸️</div>
+
+                    <h3 className="text-2xl font-semibold text-slate-800 mb-3">
+                      Track your skating and sharpening history
+                    </h3>
+
+                    <p className="text-slate-500 max-w-md mx-auto leading-7 mb-8">
+                      Save skating hours, monitor blade sharpening cycles, and
+                      visualize your training habits over time.
+                    </p>
+
+                    <div className="space-y-3">
+                      <button
+                        onClick={() => {
+                          setAuthMode('signup')
+                          setAuthModalOpen(true)
+                        }}
+                        className="
+          px-6 py-3
+          rounded-xl
+          bg-slate-800
+          text-white
+          font-medium
+          hover:bg-slate-700
+          transition-all
+        "
+                      >
+                        Create your account
+                      </button>
+
+                      <div>
+                        <button
+                          onClick={() => {
+                            setAuthMode('login')
+                            setAuthModalOpen(true)
+                          }}
+                          className="
+            text-sm
+            text-slate-500
+            hover:text-slate-700
+          "
+                        >
+                          Already have an account? Sign in
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* HEADER BAR */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-white">
+              {/* Sidebar toggle */}
+              <div className="relative group">
+                <button
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  className="flex items-center justify-center h-9 w-9 rounded-md border border-slate-300 hover:bg-slate-100"
+                >
+                  {sidebarOpen ? '←' : '☰'}
+                </button>
+
+                <div
+                  className="
       absolute top-1/2 left-full ml-2
       -translate-y-1/2
       px-2 py-1
@@ -1028,30 +1534,30 @@ transition-all duration-150
       whitespace-nowrap
       z-50
     "
-            >
-              {sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
-            </div>
-          </div>
+                >
+                  {sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+                </div>
+              </div>
 
-          <div className="flex items-center gap-4">
-            {/* Reload chat */}
-            <div className="relative group">
-              <button
-                onClick={handleReloadChat}
-                disabled={reloading}
-                className="
+              <div className="flex items-center gap-4">
+                {/* Reload chat */}
+                <div className="relative group">
+                  <button
+                    onClick={handleReloadChat}
+                    disabled={reloading}
+                    className="
       flex items-center justify-center
       h-9 w-9
       rounded-md
       border border-slate-300
       hover:bg-slate-100
     "
-              >
-                <span className={reloading ? 'animate-spin' : ''}>↻</span>
-              </button>
+                  >
+                    <span className={reloading ? 'animate-spin' : ''}>↻</span>
+                  </button>
 
-              <div
-                className="
+                  <div
+                    className="
       absolute top-1/2 right-full mr-2
       -translate-y-1/2
       px-2 py-1
@@ -1065,17 +1571,17 @@ transition-all duration-150
       whitespace-nowrap
       z-50
     "
-              >
-                Start new chat
-              </div>
-            </div>
+                  >
+                    Start new chat
+                  </div>
+                </div>
 
-            {session && profileLoaded ? (
-              <div className="flex items-center gap-3">
-                <div className="relative group">
-                  <button
-                    onClick={() => setProfileModalOpen(true)}
-                    className="
+                {session && profileLoaded ? (
+                  <div className="flex items-center gap-3">
+                    <div className="relative group">
+                      <button
+                        onClick={() => setProfileModalOpen(true)}
+                        className="
     text-sm text-slate-700 font-medium
 
     px-3 py-1.5
@@ -1089,17 +1595,17 @@ transition-all duration-150
 
     transition-all duration-150
     "
-                  >
-                    {authFirstName || 'Skater'} (
-                    {skaterLevel === 'non_skater'
-                      ? 'Non-skater'
-                      : skaterLevel.charAt(0).toUpperCase() +
-                        skaterLevel.slice(1)}
-                    )
-                  </button>
+                      >
+                        {authFirstName || 'Skater'} (
+                        {skaterLevel === 'non_skater'
+                          ? 'Non-skater'
+                          : skaterLevel.charAt(0).toUpperCase() +
+                            skaterLevel.slice(1)}
+                        )
+                      </button>
 
-                  <div
-                    className="
+                      <div
+                        className="
     absolute top-full right-0 mt-2
 
     px-2 py-1
@@ -1118,28 +1624,28 @@ transition-all duration-150
     whitespace-nowrap
     z-50
     "
-                  >
-                    Edit your profile
-                  </div>
-                </div>
+                      >
+                        Edit your profile
+                      </div>
+                    </div>
 
-                <button
-                  onClick={handleLogout}
-                  className="
+                    <button
+                      onClick={handleLogout}
+                      className="
       px-3 py-1
       text-sm
       rounded-md
       border border-slate-300
       hover:bg-slate-100
       "
-                >
-                  Logout
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setAuthModalOpen(true)}
-                className="
+                    >
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setAuthModalOpen(true)}
+                    className="
     flex items-center justify-center
     h-10 w-10
     rounded-full
@@ -1147,54 +1653,56 @@ transition-all duration-150
     hover:bg-slate-100
     transition-all duration-150
     "
-                title="Sign in"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.7"
-                  className="w-5 h-5 text-slate-700"
-                >
-                  <path d="M20 21a8 8 0 1 0-16 0" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-              </button>
-            )}
-          </div>
-        </div>
-        <div className="flex-1 overflow-y-auto px-8 pt-6 pb-6 space-y-6">
-          {messages.map((m, i) => {
-            const linkedQuestion =
-              m.role === 'assistant' &&
-              i > 0 &&
-              messages[i - 1]?.role === 'user'
-                ? messages[i - 1].content
-                : null
+                    title="Sign in"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.7"
+                      className="w-5 h-5 text-slate-700"
+                    >
+                      <path d="M20 21a8 8 0 1 0-16 0" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto px-8 pt-6 pb-6 space-y-6">
+              {messages.map((m, i) => {
+                const linkedQuestion =
+                  m.role === 'assistant' &&
+                  i > 0 &&
+                  messages[i - 1]?.role === 'user'
+                    ? messages[i - 1].content
+                    : null
 
-            const isLastAssistant =
-              m.role === 'assistant' && i === messages.length - 1 && !loading
+                const isLastAssistant =
+                  m.role === 'assistant' &&
+                  i === messages.length - 1 &&
+                  !loading
 
-            return (
-              <div
-                key={`${m.role}-${i}-${m.content.slice(0, 20)}`}
-                className={`flex flex-col ${
-                  m.role === 'user' ? 'items-end pr-4' : 'items-start pl-4'
-                }`}
-              >
-                <div className="flex items-center justify-between text-sm mb-2">
-                  <div className="flex items-center gap-3 ml-3">
-                    <span className="font-medium">
-                      {m.role === 'assistant' ? 'WarmGPT' : 'You'}
-                    </span>
-                  </div>
+                return (
+                  <div
+                    key={`${m.role}-${i}-${m.content.slice(0, 20)}`}
+                    className={`flex flex-col ${
+                      m.role === 'user' ? 'items-end pr-4' : 'items-start pl-4'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <div className="flex items-center gap-3 ml-3">
+                        <span className="font-medium">
+                          {m.role === 'assistant' ? 'WarmGPT' : 'You'}
+                        </span>
+                      </div>
 
-                  {editingIndex !== i && (
-                    <div className="flex items-center gap-3 ml-3">
-                      <button
-                        onClick={() => handleCopy(m.content, i)}
-                        className={`
+                      {editingIndex !== i && (
+                        <div className="flex items-center gap-3 ml-3">
+                          <button
+                            onClick={() => handleCopy(m.content, i)}
+                            className={`
     text-xs px-2 py-0.5 rounded-md border backdrop-blur-sm transition
     ${
       copiedIndex === i
@@ -1202,33 +1710,33 @@ transition-all duration-150
         : 'bg-white border border-slate-300 hover:bg-slate-100'
     }
   `}
-                      >
-                        {copiedIndex === i ? '✓ Copied' : 'Copy'}
-                      </button>
+                          >
+                            {copiedIndex === i ? '✓ Copied' : 'Copy'}
+                          </button>
 
-                      {m.role === 'user' && (
-                        <button
-                          onClick={() => {
-                            setEditingIndex(i)
-                            setEditingText(m.content)
-                          }}
-                          className={`
+                          {m.role === 'user' && (
+                            <button
+                              onClick={() => {
+                                setEditingIndex(i)
+                                setEditingText(m.content)
+                              }}
+                              className={`
   text-xs px-2 py-0.5 rounded-md
   bg-white
   border border-slate-300
   hover:bg-slate-100
   transition-colors duration-150
 `}
-                        >
-                          Edit
-                        </button>
-                      )}
+                            >
+                              Edit
+                            </button>
+                          )}
 
-                      {m.role === 'assistant' && (
-                        <button
-                          onClick={() => speakText(m.content, i)}
-                          title="Read aloud"
-                          className="
+                          {m.role === 'assistant' && (
+                            <button
+                              onClick={() => speakText(m.content, i)}
+                              title="Read aloud"
+                              className="
     flex items-center justify-center
     h-7 w-7
     rounded-lg
@@ -1237,41 +1745,41 @@ transition-all duration-150
     hover:bg-slate-100
     transition-all duration-150
   "
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            className="w-4 h-4 text-slate-600"
-                          >
-                            <path
-                              d="M11 5 6 9H3v6h3l5 4V5zM15.5 8.5a5 5 0 0 1 0 7m2.5-9.5a8 8 0 0 1 0 12"
-                              stroke="currentColor"
-                              strokeWidth="1.5"
-                              fill="none"
-                            />
-                          </svg>
-                        </button>
-                      )}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                className="w-4 h-4 text-slate-600"
+                              >
+                                <path
+                                  d="M11 5 6 9H3v6h3l5 4V5zM15.5 8.5a5 5 0 0 1 0 7m2.5-9.5a8 8 0 0 1 0 12"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  fill="none"
+                                />
+                              </svg>
+                            </button>
+                          )}
 
-                      {m.role === 'assistant' && (
-                        <button
-                          onClick={() => {
-                            if (!m.id) {
-                              console.warn('No message id')
-                              return
-                            }
+                          {m.role === 'assistant' && (
+                            <button
+                              onClick={() => {
+                                if (!m.id) {
+                                  console.warn('No message id')
+                                  return
+                                }
 
-                            handleHelpful(m.id)
+                                handleHelpful(m.id)
 
-                            setLikedSet((prev) => {
-                              const next = new Set(prev)
-                              next.add(m.id!)
-                              return next
-                            })
-                          }}
-                          title="Helpful"
-                          className="
+                                setLikedSet((prev) => {
+                                  const next = new Set(prev)
+                                  next.add(m.id!)
+                                  return next
+                                })
+                              }}
+                              title="Helpful"
+                              className="
       flex items-center justify-center
       h-7 w-7
       rounded-lg
@@ -1280,28 +1788,28 @@ transition-all duration-150
       hover:bg-slate-100
       transition-all duration-150
     "
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            className={`w-4 h-4 ${
-                              m.id && likedSet.has(m.id)
-                                ? 'fill-green-500 stroke-green-600'
-                                : 'fill-none stroke-slate-600'
-                            }`}
-                            strokeWidth="1.5"
-                          >
-                            <path d="M7 11v8h-2a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h2z" />
-                            <path d="M7 11l5-7a2 2 0 0 1 3 2v3h4a2 2 0 0 1 2 2l-1 6a2 2 0 0 1-2 2H7z" />
-                          </svg>
-                        </button>
-                      )}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                className={`w-4 h-4 ${
+                                  m.id && likedSet.has(m.id)
+                                    ? 'fill-green-500 stroke-green-600'
+                                    : 'fill-none stroke-slate-600'
+                                }`}
+                                strokeWidth="1.5"
+                              >
+                                <path d="M7 11v8h-2a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h2z" />
+                                <path d="M7 11l5-7a2 2 0 0 1 3 2v3h4a2 2 0 0 1 2 2l-1 6a2 2 0 0 1-2 2H7z" />
+                              </svg>
+                            </button>
+                          )}
 
-                      {m.role === 'assistant' && speakingIndex === i && (
-                        <button
-                          onClick={stopSpeech}
-                          title="Stop reading"
-                          className="
+                          {m.role === 'assistant' && speakingIndex === i && (
+                            <button
+                              onClick={stopSpeech}
+                              title="Stop reading"
+                              className="
       flex items-center justify-center
       h-7 w-7
       rounded-lg
@@ -1313,40 +1821,40 @@ transition-all duration-150
       active:scale-95
       transition-all duration-150
     "
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            className="w-4 h-4"
-                          >
-                            <path d="M7 7h10v10H7z" />
-                          </svg>
-                        </button>
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                className="w-4 h-4"
+                              >
+                                <path d="M7 7h10v10H7z" />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
 
-                <div>
-                  {editingIndex === i ? (
-                    <textarea
-                      value={editingText}
-                      onChange={(e) => setEditingText(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault()
-                          handleEditSave(i)
-                        }
-                        if (e.key === 'Escape') {
-                          setEditingIndex(null)
-                        }
-                      }}
-                      className="w-full rounded-xl bg-white/30 border px-4 py-3 resize-none"
-                    />
-                  ) : (
-                    <div
-                      className={`${isLastAssistant ? '' : 'msg-animate'}
+                    <div>
+                      {editingIndex === i ? (
+                        <textarea
+                          value={editingText}
+                          onChange={(e) => setEditingText(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault()
+                              handleEditSave(i)
+                            }
+                            if (e.key === 'Escape') {
+                              setEditingIndex(null)
+                            }
+                          }}
+                          className="w-full rounded-xl bg-white/30 border px-4 py-3 resize-none"
+                        />
+                      ) : (
+                        <div
+                          className={`${isLastAssistant ? '' : 'msg-animate'}
   ${m.role === 'assistant' ? 'max-w-[820px]' : 'max-w-[280px]'}
   rounded-2xl px-6 py-5 whitespace-pre-line
   ${
@@ -1354,123 +1862,123 @@ transition-all duration-150
       ? 'bg-white shadow-sm border border-slate-100'
       : 'bg-white border border-slate-200'
   }`}
-                      style={{
-                        WebkitUserSelect: 'text',
-                        userSelect: 'text',
-                        WebkitTouchCallout: 'default',
-                      }}
-                    >
-                      <div className="text-[15px] leading-7 tracking-[0.01em] text-slate-800">
-                        {isLastAssistant ? (
-                          <Typewriter
-                            text={m.content}
-                            speed={6}
-                            showCursor
-                            onComplete={() => setFinishedTypingIndex(i)}
-                          />
-                        ) : (
-                          m.content.split(/\n+/).map((line, idx) => {
-                            if (line.trim() === '') {
-                              return <div key={idx} className="h-3" />
+                          style={{
+                            WebkitUserSelect: 'text',
+                            userSelect: 'text',
+                            WebkitTouchCallout: 'default',
+                          }}
+                        >
+                          <div className="text-[15px] leading-7 tracking-[0.01em] text-slate-800">
+                            {isLastAssistant ? (
+                              <Typewriter
+                                text={m.content}
+                                speed={6}
+                                showCursor
+                                onComplete={() => setFinishedTypingIndex(i)}
+                              />
+                            ) : (
+                              m.content.split(/\n+/).map((line, idx) => {
+                                if (line.trim() === '') {
+                                  return <div key={idx} className="h-3" />
+                                }
+
+                                return (
+                                  <p key={idx} className="mb-2 last:mb-0">
+                                    {line}
+                                  </p>
+                                )
+                              })
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {m.role === 'assistant' &&
+                      !loading &&
+                      linkedQuestion && // 🔥 ONLY show if tied to a user question
+                      finishedTypingIndex === i && (
+                        <div className="mt-3 flex flex-wrap gap-2 px-1">
+                          <button
+                            onClick={() =>
+                              sendActionMessage(
+                                'simplify',
+                                linkedQuestion,
+                                m.content,
+                                i
+                              )
                             }
+                            disabled={actionLoading}
+                            className={`
+text-xs px-3 py-1.5
+rounded-full
+bg-white
+border border-slate-200
+text-slate-600
+transition-all duration-150
+${actionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100'}
+`}
+                          >
+                            Simplify
+                          </button>
 
-                            return (
-                              <p key={idx} className="mb-2 last:mb-0">
-                                {line}
-                              </p>
-                            )
-                          })
-                        )}
+                          <button
+                            onClick={() =>
+                              sendActionMessage(
+                                'deeper',
+                                linkedQuestion,
+                                m.content,
+                                i
+                              )
+                            }
+                            disabled={actionLoading}
+                            className={`
+text-xs px-3 py-1.5
+rounded-full
+bg-white
+border border-slate-200
+text-slate-600
+transition-all duration-150
+${actionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100'}
+`}
+                          >
+                            Go deeper
+                          </button>
+                        </div>
+                      )}
+                    {actionLoading && actionTargetIndex === i && (
+                      <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
+                        <ThinkingDots />
+                        <span>Regenerating your answer...</span>
                       </div>
-                    </div>
-                  )}
+                    )}
+                    {m.role === 'assistant' && m.repaired && (
+                      <div className="text-xs text-slate-400 mt-2 px-1 italic">
+                        ✨ refined for clarity
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+
+              {loading && (
+                <div className="msg-animate rounded-xl bg-white/20 px-5 py-3">
+                  <ThinkingDots />
                 </div>
+              )}
 
-                {m.role === 'assistant' &&
-                  !loading &&
-                  linkedQuestion && // 🔥 ONLY show if tied to a user question
-                  finishedTypingIndex === i && (
-                    <div className="mt-3 flex flex-wrap gap-2 px-1">
-                      <button
-                        onClick={() =>
-                          sendActionMessage(
-                            'simplify',
-                            linkedQuestion,
-                            m.content,
-                            i
-                          )
-                        }
-                        disabled={actionLoading}
-                        className={`
-text-xs px-3 py-1.5
-rounded-full
-bg-white
-border border-slate-200
-text-slate-600
-transition-all duration-150
-${actionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100'}
-`}
-                      >
-                        Simplify
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          sendActionMessage(
-                            'deeper',
-                            linkedQuestion,
-                            m.content,
-                            i
-                          )
-                        }
-                        disabled={actionLoading}
-                        className={`
-text-xs px-3 py-1.5
-rounded-full
-bg-white
-border border-slate-200
-text-slate-600
-transition-all duration-150
-${actionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100'}
-`}
-                      >
-                        Go deeper
-                      </button>
-                    </div>
-                  )}
-                {actionLoading && actionTargetIndex === i && (
-                  <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
-                    <ThinkingDots />
-                    <span>Regenerating your answer...</span>
-                  </div>
-                )}
-                {m.role === 'assistant' && m.repaired && (
-                  <div className="text-xs text-slate-400 mt-2 px-1 italic">
-                    ✨ refined for clarity
-                  </div>
-                )}
-              </div>
-            )
-          })}
-
-          {loading && (
-            <div className="msg-animate rounded-xl bg-white/20 px-5 py-3">
-              <ThinkingDots />
+              <div ref={messagesEndRef} />
             </div>
-          )}
 
-          <div ref={messagesEndRef} />
-        </div>
-
-        <div className="border-t border-slate-100 bg-white p-6">
-          <div className="flex items-end gap-3">
-            <textarea
-              rows={1}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask a figure skating question..."
-              className="
+            <div className="border-t border-slate-100 bg-white p-6">
+              <div className="flex items-end gap-3">
+                <textarea
+                  rows={1}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Ask a figure skating question..."
+                  className="
 flex-1 rounded-full
 bg-white
 shadow-md
@@ -1479,12 +1987,12 @@ px-5 py-3
 resize-none
 focus:outline-none focus:ring-2 focus:ring-slate-200
 "
-            />
+                />
 
-            <button
-              onClick={sendMessage}
-              disabled={loading}
-              className="
+                <button
+                  onClick={sendMessage}
+                  disabled={loading}
+                  className="
 h-11 px-6
 rounded-full
 bg-slate-200
@@ -1495,12 +2003,15 @@ hover:bg-slate-300
 active:scale-95
 transition-all duration-150
 "
-            >
-              {loading ? '...' : 'Send'}
-            </button>
-          </div>
-        </div>
+                >
+                  {loading ? '...' : 'Send'}
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
+
       {profileModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <div className="w-[380px] rounded-2xl bg-white p-8 shadow-2xl border border-slate-200">

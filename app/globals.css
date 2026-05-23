@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Base font */
 body {
@@ -39,8 +39,8 @@ body {
   width: 12px;
   height: 12px;
   border-radius: 9999px;
-  background: #2F6BFF;
-  animation: bounceDot 0.9s cubic-bezier(.68,-0.55,.27,1.55) infinite;
+  background: #2f6bff;
+  animation: bounceDot 0.9s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
 }
 
 .dot.delay-150 {
@@ -83,4 +83,65 @@ body {
 
 .msg-animate {
   animation: fadeUp 0.25s ease-out;
+}
+
+.warm-calendar .react-calendar__tile--active {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+.warm-calendar .react-calendar__tile:enabled:hover {
+  background: #f1f5f9;
+  border-radius: 12px;
+}
+
+.warm-calendar .react-calendar__tile {
+  position: relative;
+}
+
+.warm-calendar .sharpen-day {
+  background: #facc15 !important;
+  color: #111827 !important;
+  border-radius: 12px;
+}
+
+.warm-calendar .react-calendar__tile {
+  position: relative;
+}
+
+.calendar-hour-tooltip {
+  display: none;
+  position: absolute;
+  bottom: 105%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111827;
+  color: white;
+  font-size: 11px;
+  padding: 3px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+  z-index: 20;
+}
+
+.warm-calendar .react-calendar__tile:hover .calendar-hour-tooltip {
+  display: block;
+}
+
+.warm-calendar .session-day-light {
+  background: #dbeafe !important;
+  color: #1e3a8a !important;
+  border-radius: 12px;
+}
+
+.warm-calendar .session-day-medium {
+  background: #60a5fa !important;
+  color: white !important;
+  border-radius: 12px;
+}
+
+.warm-calendar .session-day-heavy {
+  background: #1d4ed8 !important;
+  color: white !important;
+  border-radius: 12px;
 }
