@@ -75,7 +75,12 @@ export default function ChatPage() {
   const [sessionLoggingLoading, setSessionLoggingLoading] = useState(false)
 
   const [sessionHours, setSessionHours] = useState('')
+  const [sessionNote, setSessionNote] = useState('')
+  const [editingSessionDate, setEditingSessionDate] = useState<string | null>(
+    null
+  )
 
+  const [editingNoteText, setEditingNoteText] = useState('')
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().slice(0, 10)
   )
@@ -359,6 +364,7 @@ Please note:
           body: JSON.stringify({
             hours: numericHours,
             session_date: selectedDate,
+            note: sessionNote,
           }),
         }
       )
@@ -368,6 +374,7 @@ Please note:
       if (data.success) {
         setBladeTracker(data.tracker)
         setSessionHours('')
+        setSessionNote('')
         showToast('✓ Session logged')
       }
     } catch (err) {
@@ -446,6 +453,65 @@ Please note:
 
         showToast('✓ Session deleted')
       }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const handleSaveSessionNote = async (
+    sessionDate: string,
+    hours: number,
+    noteText: string
+  ) => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const accessToken = session?.access_token
+
+      console.log('[NOTE SAVE]')
+      console.log('date:', sessionDate)
+      console.log('hours:', hours)
+      console.log('note:', noteText)
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_CHAT_API_URL}/blade-tracker/session`,
+        {
+          method: 'POST',
+
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+
+          body: JSON.stringify({
+            session_date: sessionDate,
+            hours: hours,
+            note: noteText,
+          }),
+        }
+      )
+
+      const data = await res.json()
+
+      console.log('[NOTE SAVE RESPONSE]', data)
+
+      if (!data.success) {
+        console.error('NOTE SAVE ERROR:', data)
+
+        alert(JSON.stringify(data))
+        showToast('Failed to save note')
+        return
+      }
+
+      setBladeTracker(data.tracker)
+
+      setEditingSessionDate(null)
+
+      setEditingNoteText('')
+
+      showToast('✓ Note saved')
     } catch (err) {
       console.error(err)
     }
@@ -1456,29 +1522,24 @@ transition-all duration-150
                       </div>
                     )}
 
-                    <div
-                      className="
-  flex flex-col sm:flex-row
-  gap-3
-  mb-6
-"
-                    >
-                      <input
-                        type="number"
-                        step="0.5"
-                        placeholder="Hours"
-                        value={sessionHours}
-                        onChange={(e) => setSessionHours(e.target.value)}
-                        className="
+                    <div className="mb-6">
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <input
+                          type="number"
+                          step="0.5"
+                          placeholder="Hours"
+                          value={sessionHours}
+                          onChange={(e) => setSessionHours(e.target.value)}
+                          className="
   border rounded-lg px-3 py-2
   w-full sm:w-32
 "
-                      />
+                        />
 
-                      <button
-                        onClick={handleLogSession}
-                        disabled={sessionLoggingLoading}
-                        className={`
+                        <button
+                          onClick={handleLogSession}
+                          disabled={sessionLoggingLoading}
+                          className={`
     px-4 py-2 rounded-lg
     border border-slate-300
     transition-all duration-200
@@ -1489,27 +1550,27 @@ transition-all duration-150
         : 'bg-white text-slate-800 hover:bg-slate-100'
     }
   `}
-                      >
-                        {sessionLoggingLoading ? 'Logging...' : 'Log Session'}
-                      </button>
+                        >
+                          {sessionLoggingLoading ? 'Logging...' : 'Log Session'}
+                        </button>
 
-                      <button
-                        onClick={handleSharpened}
-                        disabled={sharpeningLoading}
-                        className={`
+                        <button
+                          onClick={handleSharpened}
+                          disabled={sharpeningLoading}
+                          className={`
     px-4 py-2 rounded-lg
     border border-slate-300
     transition-all duration-200
 
     ${sharpeningLoading ? 'bg-slate-200 text-slate-500' : 'hover:bg-slate-100'}
   `}
-                      >
-                        {sharpeningLoading
-                          ? 'Recording...'
-                          : 'Record Sharpening'}
-                      </button>
+                        >
+                          {sharpeningLoading
+                            ? 'Recording...'
+                            : 'Record Sharpening'}
+                        </button>
+                      </div>
                     </div>
-
                     <div>
                       <div className="mb-8">
                         <h3 className="font-semibold mb-4">Skating Calendar</h3>
@@ -1620,30 +1681,217 @@ transition-all duration-150
                           <div
                             key={s.id}
                             className="
-    flex justify-between items-center
-    bg-slate-50
-    rounded-lg
-    px-4 py-3
-  "
+      bg-slate-50
+      rounded-xl
+      px-4 py-4
+      border border-slate-100
+      space-y-3
+    "
                           >
-                            <div>{s.session_date}</div>
+                            {/* TOP ROW */}
+                            <div className="flex items-center justify-between gap-4">
+                              <div>
+                                <div className="font-semibold text-slate-800">
+                                  {s.session_date}
+                                </div>
 
-                            <div className="flex items-center gap-4">
-                              <div className="font-medium">{s.hours} hrs</div>
+                                <div className="text-sm text-slate-500 mt-1">
+                                  {s.hours} hrs
+                                </div>
+                              </div>
 
                               <button
                                 onClick={() =>
                                   handleDeleteSession(s.session_date)
                                 }
                                 className="
-        text-xs
-        text-red-500
-        hover:text-red-700
-      "
+          text-xs
+          px-3 py-1.5
+          rounded-lg
+          border border-red-200
+          text-red-500
+          hover:bg-red-50
+        "
                               >
                                 Delete
                               </button>
                             </div>
+
+                            {/* NOTE AREA */}
+                            {/* NOTE AREA */}
+
+                            {editingSessionDate === s.session_date ? (
+                              <div className="space-y-2">
+                                <textarea
+                                  value={editingNoteText}
+                                  onChange={(e) =>
+                                    setEditingNoteText(e.target.value)
+                                  }
+                                  placeholder=""
+                                  className="
+        w-full
+        rounded-xl
+        border border-slate-200
+        px-3 py-2
+        text-sm
+        min-h-[90px]
+        resize-none
+        focus:outline-none
+        focus:ring-2
+        focus:ring-slate-200
+      "
+                                />
+
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={() =>
+                                      handleSaveSessionNote(
+                                        s.session_date,
+                                        s.hours,
+                                        editingNoteText
+                                      )
+                                    }
+                                    className="
+          px-3 py-1.5
+          rounded-lg
+          bg-slate-800
+          text-white
+          text-sm
+          hover:bg-slate-700
+        "
+                                  >
+                                    Save
+                                  </button>
+
+                                  <button
+                                    onClick={() => {
+                                      setEditingSessionDate(null)
+                                      setEditingNoteText('')
+                                    }}
+                                    className="
+          px-3 py-1.5
+          rounded-lg
+          border border-slate-300
+          text-sm
+          hover:bg-slate-100
+        "
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div
+                                className={`
+    rounded-xl
+    px-4 py-3
+    transition-all
+
+    ${
+      s.note?.trim()
+        ? `
+          border border-slate-200
+          bg-white
+          shadow-sm
+        `
+        : `
+          border border-dashed border-slate-200
+          bg-slate-50
+        `
+    }
+  `}
+                              >
+                                <div
+                                  className={`
+  text-sm
+  whitespace-pre-wrap
+
+  ${s.note?.trim() ? 'text-slate-700' : 'text-slate-400 italic'}
+`}
+                                >
+                                  {s.note?.trim()
+                                    ? s.note
+                                    : 'Add your skating note here.'}
+                                </div>
+
+                                <div className="mt-3 flex items-center gap-2">
+                                  <button
+                                    onClick={() => {
+                                      setEditingSessionDate(s.session_date)
+
+                                      setEditingNoteText(s.note || '')
+                                    }}
+                                    className="
+          text-xs
+          px-3 py-1.5
+          rounded-lg
+          border border-slate-300
+          hover:bg-slate-100
+        "
+                                  >
+                                    Edit
+                                  </button>
+
+                                  {s.note && (
+                                    <button
+                                      onClick={async () => {
+                                        setEditingSessionDate(null)
+
+                                        setEditingNoteText('')
+
+                                        try {
+                                          const {
+                                            data: { session },
+                                          } = await supabase.auth.getSession()
+
+                                          const accessToken =
+                                            session?.access_token
+
+                                          const res = await fetch(
+                                            `${process.env.NEXT_PUBLIC_CHAT_API_URL}/blade-tracker/session`,
+                                            {
+                                              method: 'POST',
+
+                                              headers: {
+                                                'Content-Type':
+                                                  'application/json',
+                                                Authorization: `Bearer ${accessToken}`,
+                                              },
+
+                                              body: JSON.stringify({
+                                                session_date: s.session_date,
+                                                hours: s.hours,
+                                                note: '',
+                                              }),
+                                            }
+                                          )
+
+                                          const data = await res.json()
+
+                                          if (data.success) {
+                                            setBladeTracker(data.tracker)
+
+                                            showToast('✓ Note cleared')
+                                          }
+                                        } catch (err) {
+                                          console.error(err)
+                                        }
+                                      }}
+                                      className="
+            text-xs
+            px-3 py-1.5
+            rounded-lg
+            border border-red-200
+            text-red-500
+            hover:bg-red-50
+          "
+                                    >
+                                      Clear note
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
