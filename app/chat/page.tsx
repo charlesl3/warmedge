@@ -1005,7 +1005,7 @@ ${assistantAnswer}
   )
 
   return (
-    <div className="h-[100dvh] flex bg-slate-50 relative">
+    <div className="h-[100dvh] flex bg-slate-50 relative overflow-x-hidden">
       {/* Mobile Overlay */}
       {isMobile && sidebarOpen && (
         <div
@@ -1224,8 +1224,14 @@ transition-all duration-150
       {/* CHAT AREA */}
       <div className="flex-1 flex flex-col relative">
         {activeView === 'blade_tracker' ? (
-          <div className="flex-1 overflow-y-auto p-8 bg-slate-50">
-            <div className="max-w-3xl mx-auto space-y-6">
+          <div
+            className="
+  flex-1 overflow-y-auto
+  px-4 py-6 md:p-8
+  bg-slate-50
+"
+          >
+            <div className="w-full max-w-3xl mx-auto space-y-6">
               <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <h2 className="text-2xl font-semibold mb-4">
                   Blade Sharpening Tracker
@@ -1281,14 +1287,23 @@ transition-all duration-150
                       </div>
                     )}
 
-                    <div className="flex gap-3 mb-6">
+                    <div
+                      className="
+  flex flex-col sm:flex-row
+  gap-3
+  mb-6
+"
+                    >
                       <input
                         type="number"
                         step="0.5"
                         placeholder="Hours"
                         value={sessionHours}
                         onChange={(e) => setSessionHours(e.target.value)}
-                        className="border rounded-lg px-3 py-2 w-32"
+                        className="
+  border rounded-lg px-3 py-2
+  w-full sm:w-32
+"
                       />
 
                       <button
@@ -1330,7 +1345,15 @@ transition-all duration-150
                       <div className="mb-8">
                         <h3 className="font-semibold mb-4">Skating Calendar</h3>
 
-                        <div className="rounded-2xl border border-slate-200 p-4 bg-white">
+                        <div
+                          className="
+  rounded-2xl
+  border border-slate-200
+  p-2 md:p-4
+  bg-white
+  overflow-hidden
+"
+                        >
                           <Calendar
                             className="warm-calendar"
                             calendarType="gregory"
@@ -1859,7 +1882,11 @@ transition-all duration-150
                       ) : (
                         <div
                           className={`${isLastAssistant ? '' : 'msg-animate'}
-  ${m.role === 'assistant' ? 'max-w-[820px]' : 'max-w-[280px]'}
+  ${
+    m.role === 'assistant'
+      ? 'max-w-full md:max-w-[820px]'
+      : 'max-w-[85%] md:max-w-[280px]'
+  }
   rounded-2xl px-6 py-5 whitespace-pre-line
   ${
     m.role === 'assistant'

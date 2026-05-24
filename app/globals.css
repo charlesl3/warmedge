@@ -151,3 +151,38 @@ body {
   color: white !important;
   border-radius: 12px;
 }
+
+/* MOBILE CALENDAR FIX */
+
+.warm-calendar {
+  width: 100% !important;
+}
+
+.warm-calendar.react-calendar {
+  width: 100% !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+.warm-calendar .react-calendar__viewContainer {
+  width: 100% !important;
+}
+
+.warm-calendar .react-calendar__month-view {
+  width: 100% !important;
+}
+
+.warm-calendar .react-calendar__tile {
+  aspect-ratio: 1 / 1;
+  max-width: 100% !important;
+}
+
+@media (max-width: 768px) {
+  .warm-calendar {
+    font-size: 0.82rem;
+  }
+
+  .warm-calendar .react-calendar__tile {
+    padding: 0.65em 0.2em !important;
+  }
+}
