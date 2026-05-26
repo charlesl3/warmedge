@@ -103,6 +103,7 @@ export default function ChatPage() {
   const [activeView, setActiveView] = useState<'chat' | 'blade_tracker'>('chat')
   const [reloading, setReloading] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [isTablet, setIsTablet] = useState(false)
 
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
@@ -197,10 +198,14 @@ export default function ChatPage() {
   }, [])
 
   useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 768
+    const checkDevice = () => {
+      const width = window.innerWidth
+
+      const mobile = width < 768
+      const tablet = width >= 768 && width < 1200
 
       setIsMobile(mobile)
+      setIsTablet(tablet)
 
       // desktop default open
       if (!mobile) {
@@ -208,11 +213,11 @@ export default function ChatPage() {
       }
     }
 
-    checkMobile()
+    checkDevice()
 
-    window.addEventListener('resize', checkMobile)
+    window.addEventListener('resize', checkDevice)
 
-    return () => window.removeEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkDevice)
   }, [])
 
   useEffect(() => {
@@ -2195,14 +2200,17 @@ space-y-2
                             {/* ACTIONS */}
                             {editingIndex !== i && (
                               <div
-                                className="
+                                className={`
 flex items-center gap-2 flex-wrap
 
-opacity-100 lg:opacity-0
-lg:group-hover:opacity-100
-
 w-full lg:w-auto
-"
+
+${
+  isTablet
+    ? 'opacity-100'
+    : 'opacity-100 lg:opacity-0 lg:group-hover:opacity-100'
+}
+`}
                               >
                                 {/* COPY */}
                                 <button
