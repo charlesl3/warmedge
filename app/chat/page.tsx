@@ -2123,6 +2123,7 @@ space-y-2
 
                   return (
                     <div
+                      key={m.id || `msg-${i}`}
                       className={`
       group
       w-full flex
