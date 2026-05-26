@@ -2187,7 +2187,7 @@ space-y-2
                         {/* RIGHT SIDE CONTENT */}
                         <div className="flex flex-col min-w-0 flex-1">
                           {/* NAME + ACTIONS */}
-                          <div className="flex flex-col md:flex-row md:items-center gap-2 mb-2 px-1">
+                          <div className="flex flex-col lg:flex-row lg:items-center gap-2 mb-2 px-1">
                             <span className="text-sm font-medium text-slate-700">
                               {m.role === 'assistant' ? 'WarmGPT' : 'You'}
                             </span>
@@ -2198,10 +2198,10 @@ space-y-2
                                 className="
 flex items-center gap-2 flex-wrap
 
-opacity-100 md:opacity-0
-md:group-hover:opacity-100
+opacity-100 lg:opacity-0
+lg:group-hover:opacity-100
 
-w-full md:w-auto
+w-full lg:w-auto
 "
                               >
                                 {/* COPY */}
