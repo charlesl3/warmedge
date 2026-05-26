@@ -2196,7 +2196,7 @@ space-y-2
                             {editingIndex !== i && (
                               <div
                                 className={`
-flex items-center gap-2 transition-opacity
+flex items-center gap-2 flex-wrap transition-opacity
 
 ${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
 `}
