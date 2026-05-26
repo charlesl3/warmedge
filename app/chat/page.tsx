@@ -2103,7 +2103,7 @@ px-3 sm:px-4 md:px-10 lg:px-16
 
 pt-10 pb-12
 
-space-y-10
+space-y-2
 "
             >
               <div className="max-w-5xl mx-auto w-full">
@@ -2124,29 +2124,34 @@ space-y-10
                     <div
                       key={`${m.role}-${i}-${m.content.slice(0, 20)}`}
                       className={`
-    flex flex-col gap-2
+    flex flex-col w-full
 
     px-1 sm:px-2 md:px-0
 
-    ${m.role === 'user' ? 'items-end' : 'items-start'}
+    ${m.role === 'user' ? 'items-end mt-8 mb-6' : 'items-start mt-6 mb-8'}
   `}
                     >
                       <div
                         className={`
-    flex items-center gap-3
-    text-sm mb-2
+    flex items-center gap-2
+    text-sm
+    mb-3
 
-    ${m.role === 'assistant' ? 'pl-2' : 'pr-2 justify-end'}
+    ${
+      m.role === 'assistant'
+        ? 'w-full max-w-[96%] md:max-w-[820px] pl-4'
+        : 'max-w-[92%] sm:max-w-[78%] md:max-w-[520px] pr-3 justify-end'
+    }
   `}
                       >
-                        <div className="flex items-center gap-3 ml-3">
+                        <div className="flex items-center gap-2">
                           <span className="font-medium">
                             {m.role === 'assistant' ? 'WarmGPT' : 'You'}
                           </span>
                         </div>
 
                         {editingIndex !== i && (
-                          <div className="flex items-center gap-3 ml-3">
+                          <div className="flex items-center gap-2">
                             <button
                               onClick={() => handleCopy(m.content, i)}
                               className={`
@@ -2341,13 +2346,17 @@ hover:bg-white/60
  ${
    m.role === 'assistant'
      ? 'w-full max-w-[96%] md:max-w-[820px]'
-     : 'w-fit max-w-[92%] sm:max-w-[78%] md:max-w-[520px]'
+     : 'w-fit max-w-[94%] sm:max-w-[82%] md:max-w-[520px]'
  }
-  rounded-[1.7rem] md:rounded-[2rem]
+ rounded-[1.7rem] md:rounded-[2rem]
 
 px-5 py-4
 sm:px-5 sm:py-4
-md:px-7 md:py-6 whitespace-pre-line
+md:px-7 md:py-6
+
+mt-1
+
+whitespace-pre-line
 transition-all duration-300
   ${m.role === 'assistant' ? softBubble : darkBubble}`}
                             style={{
