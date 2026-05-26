@@ -5,6 +5,7 @@ import Typewriter from '../components/Typewriter'
 import { supabase } from '../lib/supabase'
 import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
+import AssistantAvatar from '../../components/AssistantAvatar'
 import {
   appShell,
   glass,
@@ -2124,354 +2125,190 @@ space-y-2
                     <div
                       key={`${m.role}-${i}-${m.content.slice(0, 20)}`}
                       className={`
-    flex flex-col w-full
-
-    px-1 sm:px-2 md:px-0
-
-    ${m.role === 'user' ? 'items-end mt-8 mb-6' : 'items-start mt-6 mb-8'}
-  `}
+      w-full flex
+      ${m.role === 'user' ? 'justify-end' : 'justify-start'}
+      mb-8
+    `}
                     >
+                      {/* ENTIRE MESSAGE ROW */}
                       <div
                         className={`
-    flex items-center gap-2
-    text-sm
-    mb-3
-
-    ${
-      m.role === 'assistant'
-        ? 'w-full max-w-[96%] md:max-w-[820px] pl-4'
-        : 'max-w-[92%] sm:max-w-[78%] md:max-w-[520px] pr-3 justify-end'
-    }
-  `}
+        flex items-start gap-3
+        ${m.role === 'assistant' ? 'w-full max-w-[900px]' : 'max-w-[520px]'}
+      `}
                       >
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">
-                            {m.role === 'assistant' ? 'WarmGPT' : 'You'}
-                          </span>
-                        </div>
-
-                        {editingIndex !== i && (
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleCopy(m.content, i)}
-                              className={`
-text-xs
-
-px-3 py-1.5
-
-rounded-xl
-
-backdrop-blur-sm
-
-border border-white/40
-
-transition-all duration-200
-
-${
-  copiedIndex === i
-    ? 'bg-emerald-500 text-white border-emerald-400'
-    : 'bg-white/35 hover:bg-white/60 text-slate-700'
-}
-`}
-                            >
-                              {copiedIndex === i ? '✓ Copied' : 'Copy'}
-                            </button>
-
-                            {m.role === 'user' && (
-                              <button
-                                onClick={() => {
-                                  setEditingIndex(i)
-                                  setEditingText(m.content)
-                                }}
-                                className="
-text-xs
-
-px-3 py-1.5
-
-rounded-xl
-
-bg-white/35
-backdrop-blur-sm
-
-border border-white/40
-
-hover:bg-white/60
-
-transition-all duration-150
-"
-                              >
-                                Edit
-                              </button>
-                            )}
-
-                            {m.role === 'assistant' && (
-                              <button
-                                onClick={() => speakText(m.content, i)}
-                                title="Read aloud"
-                                className="
-flex items-center justify-center
-
-h-8 w-8
-
-rounded-xl
-
-bg-white/35
-backdrop-blur-sm
-
-border border-white/40
-
-hover:bg-white/60
-
-transition-all duration-150
-"
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 24 24"
-                                  fill="currentColor"
-                                  className="w-4 h-4 text-slate-600"
-                                >
-                                  <path
-                                    d="M11 5 6 9H3v6h3l5 4V5zM15.5 8.5a5 5 0 0 1 0 7m2.5-9.5a8 8 0 0 1 0 12"
-                                    stroke="currentColor"
-                                    strokeWidth="1.5"
-                                    fill="none"
-                                  />
-                                </svg>
-                              </button>
-                            )}
-
-                            {m.role === 'assistant' && (
-                              <button
-                                onClick={() => {
-                                  if (!m.id) {
-                                    console.warn('No message id')
-                                    return
-                                  }
-
-                                  handleHelpful(m.id)
-
-                                  setLikedSet((prev) => {
-                                    const next = new Set(prev)
-                                    next.add(m.id!)
-                                    return next
-                                  })
-                                }}
-                                title="Helpful"
-                                className="
-      flex items-center justify-center
-      h-7 w-7
-      rounded-xl
-bg-white/35
-backdrop-blur-sm
-border border-white/40
-hover:bg-white/60
-      transition-all duration-150
-    "
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 24 24"
-                                  className={`w-4 h-4 ${
-                                    m.id && likedSet.has(m.id)
-                                      ? 'fill-green-500 stroke-green-600'
-                                      : 'fill-none stroke-slate-600'
-                                  }`}
-                                  strokeWidth="1.5"
-                                >
-                                  <path d="M7 11v8h-2a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h2z" />
-                                  <path d="M7 11l5-7a2 2 0 0 1 3 2v3h4a2 2 0 0 1 2 2l-1 6a2 2 0 0 1-2 2H7z" />
-                                </svg>
-                              </button>
-                            )}
-
-                            {m.role === 'assistant' && speakingIndex === i && (
-                              <button
-                                onClick={stopSpeech}
-                                title="Stop reading"
-                                className="
-      flex items-center justify-center
-      h-7 w-7
-      rounded-lg
-      bg-white/20
-      border border-white/20
-      backdrop-blur-sm
-      text-slate-700
-      hover:bg-white/40
-      active:scale-95
-      transition-all duration-150
-    "
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 24 24"
-                                  fill="currentColor"
-                                  className="w-4 h-4"
-                                >
-                                  <path d="M7 7h10v10H7z" />
-                                </svg>
-                              </button>
-                            )}
+                        {/* AVATAR */}
+                        {m.role === 'assistant' && (
+                          <div className="pt-1 shrink-0 w-16 h-16 md:w-20 md:h-20">
+                            <AssistantAvatar
+                              thinking={loading && i === messages.length - 1}
+                              speaking={speakingIndex === i}
+                            />
                           </div>
                         )}
-                      </div>
 
-                      <div
-                        className={`
-    flex flex-col
+                        {/* RIGHT SIDE CONTENT */}
+                        <div className="flex flex-col min-w-0 flex-1">
+                          {/* NAME + ACTIONS */}
+                          <div className="flex items-center gap-2 mb-2 px-1">
+                            <span className="text-sm font-medium text-slate-700">
+                              {m.role === 'assistant' ? 'WarmGPT' : 'You'}
+                            </span>
 
-    ${m.role === 'assistant' ? 'items-start' : 'items-end'}
+                            {/* ACTIONS */}
+                            {editingIndex !== i && (
+                              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  onClick={() => handleCopy(m.content, i)}
+                                  className="
+                  text-xs
+                  px-3 py-1
+                  rounded-xl
+                  bg-white/40
+                  border border-white/30
+                  hover:bg-white/70
+                "
+                                >
+                                  {copiedIndex === i ? '✓' : 'Copy'}
+                                </button>
+                              </div>
+                            )}
+                          </div>
 
-    w-full
-  `}
-                      >
-                        {editingIndex === i ? (
-                          <textarea
-                            value={editingText}
-                            onChange={(e) => setEditingText(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault()
-                                handleEditSave(i)
-                              }
-                              if (e.key === 'Escape') {
-                                setEditingIndex(null)
-                              }
-                            }}
-                            className="w-full rounded-xl bg-white/30 border px-4 py-3 resize-none"
-                          />
-                        ) : (
-                          <div
-                            className={`${isLastAssistant ? '' : 'msg-animate'}
- ${
-   m.role === 'assistant'
-     ? 'w-full max-w-[96%] md:max-w-[820px]'
-     : 'w-fit max-w-[94%] sm:max-w-[82%] md:max-w-[520px]'
- }
- rounded-[1.7rem] md:rounded-[2rem]
-
-px-5 py-4
-sm:px-5 sm:py-4
-md:px-7 md:py-6
-
-mt-1
-
-whitespace-pre-line
-transition-all duration-300
-  ${m.role === 'assistant' ? softBubble : darkBubble}`}
-                            style={{
-                              WebkitUserSelect: 'text',
-                              userSelect: 'text',
-                              WebkitTouchCallout: 'default',
-                            }}
-                          >
+                          {/* BUBBLE */}
+                          {editingIndex === i ? (
+                            <textarea
+                              value={editingText}
+                              onChange={(e) => setEditingText(e.target.value)}
+                              className="
+              w-full
+              rounded-2xl
+              border
+              px-4 py-3
+              bg-white/40
+            "
+                            />
+                          ) : (
                             <div
-                              className={`text-[16px] md:text-[15px]
+                              className={`
+              group
 
-leading-8 md:leading-7 tracking-[0.01em] ${m.role === 'assistant' ? 'text-slate-800' : 'text-white'}`}
+              rounded-[2.3rem]
+
+              px-6 py-5
+
+              transition-all duration-300
+
+              ${
+                m.role === 'assistant'
+                  ? `
+                    ${softBubble}
+
+                    border border-white/20
+                    backdrop-blur-xl
+
+                    w-full
+                  `
+                  : `
+                    ${darkBubble}
+                  `
+              }
+            `}
                             >
-                              {isLastAssistant ? (
-                                <Typewriter
-                                  text={m.content}
-                                  speed={6}
-                                  showCursor
-                                  onComplete={() => setFinishedTypingIndex(i)}
-                                />
-                              ) : (
-                                m.content.split(/\n+/).map((line, idx) => {
-                                  if (line.trim() === '') {
-                                    return <div key={idx} className="h-3" />
-                                  }
+                              <div
+                                className={`
+                whitespace-pre-line
+                leading-8
 
-                                  return (
-                                    <p key={idx} className="mb-2 last:mb-0">
-                                      {line}
-                                    </p>
-                                  )
-                                })
-                              )}
+                ${m.role === 'assistant' ? 'text-slate-800' : 'text-white'}
+              `}
+                              >
+                                {isLastAssistant ? (
+                                  <Typewriter
+                                    text={m.content}
+                                    speed={6}
+                                    showCursor
+                                    onComplete={() => setFinishedTypingIndex(i)}
+                                  />
+                                ) : (
+                                  m.content
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
+
+                          {/* FOLLOWUP BUTTONS */}
+                          {m.role === 'assistant' &&
+                            !loading &&
+                            linkedQuestion &&
+                            finishedTypingIndex === i && (
+                              <div className="mt-3 flex gap-2 pl-1">
+                                <button
+                                  onClick={() =>
+                                    sendActionMessage(
+                                      'simplify',
+                                      linkedQuestion,
+                                      m.content,
+                                      i
+                                    )
+                                  }
+                                  className="
+                  text-xs
+                  px-3 py-1.5
+                  rounded-full
+                  bg-white
+                  border border-slate-200
+                "
+                                >
+                                  Simplify
+                                </button>
+
+                                <button
+                                  onClick={() =>
+                                    sendActionMessage(
+                                      'deeper',
+                                      linkedQuestion,
+                                      m.content,
+                                      i
+                                    )
+                                  }
+                                  className="
+                  text-xs
+                  px-3 py-1.5
+                  rounded-full
+                  bg-white
+                  border border-slate-200
+                "
+                                >
+                                  Go deeper
+                                </button>
+                              </div>
+                            )}
+                        </div>
                       </div>
-
-                      {m.role === 'assistant' &&
-                        !loading &&
-                        linkedQuestion && // 🔥 ONLY show if tied to a user question
-                        finishedTypingIndex === i && (
-                          <div
-                            className={`
-    mt-3
-    flex flex-wrap gap-2
-
-    ${m.role === 'assistant' ? 'pl-2' : 'pr-2 justify-end'}
-  `}
-                          >
-                            <button
-                              onClick={() =>
-                                sendActionMessage(
-                                  'simplify',
-                                  linkedQuestion,
-                                  m.content,
-                                  i
-                                )
-                              }
-                              disabled={actionLoading}
-                              className={`
-text-xs px-3 py-1.5
-rounded-full
-bg-white
-border border-slate-200
-text-slate-600
-transition-all duration-150
-${actionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100'}
-`}
-                            >
-                              Simplify
-                            </button>
-
-                            <button
-                              onClick={() =>
-                                sendActionMessage(
-                                  'deeper',
-                                  linkedQuestion,
-                                  m.content,
-                                  i
-                                )
-                              }
-                              disabled={actionLoading}
-                              className={`
-text-xs px-3 py-1.5
-rounded-full
-bg-white
-border border-slate-200
-text-slate-600
-transition-all duration-150
-${actionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100'}
-`}
-                            >
-                              Go deeper
-                            </button>
-                          </div>
-                        )}
-                      {actionLoading && actionTargetIndex === i && (
-                        <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
-                          <ThinkingDots />
-                          <span>Regenerating your answer...</span>
-                        </div>
-                      )}
-                      {m.role === 'assistant' && m.repaired && (
-                        <div className="text-xs text-slate-400 mt-2 px-1 italic">
-                          ✨ refined for clarity
-                        </div>
-                      )}
                     </div>
                   )
                 })}
 
                 {loading && (
-                  <div className="msg-animate rounded-xl bg-white/20 px-5 py-3">
-                    <ThinkingDots />
+                  <div className="w-full flex justify-start mb-8">
+                    <div className="flex items-start gap-3">
+                      <AssistantAvatar thinking />
+
+                      <div
+                        className={`
+          ${softBubble}
+
+          rounded-[2.3rem]
+          px-6 py-5
+
+          border border-white/20
+          backdrop-blur-xl
+        `}
+                      >
+                        <ThinkingDots />
+                      </div>
+                    </div>
                   </div>
                 )}
 
