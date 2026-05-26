@@ -81,6 +81,9 @@ export default function ChatPage() {
   )
 
   const [editingNoteText, setEditingNoteText] = useState('')
+  const [sessionsPage, setSessionsPage] = useState(1)
+
+  const SESSIONS_PER_PAGE = 5
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().slice(0, 10)
   )
@@ -537,6 +540,7 @@ Please note:
     const userMessage = input
     setInput('')
     setLoading(true)
+    const frontendTimer = performance.now()
 
     const newMessage: Message = { role: 'user', content: userMessage }
 
@@ -605,6 +609,12 @@ Please note:
           repaired: data.repaired,
         },
       ])
+      const frontendLatency = (
+        (performance.now() - frontendTimer) /
+        1000
+      ).toFixed(2)
+
+      console.log(`[FRONTEND LATENCY] ${frontendLatency}s`)
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -1075,6 +1085,18 @@ ${assistantAnswer}
 
   const sharpenDateSet = new Set(
     bladeTracker?.last_sharpened_at ? [bladeTracker.last_sharpened_at] : []
+  )
+
+  const sortedSessions = [...(bladeTracker?.sessions || [])].sort(
+    (a: any, b: any) =>
+      new Date(b.session_date).getTime() - new Date(a.session_date).getTime()
+  )
+
+  const totalSessionPages = Math.ceil(sortedSessions.length / SESSIONS_PER_PAGE)
+
+  const paginatedSessions = sortedSessions.slice(
+    (sessionsPage - 1) * SESSIONS_PER_PAGE,
+    sessionsPage * SESSIONS_PER_PAGE
   )
 
   return (
@@ -1677,7 +1699,7 @@ transition-all duration-150
                       <h3 className="font-semibold mb-3">Recent Sessions</h3>
 
                       <div className="space-y-2">
-                        {bladeTracker.sessions?.map((s: any) => (
+                        {paginatedSessions.map((s: any) => (
                           <div
                             key={s.id}
                             className="
@@ -1895,6 +1917,51 @@ transition-all duration-150
                           </div>
                         ))}
                       </div>
+                      {/* PAGINATION */}
+
+                      {totalSessionPages > 1 && (
+                        <div className="flex items-center justify-center gap-4 mt-6">
+                          <button
+                            disabled={sessionsPage === 1}
+                            onClick={() =>
+                              setSessionsPage((p) => Math.max(1, p - 1))
+                            }
+                            className="
+        px-3 py-1.5
+        rounded-lg
+        border border-slate-300
+        text-sm
+        disabled:opacity-40
+        hover:bg-slate-100
+      "
+                          >
+                            ← Previous
+                          </button>
+
+                          <div className="text-sm text-slate-500">
+                            Page {sessionsPage} / {totalSessionPages}
+                          </div>
+
+                          <button
+                            disabled={sessionsPage === totalSessionPages}
+                            onClick={() =>
+                              setSessionsPage((p) =>
+                                Math.min(totalSessionPages, p + 1)
+                              )
+                            }
+                            className="
+        px-3 py-1.5
+        rounded-lg
+        border border-slate-300
+        text-sm
+        disabled:opacity-40
+        hover:bg-slate-100
+      "
+                          >
+                            Next →
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </>
                 ) : (
