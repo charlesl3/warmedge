@@ -5,6 +5,16 @@ import Typewriter from '../components/Typewriter'
 import { supabase } from '../lib/supabase'
 import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
+import {
+  appShell,
+  glass,
+  glassStrong,
+  darkBubble,
+  softBubble,
+  iconBtn,
+  navBtn,
+  pillBtn,
+} from '../../components/design'
 
 type Message = {
   id?: string
@@ -1100,7 +1110,7 @@ ${assistantAnswer}
   )
 
   return (
-    <div className="h-[100dvh] flex bg-slate-50 relative overflow-x-hidden">
+    <div className={appShell}>
       {/* Mobile Overlay */}
       {isMobile && sidebarOpen && (
         <div
@@ -1112,20 +1122,39 @@ ${assistantAnswer}
       {/* SIDEBAR */}
       <div
         className={`
-          fixed md:relative z-20 h-full
-          transition-all duration-300 ease-in-out
-          ${sidebarOpen ? 'w-72' : 'w-0'}
-          overflow-hidden
-          bg-white border-r border-slate-200
-          text-slate-700
-          flex flex-col
-        `}
+relative z-20 h-full shrink-0
+
+transition-all duration-500
+ease-[cubic-bezier(0.22,1,0.36,1)]
+
+overflow-hidden
+
+${sidebarOpen ? 'w-[290px]' : 'w-0'}
+
+md:block
+
+${isMobile ? 'fixed left-0 top-0' : ''}
+
+bg-white/70
+backdrop-blur-md
+
+border-r border-white/40
+
+shadow-[24px_0_90px_rgba(15,23,42,0.06)]
+
+text-slate-700
+flex flex-col
+`}
+        style={{
+          transform:
+            isMobile && !sidebarOpen ? 'translateX(-100%)' : 'translateX(0)',
+        }}
       >
         <div className="px-6 py-6 border-b border-slate-100 flex items-center justify-center">
           <img
             src="/logo1.jpg"
             alt="WarmEdge"
-            className="h-50 w-auto object-contain opacity-90"
+            className="h-24 w-auto object-contain opacity-90"
           />
         </div>
 
@@ -1138,37 +1167,16 @@ ${assistantAnswer}
                 setSidebarOpen(false)
               }
             }}
-            className="
-w-full text-left rounded-lg px-4 py-2.5
-text-slate-700
-hover:bg-slate-100
-transition-all duration-150
-"
+            className={navBtn}
           >
             Chat
           </button>
 
-          <button
-            onClick={handleAboutClick}
-            className="
-w-full text-left rounded-lg px-4 py-2.5
-text-slate-700
-hover:bg-slate-100
-transition-all duration-150
-"
-          >
+          <button onClick={handleAboutClick} className={navBtn}>
             About
           </button>
 
-          <button
-            onClick={handleProductsClick}
-            className="
-w-full text-left rounded-lg px-4 py-2.5
-text-slate-700
-hover:bg-slate-100
-transition-all duration-150
-"
-          >
+          <button onClick={handleProductsClick} className={navBtn}>
             Products
           </button>
 
@@ -1181,12 +1189,7 @@ transition-all duration-150
                 setSidebarOpen(false)
               }
             }}
-            className="
-w-full text-left rounded-lg px-4 py-2.5
-text-slate-700
-hover:bg-slate-100
-transition-all duration-150
-"
+            className={navBtn}
           >
             Blade Sharpening Tracker
           </button>
@@ -1194,10 +1197,13 @@ transition-all duration-150
           <button
             onClick={clearAllChats}
             className="
-w-full text-left rounded-lg px-4 py-2.5
-hover:bg-red-50
-transition-colors duration-150
-text-red-600
+w-full text-left
+rounded-2xl
+px-4 py-3
+text-sm font-medium
+text-red-500
+hover:bg-red-50/80
+transition-all
 "
           >
             Clear chat history
@@ -1219,14 +1225,26 @@ text-red-600
                     if (isMobile) setSidebarOpen(false)
                   }}
                   className="
-flex-1 text-left px-3 py-2.5
-rounded-lg
-text-sm
+flex-1 text-left
+px-4 py-3
+
+rounded-2xl
+
+text-sm font-medium
 truncate
-bg-transparent
-hover:bg-white
-hover:shadow-sm
-transition-all duration-150
+
+bg-white/10
+backdrop-blur-sm
+
+border border-transparent
+
+hover:bg-white/45
+hover:border-white/60
+hover:shadow-[0_10px_30px_rgba(15,23,42,0.08)]
+
+active:scale-[0.985]
+
+transition-all duration-200
 "
                 >
                   {chat.title}
@@ -1243,7 +1261,17 @@ transition-all duration-150
 
                       if (newTitle) renameChat(chat.id, newTitle)
                     }}
-                    className="p-1.5 rounded-md hover:bg-slate-200 transition"
+                    className="
+p-2
+rounded-xl
+
+bg-white/0
+hover:bg-white/50
+
+backdrop-blur-sm
+
+transition-all duration-150
+"
                     title="Rename chat"
                   >
                     <svg
@@ -1267,7 +1295,17 @@ transition-all duration-150
                       e.stopPropagation()
                       togglePinChat(chat.id)
                     }}
-                    className="p-1.5 rounded-md hover:bg-slate-200 transition"
+                    className="
+p-2
+rounded-xl
+
+bg-white/0
+hover:bg-white/50
+
+backdrop-blur-sm
+
+transition-all duration-150
+"
                     title="Star chat"
                   >
                     <svg
@@ -1295,7 +1333,15 @@ transition-all duration-150
                         deleteChat(chat.id)
                       }
                     }}
-                    className="p-1 rounded hover:bg-red-100 transition"
+                    className="
+p-2
+rounded-xl
+
+hover:bg-red-100/80
+backdrop-blur-sm
+
+transition-all duration-150
+"
                     title="Delete chat"
                   >
                     <svg
@@ -1317,33 +1363,45 @@ transition-all duration-150
       </div>
 
       {/* CHAT AREA */}
-      <div className="flex-1 flex flex-col relative">
+      <div className="flex-1 flex flex-col relative min-w-0">
         {/* HEADER BAR */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-white">
+        <div
+          className="
+flex items-center justify-between
+px-5 py-4
+
+bg-white/72
+backdrop-blur-md
+
+border-b border-white/40
+
+shadow-[0_10px_50px_rgba(15,23,42,0.04)]
+"
+        >
           {/* Sidebar toggle */}
           <div className="relative group">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="flex items-center justify-center h-9 w-9 rounded-md border border-slate-300 hover:bg-slate-100"
+              className={iconBtn}
             >
-              {sidebarOpen ? '←' : '☰'}
+              <span className="text-lg">{sidebarOpen ? '←' : '☰'}</span>
             </button>
 
             <div
               className="
-      absolute top-1/2 left-full ml-2
-      -translate-y-1/2
-      px-2 py-1
-      text-xs
-      bg-slate-700 text-white
-      rounded
-      shadow
-      opacity-0 group-hover:opacity-100
-      transition-opacity duration-150
-      pointer-events-none
-      whitespace-nowrap
-      z-50
-    "
+    absolute top-1/2 left-full ml-3
+    -translate-y-1/2
+    px-2 py-1
+    text-xs
+    bg-slate-900 text-white
+    rounded-lg
+    shadow-xl
+    opacity-0 group-hover:opacity-100
+    transition
+    pointer-events-none
+    whitespace-nowrap
+    z-50
+  "
             >
               {sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
             </div>
@@ -1355,32 +1413,28 @@ transition-all duration-150
               <button
                 onClick={handleReloadChat}
                 disabled={reloading}
-                className="
-      flex items-center justify-center
-      h-9 w-9
-      rounded-md
-      border border-slate-300
-      hover:bg-slate-100
-    "
+                className={iconBtn}
               >
-                <span className={reloading ? 'animate-spin' : ''}>↻</span>
+                <span className={`text-lg ${reloading ? 'animate-spin' : ''}`}>
+                  ↻
+                </span>
               </button>
 
               <div
                 className="
-      absolute top-1/2 right-full mr-2
-      -translate-y-1/2
-      px-2 py-1
-      text-xs
-      bg-slate-700 text-white
-      rounded
-      shadow
-      opacity-0 group-hover:opacity-100
-      transition-opacity duration-150
-      pointer-events-none
-      whitespace-nowrap
-      z-50
-    "
+    absolute top-1/2 right-full mr-3
+    -translate-y-1/2
+    px-2 py-1
+    text-xs
+    bg-slate-900 text-white
+    rounded-lg
+    shadow-xl
+    opacity-0 group-hover:opacity-100
+    transition
+    pointer-events-none
+    whitespace-nowrap
+    z-50
+  "
               >
                 Start new chat
               </div>
@@ -1392,19 +1446,22 @@ transition-all duration-150
                   <button
                     onClick={() => setProfileModalOpen(true)}
                     className="
-    text-sm text-slate-700 font-medium
+text-sm font-medium text-slate-700
 
-    px-3 py-1.5
-    rounded-lg
+px-4 py-2
 
-    border border-transparent
+rounded-2xl
 
-    hover:border-slate-300
-    hover:bg-slate-100
-    hover:text-slate-900
+bg-white/30
+backdrop-blur-sm
 
-    transition-all duration-150
-    "
+border border-white/40
+
+hover:bg-white/50
+hover:shadow-[0_10px_30px_rgba(15,23,42,0.06)]
+
+transition-all duration-200
+"
                   >
                     {authFirstName || 'Skater'} (
                     {skaterLevel === 'non_skater'
@@ -1442,12 +1499,22 @@ transition-all duration-150
                 <button
                   onClick={handleLogout}
                   className="
-      px-3 py-1
-      text-sm
-      rounded-md
-      border border-slate-300
-      hover:bg-slate-100
-      "
+px-4 py-2
+
+text-sm font-medium
+
+rounded-2xl
+
+bg-white/30
+backdrop-blur-sm
+
+border border-white/40
+
+hover:bg-white/50
+hover:shadow-[0_10px_30px_rgba(15,23,42,0.06)]
+
+transition-all duration-200
+"
                 >
                   Logout
                 </button>
@@ -1456,13 +1523,22 @@ transition-all duration-150
               <button
                 onClick={() => setAuthModalOpen(true)}
                 className="
-    flex items-center justify-center
-    h-10 w-10
-    rounded-full
-    border border-slate-300
-    hover:bg-slate-100
-    transition-all duration-150
-    "
+flex items-center justify-center
+
+h-11 w-11
+
+rounded-2xl
+
+bg-white/30
+backdrop-blur-sm
+
+border border-white/40
+
+hover:bg-white/55
+hover:shadow-[0_10px_30px_rgba(15,23,42,0.06)]
+
+transition-all duration-200
+"
                 title="Sign in"
               >
                 <svg
@@ -1485,11 +1561,11 @@ transition-all duration-150
             className="
   flex-1 overflow-y-auto
   px-4 py-6 md:p-8
-  bg-slate-50
+  bg-white/20 backdrop-blur-sm
 "
           >
-            <div className="w-full max-w-3xl mx-auto space-y-6">
-              <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div className="w-full max-w-6xl mx-auto space-y-6">
+              <div className={`${glassStrong} rounded-[2rem] p-6 md:p-8`}>
                 <h2 className="text-2xl font-semibold mb-4">
                   Blade Sharpening Tracker
                 </h2>
@@ -1703,7 +1779,7 @@ transition-all duration-150
                           <div
                             key={s.id}
                             className="
-      bg-slate-50
+      bg-white/20 backdrop-blur-sm
       rounded-xl
       px-4 py-4
       border border-slate-100
@@ -1818,7 +1894,7 @@ transition-all duration-150
         `
         : `
           border border-dashed border-slate-200
-          bg-slate-50
+          bg-white/20 backdrop-blur-sm
         `
     }
   `}
@@ -2019,146 +2095,185 @@ transition-all duration-150
           </div>
         ) : (
           <>
-            <div className="flex-1 overflow-y-auto px-8 pt-6 pb-6 space-y-6">
-              {messages.map((m, i) => {
-                const linkedQuestion =
-                  m.role === 'assistant' &&
-                  i > 0 &&
-                  messages[i - 1]?.role === 'user'
-                    ? messages[i - 1].content
-                    : null
+            <div
+              className="
+flex-1 overflow-y-auto
 
-                const isLastAssistant =
-                  m.role === 'assistant' &&
-                  i === messages.length - 1 &&
-                  !loading
+px-4 md:px-10 lg:px-16
 
-                return (
-                  <div
-                    key={`${m.role}-${i}-${m.content.slice(0, 20)}`}
-                    className={`flex flex-col ${
-                      m.role === 'user' ? 'items-end pr-4' : 'items-start pl-4'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between text-sm mb-2">
-                      <div className="flex items-center gap-3 ml-3">
-                        <span className="font-medium">
-                          {m.role === 'assistant' ? 'WarmGPT' : 'You'}
-                        </span>
-                      </div>
+pt-10 pb-12
 
-                      {editingIndex !== i && (
+space-y-10
+"
+            >
+              <div className="max-w-5xl mx-auto w-full">
+                {messages.map((m, i) => {
+                  const linkedQuestion =
+                    m.role === 'assistant' &&
+                    i > 0 &&
+                    messages[i - 1]?.role === 'user'
+                      ? messages[i - 1].content
+                      : null
+
+                  const isLastAssistant =
+                    m.role === 'assistant' &&
+                    i === messages.length - 1 &&
+                    !loading
+
+                  return (
+                    <div
+                      key={`${m.role}-${i}-${m.content.slice(0, 20)}`}
+                      className={`flex flex-col gap-2 ${
+                        m.role === 'user' ? 'items-end' : 'items-start'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-sm mb-2">
                         <div className="flex items-center gap-3 ml-3">
-                          <button
-                            onClick={() => handleCopy(m.content, i)}
-                            className={`
-    text-xs px-2 py-0.5 rounded-md border backdrop-blur-sm transition
-    ${
-      copiedIndex === i
-        ? 'bg-green-500 text-white border-green-500'
-        : 'bg-white border border-slate-300 hover:bg-slate-100'
-    }
-  `}
-                          >
-                            {copiedIndex === i ? '✓ Copied' : 'Copy'}
-                          </button>
+                          <span className="font-medium">
+                            {m.role === 'assistant' ? 'WarmGPT' : 'You'}
+                          </span>
+                        </div>
 
-                          {m.role === 'user' && (
+                        {editingIndex !== i && (
+                          <div className="flex items-center gap-3 ml-3">
                             <button
-                              onClick={() => {
-                                setEditingIndex(i)
-                                setEditingText(m.content)
-                              }}
+                              onClick={() => handleCopy(m.content, i)}
                               className={`
-  text-xs px-2 py-0.5 rounded-md
-  bg-white
-  border border-slate-300
-  hover:bg-slate-100
-  transition-colors duration-150
+text-xs
+
+px-3 py-1.5
+
+rounded-xl
+
+backdrop-blur-sm
+
+border border-white/40
+
+transition-all duration-200
+
+${
+  copiedIndex === i
+    ? 'bg-emerald-500 text-white border-emerald-400'
+    : 'bg-white/35 hover:bg-white/60 text-slate-700'
+}
 `}
                             >
-                              Edit
+                              {copiedIndex === i ? '✓ Copied' : 'Copy'}
                             </button>
-                          )}
 
-                          {m.role === 'assistant' && (
-                            <button
-                              onClick={() => speakText(m.content, i)}
-                              title="Read aloud"
-                              className="
-    flex items-center justify-center
-    h-7 w-7
-    rounded-lg
-    border border-slate-300
-    bg-white
-    hover:bg-slate-100
-    transition-all duration-150
-  "
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                className="w-4 h-4 text-slate-600"
+                            {m.role === 'user' && (
+                              <button
+                                onClick={() => {
+                                  setEditingIndex(i)
+                                  setEditingText(m.content)
+                                }}
+                                className="
+text-xs
+
+px-3 py-1.5
+
+rounded-xl
+
+bg-white/35
+backdrop-blur-sm
+
+border border-white/40
+
+hover:bg-white/60
+
+transition-all duration-150
+"
                               >
-                                <path
-                                  d="M11 5 6 9H3v6h3l5 4V5zM15.5 8.5a5 5 0 0 1 0 7m2.5-9.5a8 8 0 0 1 0 12"
-                                  stroke="currentColor"
-                                  strokeWidth="1.5"
-                                  fill="none"
-                                />
-                              </svg>
-                            </button>
-                          )}
+                                Edit
+                              </button>
+                            )}
 
-                          {m.role === 'assistant' && (
-                            <button
-                              onClick={() => {
-                                if (!m.id) {
-                                  console.warn('No message id')
-                                  return
-                                }
+                            {m.role === 'assistant' && (
+                              <button
+                                onClick={() => speakText(m.content, i)}
+                                title="Read aloud"
+                                className="
+flex items-center justify-center
 
-                                handleHelpful(m.id)
+h-8 w-8
 
-                                setLikedSet((prev) => {
-                                  const next = new Set(prev)
-                                  next.add(m.id!)
-                                  return next
-                                })
-                              }}
-                              title="Helpful"
-                              className="
+rounded-xl
+
+bg-white/35
+backdrop-blur-sm
+
+border border-white/40
+
+hover:bg-white/60
+
+transition-all duration-150
+"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 24 24"
+                                  fill="currentColor"
+                                  className="w-4 h-4 text-slate-600"
+                                >
+                                  <path
+                                    d="M11 5 6 9H3v6h3l5 4V5zM15.5 8.5a5 5 0 0 1 0 7m2.5-9.5a8 8 0 0 1 0 12"
+                                    stroke="currentColor"
+                                    strokeWidth="1.5"
+                                    fill="none"
+                                  />
+                                </svg>
+                              </button>
+                            )}
+
+                            {m.role === 'assistant' && (
+                              <button
+                                onClick={() => {
+                                  if (!m.id) {
+                                    console.warn('No message id')
+                                    return
+                                  }
+
+                                  handleHelpful(m.id)
+
+                                  setLikedSet((prev) => {
+                                    const next = new Set(prev)
+                                    next.add(m.id!)
+                                    return next
+                                  })
+                                }}
+                                title="Helpful"
+                                className="
       flex items-center justify-center
       h-7 w-7
-      rounded-lg
-      border border-slate-300
-      bg-white
-      hover:bg-slate-100
+      rounded-xl
+bg-white/35
+backdrop-blur-sm
+border border-white/40
+hover:bg-white/60
       transition-all duration-150
     "
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                className={`w-4 h-4 ${
-                                  m.id && likedSet.has(m.id)
-                                    ? 'fill-green-500 stroke-green-600'
-                                    : 'fill-none stroke-slate-600'
-                                }`}
-                                strokeWidth="1.5"
                               >
-                                <path d="M7 11v8h-2a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h2z" />
-                                <path d="M7 11l5-7a2 2 0 0 1 3 2v3h4a2 2 0 0 1 2 2l-1 6a2 2 0 0 1-2 2H7z" />
-                              </svg>
-                            </button>
-                          )}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 24 24"
+                                  className={`w-4 h-4 ${
+                                    m.id && likedSet.has(m.id)
+                                      ? 'fill-green-500 stroke-green-600'
+                                      : 'fill-none stroke-slate-600'
+                                  }`}
+                                  strokeWidth="1.5"
+                                >
+                                  <path d="M7 11v8h-2a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h2z" />
+                                  <path d="M7 11l5-7a2 2 0 0 1 3 2v3h4a2 2 0 0 1 2 2l-1 6a2 2 0 0 1-2 2H7z" />
+                                </svg>
+                              </button>
+                            )}
 
-                          {m.role === 'assistant' && speakingIndex === i && (
-                            <button
-                              onClick={stopSpeech}
-                              title="Stop reading"
-                              className="
+                            {m.role === 'assistant' && speakingIndex === i && (
+                              <button
+                                onClick={stopSpeech}
+                                title="Stop reading"
+                                className="
       flex items-center justify-center
       h-7 w-7
       rounded-lg
@@ -2170,160 +2285,160 @@ transition-all duration-150
       active:scale-95
       transition-all duration-150
     "
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                className="w-4 h-4"
                               >
-                                <path d="M7 7h10v10H7z" />
-                              </svg>
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      {editingIndex === i ? (
-                        <textarea
-                          value={editingText}
-                          onChange={(e) => setEditingText(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                              e.preventDefault()
-                              handleEditSave(i)
-                            }
-                            if (e.key === 'Escape') {
-                              setEditingIndex(null)
-                            }
-                          }}
-                          className="w-full rounded-xl bg-white/30 border px-4 py-3 resize-none"
-                        />
-                      ) : (
-                        <div
-                          className={`${isLastAssistant ? '' : 'msg-animate'}
-  ${
-    m.role === 'assistant'
-      ? 'max-w-full md:max-w-[820px]'
-      : 'max-w-[85%] md:max-w-[280px]'
-  }
-  rounded-2xl px-6 py-5 whitespace-pre-line
-  ${
-    m.role === 'assistant'
-      ? 'bg-white shadow-sm border border-slate-100'
-      : 'bg-white border border-slate-200'
-  }`}
-                          style={{
-                            WebkitUserSelect: 'text',
-                            userSelect: 'text',
-                            WebkitTouchCallout: 'default',
-                          }}
-                        >
-                          <div className="text-[15px] leading-7 tracking-[0.01em] text-slate-800">
-                            {isLastAssistant ? (
-                              <Typewriter
-                                text={m.content}
-                                speed={6}
-                                showCursor
-                                onComplete={() => setFinishedTypingIndex(i)}
-                              />
-                            ) : (
-                              m.content.split(/\n+/).map((line, idx) => {
-                                if (line.trim() === '') {
-                                  return <div key={idx} className="h-3" />
-                                }
-
-                                return (
-                                  <p key={idx} className="mb-2 last:mb-0">
-                                    {line}
-                                  </p>
-                                )
-                              })
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 24 24"
+                                  fill="currentColor"
+                                  className="w-4 h-4"
+                                >
+                                  <path d="M7 7h10v10H7z" />
+                                </svg>
+                              </button>
                             )}
                           </div>
+                        )}
+                      </div>
+
+                      <div>
+                        {editingIndex === i ? (
+                          <textarea
+                            value={editingText}
+                            onChange={(e) => setEditingText(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault()
+                                handleEditSave(i)
+                              }
+                              if (e.key === 'Escape') {
+                                setEditingIndex(null)
+                              }
+                            }}
+                            className="w-full rounded-xl bg-white/30 border px-4 py-3 resize-none"
+                          />
+                        ) : (
+                          <div
+                            className={`${isLastAssistant ? '' : 'msg-animate'}
+ ${
+   m.role === 'assistant'
+     ? 'w-fit max-w-full md:max-w-[820px]'
+     : 'w-fit max-w-[75%] md:max-w-[380px]'
+ }
+  rounded-[2rem] px-6 py-5 md:px-7 md:py-6 whitespace-pre-line
+transition-all duration-300
+  ${m.role === 'assistant' ? softBubble : darkBubble}`}
+                            style={{
+                              WebkitUserSelect: 'text',
+                              userSelect: 'text',
+                              WebkitTouchCallout: 'default',
+                            }}
+                          >
+                            <div
+                              className={`text-[15px] leading-7 tracking-[0.01em] ${m.role === 'assistant' ? 'text-slate-800' : 'text-white'}`}
+                            >
+                              {isLastAssistant ? (
+                                <Typewriter
+                                  text={m.content}
+                                  speed={6}
+                                  showCursor
+                                  onComplete={() => setFinishedTypingIndex(i)}
+                                />
+                              ) : (
+                                m.content.split(/\n+/).map((line, idx) => {
+                                  if (line.trim() === '') {
+                                    return <div key={idx} className="h-3" />
+                                  }
+
+                                  return (
+                                    <p key={idx} className="mb-2 last:mb-0">
+                                      {line}
+                                    </p>
+                                  )
+                                })
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {m.role === 'assistant' &&
+                        !loading &&
+                        linkedQuestion && // 🔥 ONLY show if tied to a user question
+                        finishedTypingIndex === i && (
+                          <div className="mt-3 flex flex-wrap gap-2 px-1">
+                            <button
+                              onClick={() =>
+                                sendActionMessage(
+                                  'simplify',
+                                  linkedQuestion,
+                                  m.content,
+                                  i
+                                )
+                              }
+                              disabled={actionLoading}
+                              className={`
+text-xs px-3 py-1.5
+rounded-full
+bg-white
+border border-slate-200
+text-slate-600
+transition-all duration-150
+${actionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100'}
+`}
+                            >
+                              Simplify
+                            </button>
+
+                            <button
+                              onClick={() =>
+                                sendActionMessage(
+                                  'deeper',
+                                  linkedQuestion,
+                                  m.content,
+                                  i
+                                )
+                              }
+                              disabled={actionLoading}
+                              className={`
+text-xs px-3 py-1.5
+rounded-full
+bg-white
+border border-slate-200
+text-slate-600
+transition-all duration-150
+${actionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100'}
+`}
+                            >
+                              Go deeper
+                            </button>
+                          </div>
+                        )}
+                      {actionLoading && actionTargetIndex === i && (
+                        <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
+                          <ThinkingDots />
+                          <span>Regenerating your answer...</span>
+                        </div>
+                      )}
+                      {m.role === 'assistant' && m.repaired && (
+                        <div className="text-xs text-slate-400 mt-2 px-1 italic">
+                          ✨ refined for clarity
                         </div>
                       )}
                     </div>
+                  )
+                })}
 
-                    {m.role === 'assistant' &&
-                      !loading &&
-                      linkedQuestion && // 🔥 ONLY show if tied to a user question
-                      finishedTypingIndex === i && (
-                        <div className="mt-3 flex flex-wrap gap-2 px-1">
-                          <button
-                            onClick={() =>
-                              sendActionMessage(
-                                'simplify',
-                                linkedQuestion,
-                                m.content,
-                                i
-                              )
-                            }
-                            disabled={actionLoading}
-                            className={`
-text-xs px-3 py-1.5
-rounded-full
-bg-white
-border border-slate-200
-text-slate-600
-transition-all duration-150
-${actionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100'}
-`}
-                          >
-                            Simplify
-                          </button>
-
-                          <button
-                            onClick={() =>
-                              sendActionMessage(
-                                'deeper',
-                                linkedQuestion,
-                                m.content,
-                                i
-                              )
-                            }
-                            disabled={actionLoading}
-                            className={`
-text-xs px-3 py-1.5
-rounded-full
-bg-white
-border border-slate-200
-text-slate-600
-transition-all duration-150
-${actionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100'}
-`}
-                          >
-                            Go deeper
-                          </button>
-                        </div>
-                      )}
-                    {actionLoading && actionTargetIndex === i && (
-                      <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
-                        <ThinkingDots />
-                        <span>Regenerating your answer...</span>
-                      </div>
-                    )}
-                    {m.role === 'assistant' && m.repaired && (
-                      <div className="text-xs text-slate-400 mt-2 px-1 italic">
-                        ✨ refined for clarity
-                      </div>
-                    )}
+                {loading && (
+                  <div className="msg-animate rounded-xl bg-white/20 px-5 py-3">
+                    <ThinkingDots />
                   </div>
-                )
-              })}
+                )}
 
-              {loading && (
-                <div className="msg-animate rounded-xl bg-white/20 px-5 py-3">
-                  <ThinkingDots />
-                </div>
-              )}
-
-              <div ref={messagesEndRef} />
+                <div ref={messagesEndRef} />
+              </div>
             </div>
 
-            <div className="border-t border-slate-100 bg-white p-6">
+            <div className="border-t border-white/70 bg-white/80 backdrop-blur-md p-5 md:p-6">
               <div className="flex items-end gap-3">
                 <textarea
                   rows={1}
@@ -2332,13 +2447,26 @@ ${actionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100'}
                   onKeyDown={handleKeyDown}
                   placeholder="Ask a figure skating question..."
                   className="
-flex-1 rounded-full
-bg-white
-shadow-md
-border border-slate-200
-px-5 py-3
+flex-1
+
+rounded-[2rem]
+
+bg-white/85
+backdrop-blur-sm
+
+border border-white/50
+
+px-6 py-4
+
 resize-none
-focus:outline-none focus:ring-2 focus:ring-slate-200
+
+shadow-[0_10px_40px_rgba(15,23,42,0.06)]
+
+focus:outline-none
+focus:border-white/70
+focus:bg-white/55
+
+transition-all duration-200
 "
                 />
 
@@ -2346,15 +2474,23 @@ focus:outline-none focus:ring-2 focus:ring-slate-200
                   onClick={sendMessage}
                   disabled={loading}
                   className="
-h-11 px-6
-rounded-full
-bg-slate-200
-text-black
+h-12 px-7
+
+rounded-[1.5rem]
+
+bg-[linear-gradient(135deg,rgba(99,102,241,0.9),rgba(168,85,247,0.82))]
+
+text-white
 font-medium
-shadow-md
-hover:bg-slate-300
-active:scale-95
-transition-all duration-150
+
+shadow-[0_12px_35px_rgba(99,102,241,0.25)]
+
+hover:scale-[1.03]
+hover:shadow-[0_18px_45px_rgba(99,102,241,0.32)]
+
+active:scale-[0.98]
+
+transition-all duration-200
 "
                 >
                   {loading ? '...' : 'Send'}
@@ -2367,7 +2503,7 @@ transition-all duration-150
 
       {profileModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-          <div className="w-[380px] rounded-2xl bg-white p-8 shadow-2xl border border-slate-200">
+          <div className="w-[380px] rounded-[2rem] bg-white/86 backdrop-blur-2xl p-8 shadow-[0_30px_100px_rgba(15,23,42,0.22)] border border-white/80">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-semibold text-slate-800">
