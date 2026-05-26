@@ -2311,7 +2311,15 @@ hover:bg-white/60
                         )}
                       </div>
 
-                      <div>
+                      <div
+                        className={`
+    flex flex-col
+
+    ${m.role === 'assistant' ? 'items-start' : 'items-end'}
+
+    w-full
+  `}
+                      >
                         {editingIndex === i ? (
                           <textarea
                             value={editingText}
@@ -2332,8 +2340,8 @@ hover:bg-white/60
                             className={`${isLastAssistant ? '' : 'msg-animate'}
  ${
    m.role === 'assistant'
-     ? 'w-fit max-w-[96%] md:max-w-[820px]'
-     : 'w-fit max-w-[85%] sm:max-w-[78%] md:max-w-[420px]'
+     ? 'w-full max-w-[96%] md:max-w-[820px]'
+     : 'w-fit max-w-[92%] sm:max-w-[78%] md:max-w-[520px]'
  }
   rounded-[1.7rem] md:rounded-[2rem]
 
@@ -2382,7 +2390,14 @@ leading-8 md:leading-7 tracking-[0.01em] ${m.role === 'assistant' ? 'text-slate-
                         !loading &&
                         linkedQuestion && // 🔥 ONLY show if tied to a user question
                         finishedTypingIndex === i && (
-                          <div className="mt-3 flex flex-wrap gap-2 px-1">
+                          <div
+                            className={`
+    mt-3
+    flex flex-wrap gap-2
+
+    ${m.role === 'assistant' ? 'pl-2' : 'pr-2 justify-end'}
+  `}
+                          >
                             <button
                               onClick={() =>
                                 sendActionMessage(
