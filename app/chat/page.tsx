@@ -1390,19 +1390,33 @@ shadow-[0_10px_50px_rgba(15,23,42,0.04)]
 
             <div
               className="
-    absolute top-1/2 left-full ml-3
-    -translate-y-1/2
-    px-2 py-1
-    text-xs
-    bg-slate-900 text-white
-    rounded-lg
-    shadow-xl
-    opacity-0 group-hover:opacity-100
-    transition
-    pointer-events-none
-    whitespace-nowrap
-    z-50
-  "
+absolute top-1/2 left-full ml-3
+-translate-y-1/2
+
+px-3 py-1.5
+
+text-[11px]
+font-medium
+text-slate-600
+
+bg-white/75
+backdrop-blur-xl
+
+border border-white/70
+
+rounded-xl
+
+shadow-[0_8px_30px_rgba(15,23,42,0.08)]
+
+opacity-0
+group-hover:opacity-100
+
+transition-all duration-200
+
+pointer-events-none
+whitespace-nowrap
+z-50
+"
             >
               {sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
             </div>
@@ -1423,19 +1437,33 @@ shadow-[0_10px_50px_rgba(15,23,42,0.04)]
 
               <div
                 className="
-    absolute top-1/2 right-full mr-3
-    -translate-y-1/2
-    px-2 py-1
-    text-xs
-    bg-slate-900 text-white
-    rounded-lg
-    shadow-xl
-    opacity-0 group-hover:opacity-100
-    transition
-    pointer-events-none
-    whitespace-nowrap
-    z-50
-  "
+absolute top-1/2 right-full mr-3
+-translate-y-1/2
+
+px-3 py-1.5
+
+text-[11px]
+font-medium
+text-slate-600
+
+bg-white/75
+backdrop-blur-xl
+
+border border-white/70
+
+rounded-xl
+
+shadow-[0_8px_30px_rgba(15,23,42,0.08)]
+
+opacity-0
+group-hover:opacity-100
+
+transition-all duration-200
+
+pointer-events-none
+whitespace-nowrap
+z-50
+"
               >
                 Start new chat
               </div>
@@ -1474,24 +1502,32 @@ transition-all duration-200
 
                   <div
                     className="
-    absolute top-full right-0 mt-2
+absolute top-full right-0 mt-2
 
-    px-2 py-1
-    text-xs
+px-3 py-1.5
 
-    bg-slate-700 text-white
-    rounded-md
-    shadow-lg
+text-[11px]
+font-medium
+text-slate-600
 
-    opacity-0
-    group-hover:opacity-100
+bg-white/80
+backdrop-blur-xl
 
-    transition-opacity duration-150
+border border-white/70
 
-    pointer-events-none
-    whitespace-nowrap
-    z-50
-    "
+rounded-xl
+
+shadow-[0_8px_30px_rgba(15,23,42,0.08)]
+
+opacity-0
+group-hover:opacity-100
+
+transition-all duration-200
+
+pointer-events-none
+whitespace-nowrap
+z-50
+"
                   >
                     Edit your profile
                   </div>
@@ -2158,13 +2194,19 @@ space-y-2
 
                             {/* ACTIONS */}
                             {editingIndex !== i && (
-                              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div
+                                className={`
+flex items-center gap-2 transition-opacity
+
+${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
+`}
+                              >
                                 {/* COPY */}
                                 <button
                                   onClick={() => handleCopy(m.content, i)}
                                   className="
       text-xs
-      px-3 py-1
+      px-3 py-1.5 md:py-1
       rounded-xl
       bg-white/40
       border border-white/30
@@ -2182,7 +2224,7 @@ space-y-2
                                   }}
                                   className="
       text-xs
-      px-3 py-1
+      px-3 py-1.5 md:py-1
       rounded-xl
       bg-white/40
       border border-white/30
@@ -2204,7 +2246,7 @@ space-y-2
                                     }}
                                     className="
         text-xs
-        px-3 py-1
+        px-3 py-1.5 md:py-1
         rounded-xl
         bg-white/40
         border border-white/30
