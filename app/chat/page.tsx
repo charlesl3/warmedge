@@ -2195,11 +2195,12 @@ space-y-2
                             {/* ACTIONS */}
                             {editingIndex !== i && (
                               <div
-                                className={`
+                                className="
 flex items-center gap-2 flex-wrap transition-opacity
 
-${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
-`}
+opacity-100 md:opacity-0
+md:group-hover:opacity-100
+"
                               >
                                 {/* COPY */}
                                 <button
