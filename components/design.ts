@@ -27,8 +27,34 @@ export const glassStrong =
 export const darkBubble =
   'bg-[linear-gradient(135deg,rgba(99,102,241,0.78),rgba(168,85,247,0.72))] text-white border border-white/20 backdrop-blur-[24px] shadow-[0_20px_60px_rgba(99,102,241,0.18)]'
 
-export const softBubble =
-  'bg-white/40 backdrop-blur-[28px] border border-white/50 shadow-[0_20px_70px_rgba(15,23,42,0.05)]'
+export const softBubble = `
+bg-[linear-gradient(145deg,
+rgba(255,255,255,0.72),
+rgba(255,255,255,0.52)
+)]
+
+backdrop-blur-[22px]
+
+border border-white/65
+
+shadow-[0_12px_45px_rgba(148,163,184,0.10)]
+
+relative overflow-hidden
+
+before:absolute
+before:inset-0
+before:pointer-events-none
+
+before:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.65),transparent_35%)]
+
+after:absolute
+after:inset-0
+after:pointer-events-none
+
+after:bg-[linear-gradient(180deg,rgba(255,255,255,0.14),transparent)]
+
+`
+
 export const iconBtn =
   'h-10 w-10 rounded-2xl bg-white/72 backdrop-blur-xl border border-white/80 shadow-sm hover:bg-white hover:shadow-md active:scale-95 transition-all'
 

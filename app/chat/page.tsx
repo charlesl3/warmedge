@@ -2099,7 +2099,7 @@ transition-all duration-200
               className="
 flex-1 overflow-y-auto
 
-px-4 md:px-10 lg:px-16
+px-3 sm:px-4 md:px-10 lg:px-16
 
 pt-10 pb-12
 
@@ -2321,10 +2321,14 @@ hover:bg-white/60
                             className={`${isLastAssistant ? '' : 'msg-animate'}
  ${
    m.role === 'assistant'
-     ? 'w-fit max-w-full md:max-w-[820px]'
-     : 'w-fit max-w-[75%] md:max-w-[380px]'
+     ? 'w-fit max-w-[96%] md:max-w-[820px]'
+     : 'w-fit max-w-[72%] sm:max-w-[78%] md:max-w-[420px]'
  }
-  rounded-[2rem] px-6 py-5 md:px-7 md:py-6 whitespace-pre-line
+  rounded-[1.7rem] md:rounded-[2rem]
+
+px-4 py-3.5
+sm:px-5 sm:py-4
+md:px-7 md:py-6 whitespace-pre-line
 transition-all duration-300
   ${m.role === 'assistant' ? softBubble : darkBubble}`}
                             style={{
@@ -2334,7 +2338,9 @@ transition-all duration-300
                             }}
                           >
                             <div
-                              className={`text-[15px] leading-7 tracking-[0.01em] ${m.role === 'assistant' ? 'text-slate-800' : 'text-white'}`}
+                              className={`text-[16px] md:text-[15px]
+
+leading-8 md:leading-7 tracking-[0.01em] ${m.role === 'assistant' ? 'text-slate-800' : 'text-white'}`}
                             >
                               {isLastAssistant ? (
                                 <Typewriter
@@ -2456,7 +2462,8 @@ backdrop-blur-sm
 
 border border-white/50
 
-px-6 py-4
+px-4 py-3.5
+md:px-6 md:py-4
 
 resize-none
 
@@ -2474,7 +2481,8 @@ transition-all duration-200
                   onClick={sendMessage}
                   disabled={loading}
                   className="
-h-12 px-7
+h-11 px-5
+md:h-12 md:px-7
 
 rounded-[1.5rem]
 
