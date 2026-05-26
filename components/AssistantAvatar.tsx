@@ -42,7 +42,12 @@ transition-all duration-300
         <img
           src="/logo1.jpg"
           alt="WarmGPT"
-          className="w-full h-full object-cover rounded-full"
+          className="
+w-full h-full
+max-w-[56px] max-h-[56px]
+md:max-w-[64px] md:max-h-[64px]
+object-cover rounded-full
+"
         />
       </div>
     </div>

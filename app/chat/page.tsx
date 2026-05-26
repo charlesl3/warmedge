@@ -2123,8 +2123,8 @@ space-y-2
 
                   return (
                     <div
-                      key={`${m.role}-${i}-${m.content.slice(0, 20)}`}
                       className={`
+      group
       w-full flex
       ${m.role === 'user' ? 'justify-end' : 'justify-start'}
       mb-8
@@ -2158,36 +2158,109 @@ space-y-2
                             {/* ACTIONS */}
                             {editingIndex !== i && (
                               <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                {/* COPY */}
                                 <button
                                   onClick={() => handleCopy(m.content, i)}
                                   className="
-                  text-xs
-                  px-3 py-1
-                  rounded-xl
-                  bg-white/40
-                  border border-white/30
-                  hover:bg-white/70
-                "
+      text-xs
+      px-3 py-1
+      rounded-xl
+      bg-white/40
+      border border-white/30
+      hover:bg-white/70
+    "
                                 >
                                   {copiedIndex === i ? '✓' : 'Copy'}
                                 </button>
+
+                                {/* EDIT */}
+                                <button
+                                  onClick={() => {
+                                    setEditingIndex(i)
+                                    setEditingText(m.content)
+                                  }}
+                                  className="
+      text-xs
+      px-3 py-1
+      rounded-xl
+      bg-white/40
+      border border-white/30
+      hover:bg-white/70
+    "
+                                >
+                                  Edit
+                                </button>
+
+                                {/* READ ALOUD */}
+                                {m.role === 'assistant' && (
+                                  <button
+                                    onClick={() => {
+                                      if (speakingIndex === i) {
+                                        stopSpeech()
+                                      } else {
+                                        speakText(m.content, i)
+                                      }
+                                    }}
+                                    className="
+        text-xs
+        px-3 py-1
+        rounded-xl
+        bg-white/40
+        border border-white/30
+        hover:bg-white/70
+      "
+                                  >
+                                    {speakingIndex === i ? 'Stop' : 'Read'}
+                                  </button>
+                                )}
                               </div>
                             )}
                           </div>
 
                           {/* BUBBLE */}
                           {editingIndex === i ? (
-                            <textarea
-                              value={editingText}
-                              onChange={(e) => setEditingText(e.target.value)}
-                              className="
-              w-full
-              rounded-2xl
-              border
-              px-4 py-3
-              bg-white/40
-            "
-                            />
+                            <div className="space-y-3">
+                              <textarea
+                                value={editingText}
+                                onChange={(e) => setEditingText(e.target.value)}
+                                className="
+      w-full
+      rounded-2xl
+      border
+      px-4 py-3
+      bg-white/40
+      min-h-[140px]
+    "
+                              />
+
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => handleEditSave(i)}
+                                  className="
+        px-4 py-2
+        rounded-xl
+        bg-violet-500
+        text-white
+      "
+                                >
+                                  Save
+                                </button>
+
+                                <button
+                                  onClick={() => {
+                                    setEditingIndex(null)
+                                    setEditingText('')
+                                  }}
+                                  className="
+        px-4 py-2
+        rounded-xl
+        bg-slate-200
+      "
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
                           ) : (
                             <div
                               className={`
