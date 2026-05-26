@@ -2123,11 +2123,22 @@ space-y-10
                   return (
                     <div
                       key={`${m.role}-${i}-${m.content.slice(0, 20)}`}
-                      className={`flex flex-col gap-2 ${
-                        m.role === 'user' ? 'items-end' : 'items-start'
-                      }`}
+                      className={`
+    flex flex-col gap-2
+
+    px-1 sm:px-2 md:px-0
+
+    ${m.role === 'user' ? 'items-end' : 'items-start'}
+  `}
                     >
-                      <div className="flex items-center justify-between text-sm mb-2">
+                      <div
+                        className={`
+    flex items-center gap-3
+    text-sm mb-2
+
+    ${m.role === 'assistant' ? 'pl-2' : 'pr-2 justify-end'}
+  `}
+                      >
                         <div className="flex items-center gap-3 ml-3">
                           <span className="font-medium">
                             {m.role === 'assistant' ? 'WarmGPT' : 'You'}
@@ -2322,11 +2333,11 @@ hover:bg-white/60
  ${
    m.role === 'assistant'
      ? 'w-fit max-w-[96%] md:max-w-[820px]'
-     : 'w-fit max-w-[72%] sm:max-w-[78%] md:max-w-[420px]'
+     : 'w-fit max-w-[85%] sm:max-w-[78%] md:max-w-[420px]'
  }
   rounded-[1.7rem] md:rounded-[2rem]
 
-px-4 py-3.5
+px-5 py-4
 sm:px-5 sm:py-4
 md:px-7 md:py-6 whitespace-pre-line
 transition-all duration-300
