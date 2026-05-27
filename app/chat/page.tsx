@@ -2861,8 +2861,12 @@ relative overflow-hidden
 w-[92vw]
 max-w-[470px]
 
-max-h-[90vh]
+h-[min(90vh,820px)]
+
 overflow-y-auto
+overscroll-contain
+
+pb-8
 
 rounded-[2.4rem]
 
@@ -2879,7 +2883,7 @@ border border-white/95
 
 shadow-[0_35px_120px_rgba(56,189,248,0.22)]
 
-p-8
+p-6 md:p-8 pb-10
 
 before:absolute
 before:inset-0
@@ -3332,7 +3336,18 @@ shadow-sm
       )}
 
       {authModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+        <div
+          className="
+fixed inset-0 z-50
+
+flex items-start md:items-center
+justify-center
+
+overflow-y-auto
+
+pt-6 pb-6
+"
+        >
           <div className="w-[380px] rounded-2xl bg-white p-8 shadow-2xl border border-slate-200">
             <div className="flex items-center justify-between mb-6">
               <div>
