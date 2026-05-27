@@ -1373,15 +1373,38 @@ transition-all duration-150
         {/* HEADER BAR */}
         <div
           className="
+relative z-30 isolate
+
 flex items-center justify-between
+
 px-5 py-4
 
-bg-white/72
-backdrop-blur-md
+bg-[linear-gradient(
+135deg,
+rgba(255,255,255,0.92),
+rgba(239,246,255,0.86)
+)]
 
-border-b border-white/40
+backdrop-blur-2xl
 
-shadow-[0_10px_50px_rgba(15,23,42,0.04)]
+border-b border-white/60
+
+shadow-[0_12px_60px_rgba(14,165,233,0.08)]
+
+overflow-visible
+before:absolute
+before:inset-0
+before:pointer-events-none
+before:-z-10
+
+before:bg-[radial-gradient(circle_at_15%_20%,rgba(255,255,255,0.92),transparent_22%),radial-gradient(circle_at_85%_10%,rgba(191,219,254,0.35),transparent_24%)]
+
+after:absolute
+after:inset-0
+after:pointer-events-none
+after:-z-10
+
+after:bg-[linear-gradient(180deg,rgba(255,255,255,0.20),transparent)]
 "
         >
           {/* Sidebar toggle */}
@@ -1486,14 +1509,23 @@ px-4 py-2
 
 rounded-2xl
 
-bg-white/30
-backdrop-blur-sm
+bg-[linear-gradient(
+145deg,
+rgba(255,255,255,0.72),
+rgba(255,255,255,0.46)
+)]
 
-border border-white/40
+backdrop-blur-2xl
 
-hover:bg-white/50
-hover:shadow-[0_10px_30px_rgba(15,23,42,0.06)]
+border border-white/60
 
+shadow-[0_10px_35px_rgba(15,23,42,0.05)]
+
+hover:border-sky-100
+hover:bg-white/78
+
+hover:shadow-[0_14px_40px_rgba(14,165,233,0.12)]
+overflow-visible
 transition-all duration-200
 "
                   >
@@ -1547,13 +1579,22 @@ text-sm font-medium
 
 rounded-2xl
 
-bg-white/30
-backdrop-blur-sm
+bg-[linear-gradient(
+145deg,
+rgba(255,255,255,0.72),
+rgba(255,255,255,0.46)
+)]
 
-border border-white/40
+backdrop-blur-2xl
 
-hover:bg-white/50
-hover:shadow-[0_10px_30px_rgba(15,23,42,0.06)]
+border border-white/60
+
+shadow-[0_10px_35px_rgba(15,23,42,0.05)]
+
+hover:border-rose-100
+hover:bg-white/78
+
+hover:shadow-[0_14px_40px_rgba(244,63,94,0.12)]
 
 transition-all duration-200
 "
@@ -1636,7 +1677,7 @@ transition-all duration-200
                         className={`h-full transition-all duration-700 ${
                           bladeTracker.should_sharpen
                             ? 'bg-red-500'
-                            : 'bg-slate-700'
+                            : 'bg-[linear-gradient(90deg,#38bdf8,#6366f1)]'
                         }`}
                         style={{
                           width: `${Math.min(
@@ -1671,8 +1712,28 @@ transition-all duration-200
                           value={sessionHours}
                           onChange={(e) => setSessionHours(e.target.value)}
                           className="
-  border rounded-lg px-3 py-2
-  w-full sm:w-32
+w-full sm:w-32
+
+px-4 py-2.5
+
+rounded-2xl
+
+bg-white/40
+backdrop-blur-xl
+
+border border-white/60
+
+text-slate-700
+
+shadow-[0_8px_24px_rgba(15,23,42,0.04)]
+
+placeholder:text-slate-400
+
+focus:outline-none
+focus:border-sky-200
+focus:bg-white/65
+
+transition-all duration-200
 "
                         />
 
@@ -1680,16 +1741,35 @@ transition-all duration-200
                           onClick={handleLogSession}
                           disabled={sessionLoggingLoading}
                           className={`
-    px-4 py-2 rounded-lg
-    border border-slate-300
-    transition-all duration-200
+px-5 py-2.5
 
-    ${
-      sessionLoggingLoading
-        ? 'bg-slate-200 text-slate-500'
-        : 'bg-white text-slate-800 hover:bg-slate-100'
-    }
-  `}
+rounded-2xl
+
+backdrop-blur-xl
+
+border border-white/60
+
+font-medium
+
+transition-all duration-250
+
+shadow-[0_10px_30px_rgba(15,23,42,0.05)]
+
+${
+  sessionLoggingLoading
+    ? 'bg-slate-200/70 text-slate-400'
+    : `
+      bg-white/45
+      text-slate-700
+
+      hover:bg-sky-50
+      hover:text-sky-700
+      hover:border-sky-200
+
+      hover:shadow-[0_14px_40px_rgba(14,165,233,0.14)]
+    `
+}
+`}
                         >
                           {sessionLoggingLoading ? 'Logging...' : 'Log Session'}
                         </button>
@@ -1698,12 +1778,35 @@ transition-all duration-200
                           onClick={handleSharpened}
                           disabled={sharpeningLoading}
                           className={`
-    px-4 py-2 rounded-lg
-    border border-slate-300
-    transition-all duration-200
+px-5 py-2.5
 
-    ${sharpeningLoading ? 'bg-slate-200 text-slate-500' : 'hover:bg-slate-100'}
-  `}
+rounded-2xl
+
+backdrop-blur-xl
+
+border border-white/60
+
+font-medium
+
+transition-all duration-250
+
+shadow-[0_10px_30px_rgba(15,23,42,0.05)]
+
+${
+  sharpeningLoading
+    ? 'bg-slate-200/70 text-slate-400'
+    : `
+      bg-white/45
+      text-slate-700
+
+      hover:bg-amber-50
+      hover:text-amber-700
+      hover:border-amber-200
+
+      hover:shadow-[0_14px_40px_rgba(251,191,36,0.18)]
+    `
+}
+`}
                         >
                           {sharpeningLoading
                             ? 'Recording...'
@@ -1717,11 +1820,37 @@ transition-all duration-200
 
                         <div
                           className="
-  rounded-2xl
-  border border-slate-200
-  p-2 md:p-4
-  bg-white
-  overflow-hidden
+rounded-2xl
+
+border border-white/60
+
+bg-[linear-gradient(
+145deg,
+rgba(255,255,255,0.78),
+rgba(255,255,255,0.58)
+)]
+
+backdrop-blur-2xl
+
+shadow-[0_18px_50px_rgba(15,23,42,0.06)]
+
+overflow-hidden
+
+relative
+
+before:absolute
+before:inset-0
+before:pointer-events-none
+
+before:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.9),transparent_35%)]
+
+after:absolute
+after:inset-0
+after:pointer-events-none
+
+after:bg-[linear-gradient(180deg,rgba(255,255,255,0.10),transparent)]
+
+p-2 md:p-4
 "
                         >
                           <Calendar

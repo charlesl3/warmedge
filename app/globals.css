@@ -54,8 +54,17 @@ button:disabled {
 }
 
 .warm-calendar .react-calendar__tile:enabled:hover {
-  background: #f1f5f9;
-  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    rgba(224, 242, 254, 0.95),
+    rgba(255, 255, 255, 0.92)
+  );
+
+  border-radius: 16px;
+
+  box-shadow: 0 10px 30px rgba(14, 165, 233, 0.12);
+
+  transition: all 0.2s ease;
 }
 
 .warm-calendar .react-calendar__tile {
@@ -78,8 +87,15 @@ button:disabled {
   bottom: 105%;
   left: 50%;
   transform: translateX(-50%);
-  background: #111827;
-  color: white;
+  background: rgba(255, 255, 255, 0.82);
+
+  backdrop-filter: blur(16px);
+
+  color: #334155;
+
+  border: 1px solid rgba(255, 255, 255, 0.7);
+
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
   font-size: 11px;
   padding: 3px 7px;
   border-radius: 6px;

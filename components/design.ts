@@ -55,11 +55,94 @@ after:bg-[linear-gradient(180deg,rgba(255,255,255,0.14),transparent)]
 
 `
 
-export const iconBtn =
-  'h-10 w-10 rounded-2xl bg-white/72 backdrop-blur-xl border border-white/80 shadow-sm hover:bg-white hover:shadow-md active:scale-95 transition-all'
+export const iconBtn = `
+relative
 
-export const navBtn =
-  'w-full text-left rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 hover:bg-white/70 hover:shadow-sm active:scale-[0.99] transition-all'
+h-10 w-10
 
-export const pillBtn =
-  'rounded-full bg-white/72 backdrop-blur-xl border border-white/80 shadow-sm hover:bg-white hover:shadow-md active:scale-95 transition-all'
+rounded-2xl
+
+bg-[linear-gradient(
+145deg,
+rgba(255,255,255,0.82),
+rgba(255,255,255,0.58)
+)]
+
+backdrop-blur-2xl
+
+border border-white/70
+
+text-slate-700
+
+shadow-[0_10px_35px_rgba(15,23,42,0.07)]
+
+overflow-hidden
+
+before:absolute
+before:inset-0
+before:pointer-events-none
+
+before:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.95),transparent_40%)]
+
+hover:bg-white
+hover:border-sky-100
+
+hover:text-sky-700
+
+hover:shadow-[0_14px_40px_rgba(14,165,233,0.14)]
+
+active:scale-95
+
+transition-all duration-250
+`
+
+export const navBtn = `
+w-full text-left
+
+rounded-2xl
+
+px-4 py-3
+
+text-sm font-medium
+text-slate-700
+
+bg-white/18
+backdrop-blur-xl
+
+border border-white/40
+
+shadow-[0_6px_24px_rgba(15,23,42,0.04)]
+
+hover:bg-white/55
+hover:border-white/70
+hover:shadow-[0_14px_40px_rgba(14,165,233,0.10)]
+
+hover:text-sky-700
+
+active:scale-[0.985]
+
+transition-all duration-250
+`
+
+export const pillBtn = `
+rounded-full
+
+bg-white/28
+backdrop-blur-xl
+
+border border-white/50
+
+text-slate-700
+
+shadow-[0_8px_24px_rgba(15,23,42,0.05)]
+
+hover:bg-white/65
+hover:border-sky-200
+hover:text-sky-700
+
+hover:shadow-[0_12px_35px_rgba(14,165,233,0.12)]
+
+active:scale-95
+
+transition-all duration-250
+`
