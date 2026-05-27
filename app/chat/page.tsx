@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase'
 import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
 import AssistantAvatar from '../../components/AssistantAvatar'
+import SkaterLevelSelector from '../../components/SkaterLevelSelector'
 import {
   appShell,
   glass,
@@ -357,7 +358,7 @@ Please note:
 
         setSessionHours('')
 
-        showToast('✓ Session removed')
+        showToast(' Session removed')
       }
 
       // no existing record → do nothing
@@ -394,7 +395,7 @@ Please note:
         setBladeTracker(data.tracker)
         setSessionHours('')
         setSessionNote('')
-        showToast('✓ Session logged')
+        showToast(' Session logged')
       }
     } catch (err) {
       console.error(err)
@@ -432,7 +433,7 @@ Please note:
       if (data.success) {
         setBladeTracker(data.tracker)
 
-        showToast('✓ Sharpening recorded')
+        showToast(' Sharpening recorded')
       }
     } catch (err) {
       console.error(err)
@@ -470,7 +471,7 @@ Please note:
       if (data.success) {
         setBladeTracker(data.tracker)
 
-        showToast('✓ Session deleted')
+        showToast(' Session deleted')
       }
     } catch (err) {
       console.error(err)
@@ -530,7 +531,7 @@ Please note:
 
       setEditingNoteText('')
 
-      showToast('✓ Note saved')
+      showToast(' Note saved')
     } catch (err) {
       console.error(err)
     }
@@ -1044,7 +1045,7 @@ ${assistantAnswer}
     }
 
     setAuthModalOpen(false)
-    showToast('✓ Account created')
+    showToast(' Account created')
   }
 
   const handleLogin = async () => {
@@ -1063,7 +1064,7 @@ ${assistantAnswer}
     }
 
     setAuthModalOpen(false)
-    showToast('✓ Signed in')
+    showToast(' Signed in')
   }
 
   const handleLogout = async () => {
@@ -1517,7 +1518,7 @@ rgba(255,255,255,0.46)
 
 backdrop-blur-2xl
 
-border border-white/60
+border border-sky-100/80
 
 shadow-[0_10px_35px_rgba(15,23,42,0.05)]
 
@@ -1587,7 +1588,7 @@ rgba(255,255,255,0.46)
 
 backdrop-blur-2xl
 
-border border-white/60
+border border-sky-100/80
 
 shadow-[0_10px_35px_rgba(15,23,42,0.05)]
 
@@ -1718,10 +1719,10 @@ px-4 py-2.5
 
 rounded-2xl
 
-bg-white/40
+bg-white/68
 backdrop-blur-xl
 
-border border-white/60
+border border-sky-100/80
 
 text-slate-700
 
@@ -1747,7 +1748,7 @@ rounded-2xl
 
 backdrop-blur-xl
 
-border border-white/60
+border border-sky-100/80
 
 font-medium
 
@@ -1784,7 +1785,7 @@ rounded-2xl
 
 backdrop-blur-xl
 
-border border-white/60
+border border-sky-100/80
 
 font-medium
 
@@ -1822,7 +1823,7 @@ ${
                           className="
 rounded-2xl
 
-border border-white/60
+border border-sky-100/80
 
 bg-[linear-gradient(
 145deg,
@@ -1974,13 +1975,27 @@ p-2 md:p-4
                                   handleDeleteSession(s.session_date)
                                 }
                                 className="
-          text-xs
-          px-3 py-1.5
-          rounded-lg
-          border border-red-200
-          text-red-500
-          hover:bg-red-50
-        "
+text-xs
+font-medium
+
+px-3.5 py-2
+
+rounded-xl
+
+bg-[linear-gradient(135deg,rgba(255,255,255,0.55),rgba(254,242,242,0.55))]
+
+backdrop-blur-xl
+
+border border-red-100
+
+text-rose-500
+
+shadow-[0_8px_24px_rgba(244,63,94,0.08)]
+
+hover:bg-[linear-gradient(135deg,rgba(254,242,242,0.82),rgba(255,255,255,0.72))]
+
+transition-all duration-200
+"
                               >
                                 Delete
                               </button>
@@ -1998,17 +2013,33 @@ p-2 md:p-4
                                   }
                                   placeholder=""
                                   className="
-        w-full
-        rounded-xl
-        border border-slate-200
-        px-3 py-2
-        text-sm
-        min-h-[90px]
-        resize-none
-        focus:outline-none
-        focus:ring-2
-        focus:ring-slate-200
-      "
+w-full
+
+min-h-[110px]
+
+rounded-[1.5rem]
+
+bg-white/55
+backdrop-blur-2xl
+
+border border-white/70
+
+px-5 py-4
+
+text-sm
+text-slate-700
+placeholder:text-slate-400
+
+shadow-[0_12px_35px_rgba(59,130,246,0.08)]
+
+resize-none
+
+focus:outline-none
+focus:border-sky-200
+focus:bg-white/72
+
+transition-all duration-250
+"
                                 />
 
                                 <div className="flex items-center gap-2">
@@ -2021,13 +2052,31 @@ p-2 md:p-4
                                       )
                                     }
                                     className="
-          px-3 py-1.5
-          rounded-lg
-          bg-slate-800
-          text-white
-          text-sm
-          hover:bg-slate-700
-        "
+w-full
+
+py-4
+
+rounded-[1.5rem]
+
+bg-[linear-gradient(
+135deg,
+rgba(37,99,235,0.94),
+rgba(99,102,241,0.94)
+)]
+
+text-white
+font-medium
+
+shadow-[0_18px_40px_rgba(59,130,246,0.24)]
+
+hover:scale-[1.01]
+
+hover:shadow-[0_24px_55px_rgba(59,130,246,0.34)]
+
+active:scale-[0.985]
+
+transition-all duration-250
+"
                                   >
                                     Save
                                   </button>
@@ -2038,12 +2087,26 @@ p-2 md:p-4
                                       setEditingNoteText('')
                                     }}
                                     className="
-          px-3 py-1.5
-          rounded-lg
-          border border-slate-300
-          text-sm
-          hover:bg-slate-100
-        "
+px-3.5 py-2
+
+rounded-xl
+
+bg-white/45
+backdrop-blur-xl
+
+border border-white/70
+
+text-sm
+font-medium
+text-slate-700
+
+shadow-[0_8px_24px_rgba(59,130,246,0.06)]
+
+hover:bg-[linear-gradient(135deg,rgba(224,242,254,0.92),rgba(186,230,253,0.72))]
+hover:border-sky-200
+
+transition-all duration-200
+"
                                   >
                                     Cancel
                                   </button>
@@ -2091,12 +2154,26 @@ p-2 md:p-4
                                       setEditingNoteText(s.note || '')
                                     }}
                                     className="
-          text-xs
-          px-3 py-1.5
-          rounded-lg
-          border border-slate-300
-          hover:bg-slate-100
-        "
+px-3.5 py-2
+
+rounded-xl
+
+bg-white/45
+backdrop-blur-xl
+
+border border-white/70
+
+text-sm
+font-medium
+text-slate-700
+
+shadow-[0_8px_24px_rgba(59,130,246,0.06)]
+
+hover:bg-[linear-gradient(135deg,rgba(224,242,254,0.92),rgba(186,230,253,0.72))]
+hover:border-sky-200
+
+transition-all duration-200
+"
                                   >
                                     Edit
                                   </button>
@@ -2140,20 +2217,34 @@ p-2 md:p-4
                                           if (data.success) {
                                             setBladeTracker(data.tracker)
 
-                                            showToast('✓ Note cleared')
+                                            showToast(' Note cleared')
                                           }
                                         } catch (err) {
                                           console.error(err)
                                         }
                                       }}
                                       className="
-            text-xs
-            px-3 py-1.5
-            rounded-lg
-            border border-red-200
-            text-red-500
-            hover:bg-red-50
-          "
+text-xs
+font-medium
+
+px-3.5 py-2
+
+rounded-xl
+
+bg-[linear-gradient(135deg,rgba(255,255,255,0.55),rgba(254,242,242,0.55))]
+
+backdrop-blur-xl
+
+border border-red-100
+
+text-rose-500
+
+shadow-[0_8px_24px_rgba(244,63,94,0.08)]
+
+hover:bg-[linear-gradient(135deg,rgba(254,242,242,0.82),rgba(255,255,255,0.72))]
+
+transition-all duration-200
+"
                                     >
                                       Clear note
                                     </button>
@@ -2174,13 +2265,26 @@ p-2 md:p-4
                               setSessionsPage((p) => Math.max(1, p - 1))
                             }
                             className="
-        px-3 py-1.5
-        rounded-lg
-        border border-slate-300
-        text-sm
-        disabled:opacity-40
-        hover:bg-slate-100
-      "
+px-3.5 py-2
+
+rounded-xl
+
+bg-white/45
+backdrop-blur-xl
+
+border border-white/70
+
+text-sm
+font-medium
+text-slate-700
+
+shadow-[0_8px_24px_rgba(59,130,246,0.06)]
+
+hover:bg-[linear-gradient(135deg,rgba(224,242,254,0.92),rgba(186,230,253,0.72))]
+hover:border-sky-200
+
+transition-all duration-200
+"
                           >
                             ← Previous
                           </button>
@@ -2197,13 +2301,26 @@ p-2 md:p-4
                               )
                             }
                             className="
-        px-3 py-1.5
-        rounded-lg
-        border border-slate-300
-        text-sm
-        disabled:opacity-40
-        hover:bg-slate-100
-      "
+px-3.5 py-2
+
+rounded-xl
+
+bg-white/45
+backdrop-blur-xl
+
+border border-white/70
+
+text-sm
+font-medium
+text-slate-700
+
+shadow-[0_8px_24px_rgba(59,130,246,0.06)]
+
+hover:bg-[linear-gradient(135deg,rgba(224,242,254,0.92),rgba(186,230,253,0.72))]
+hover:border-sky-200
+
+transition-all duration-200
+"
                           >
                             Next →
                           </button>
@@ -2219,7 +2336,7 @@ p-2 md:p-4
                       Track your skating and sharpening history
                     </h3>
 
-                    <p className="text-slate-500 max-w-md mx-auto leading-7 mb-8">
+                    <p className="text-slate-500 max-w-[560px] mx-auto leading-7 mb-8">
                       Save skating hours, monitor blade sharpening cycles, and
                       visualize your training habits over time.
                     </p>
@@ -2231,14 +2348,17 @@ p-2 md:p-4
                           setAuthModalOpen(true)
                         }}
                         className="
-          px-6 py-3
-          rounded-xl
-          bg-slate-800
-          text-white
-          font-medium
-          hover:bg-slate-700
-          transition-all
-        "
+px-7 py-3.5
+rounded-[1.4rem]
+bg-[linear-gradient(135deg,rgba(59,130,246,0.92),rgba(124,58,237,0.88))]
+text-white
+font-medium
+shadow-[0_18px_45px_rgba(99,102,241,0.28)]
+hover:shadow-[0_22px_55px_rgba(99,102,241,0.38)]
+hover:scale-[1.015]
+active:scale-[0.985]
+transition-all duration-250
+"
                       >
                         Create your account
                       </button>
@@ -2250,10 +2370,15 @@ p-2 md:p-4
                             setAuthModalOpen(true)
                           }}
                           className="
-            text-sm
-            text-slate-500
-            hover:text-slate-700
-          "
+text-sm
+font-medium
+
+text-indigo-500
+
+hover:text-violet-600
+
+transition-colors duration-200
+"
                         >
                           Already have an account? Sign in
                         </button>
@@ -2348,7 +2473,7 @@ ${
       text-xs
       px-3 py-1.5 md:py-1
       rounded-xl
-      bg-white/40
+      bg-white/68
       border border-white/30
       hover:bg-white/70
     "
@@ -2366,7 +2491,7 @@ ${
       text-xs
       px-3 py-1.5 md:py-1
       rounded-xl
-      bg-white/40
+      bg-white/68
       border border-white/30
       hover:bg-white/70
     "
@@ -2388,7 +2513,7 @@ ${
         text-xs
         px-3 py-1.5 md:py-1
         rounded-xl
-        bg-white/40
+        bg-white/68
         border border-white/30
         hover:bg-white/70
       "
@@ -2411,7 +2536,7 @@ ${
       rounded-2xl
       border
       px-4 py-3
-      bg-white/40
+      bg-white/68
       min-h-[140px]
     "
                               />
@@ -2509,12 +2634,51 @@ ${
                                     )
                                   }
                                   className="
-                  text-xs
-                  px-3 py-1.5
-                  rounded-full
-                  bg-white
-                  border border-slate-200
-                "
+group
+
+relative overflow-hidden
+
+text-[12px]
+font-medium
+tracking-[0.01em]
+
+px-4 py-2
+
+rounded-2xl
+
+text-slate-700
+
+bg-[linear-gradient(
+145deg,
+rgba(255,255,255,0.72),
+rgba(255,255,255,0.42)
+)]
+
+backdrop-blur-2xl
+
+border border-sky-100/80
+
+shadow-[0_10px_30px_rgba(15,23,42,0.05)]
+
+hover:bg-white/82
+hover:border-sky-100
+
+hover:shadow-[0_16px_45px_rgba(14,165,233,0.14)]
+
+hover:-translate-y-[1px]
+
+active:scale-[0.98]
+
+transition-all duration-250
+
+before:absolute
+before:inset-0
+before:pointer-events-none
+
+before:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.95),transparent_35%)]
+
+before:opacity-70
+"
                                 >
                                   Simplify
                                 </button>
@@ -2529,12 +2693,51 @@ ${
                                     )
                                   }
                                   className="
-                  text-xs
-                  px-3 py-1.5
-                  rounded-full
-                  bg-white
-                  border border-slate-200
-                "
+group
+
+relative overflow-hidden
+
+text-[12px]
+font-medium
+tracking-[0.01em]
+
+px-4 py-2
+
+rounded-2xl
+
+text-slate-700
+
+bg-[linear-gradient(
+145deg,
+rgba(255,255,255,0.72),
+rgba(236,233,254,0.45)
+)]
+
+backdrop-blur-2xl
+
+border border-sky-100/80
+
+shadow-[0_10px_30px_rgba(15,23,42,0.05)]
+
+hover:bg-white/84
+hover:border-violet-100
+
+hover:shadow-[0_16px_45px_rgba(139,92,246,0.16)]
+
+hover:-translate-y-[1px]
+
+active:scale-[0.98]
+
+transition-all duration-250
+
+before:absolute
+before:inset-0
+before:pointer-events-none
+
+before:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.95),transparent_35%)]
+
+before:opacity-70
+"
                                 >
                                   Go deeper
                                 </button>
@@ -2638,15 +2841,78 @@ transition-all duration-200
       </div>
 
       {profileModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-          <div className="w-[380px] rounded-[2rem] bg-white/86 backdrop-blur-2xl p-8 shadow-[0_30px_100px_rgba(15,23,42,0.22)] border border-white/80">
-            <div className="flex items-center justify-between mb-6">
+        <div
+          className="
+fixed inset-0 z-50
+
+flex items-center justify-center
+
+bg-[rgba(15,23,42,0.34)]
+
+backdrop-blur-[12px]
+
+p-4
+"
+        >
+          <div
+            className="
+relative overflow-hidden
+
+w-[92vw]
+max-w-[470px]
+
+max-h-[90vh]
+overflow-y-auto
+
+rounded-[2.4rem]
+
+bg-[linear-gradient(
+145deg,
+rgba(255,255,255,0.97),
+rgba(248,252,255,0.96),
+rgba(224,242,254,0.92)
+)]
+
+backdrop-blur-[30px]
+
+border border-white/95
+
+shadow-[0_35px_120px_rgba(56,189,248,0.22)]
+
+p-8
+
+before:absolute
+before:inset-0
+before:pointer-events-none
+before:bg-[radial-gradient(circle_at_18%_10%,rgba(255,255,255,0.98),transparent_30%),radial-gradient(circle_at_90%_0%,rgba(125,211,252,0.18),transparent_36%)]
+
+after:absolute
+after:inset-0
+after:pointer-events-none
+after:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),transparent)]
+"
+          >
+            <div className="relative z-10 flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-semibold text-slate-800">
+                <h2
+                  className="
+text-[2rem]
+font-semibold
+tracking-[-0.03em]
+text-slate-800
+"
+                >
                   Profile
                 </h2>
 
-                <p className="text-sm text-slate-500 mt-1">
+                <p
+                  className="
+text-[15px]
+leading-relaxed
+text-slate-500
+mt-2
+"
+                >
                   Update your skating profile.
                 </p>
               </div>
@@ -2659,19 +2925,35 @@ transition-all duration-200
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="relative z-10 space-y-4">
               <input
                 type="text"
                 placeholder="First name"
                 value={authFirstName}
                 onChange={(e) => setAuthFirstName(e.target.value)}
                 className="
-          w-full
-          rounded-xl
-          border border-slate-300
-          px-4 py-3
-          focus:outline-none focus:ring-2 focus:ring-slate-200
-          "
+w-full
+
+px-5 py-4
+
+rounded-[1.4rem]
+
+bg-white/72
+backdrop-blur-xl
+
+border border-sky-100/80
+
+text-slate-700
+placeholder:text-slate-400
+
+shadow-[0_8px_24px_rgba(15,23,42,0.04)]
+
+focus:outline-none
+focus:border-sky-200
+focus:bg-sky-50/80
+
+transition-all duration-250
+"
               />
 
               <input
@@ -2680,12 +2962,28 @@ transition-all duration-200
                 value={authLastName}
                 onChange={(e) => setAuthLastName(e.target.value)}
                 className="
-          w-full
-          rounded-xl
-          border border-slate-300
-          px-4 py-3
-          focus:outline-none focus:ring-2 focus:ring-slate-200
-          "
+w-full
+
+px-5 py-4
+
+rounded-[1.4rem]
+
+bg-white/72
+backdrop-blur-xl
+
+border border-sky-100/80
+
+text-slate-700
+placeholder:text-slate-400
+
+shadow-[0_8px_24px_rgba(15,23,42,0.04)]
+
+focus:outline-none
+focus:border-sky-200
+focus:bg-sky-50/80
+
+transition-all duration-250
+"
               />
 
               <div className="pt-2">
@@ -2693,63 +2991,10 @@ transition-all duration-200
                   Skating level
                 </p>
 
-                <div className="space-y-2">
-                  <label
-                    title="New skater or learning basic skating skills"
-                    className="flex items-center gap-3 cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-50"
-                  >
-                    <input
-                      type="radio"
-                      value="beginner"
-                      checked={skaterLevel === 'beginner'}
-                      onChange={(e) => setSkaterLevel(e.target.value)}
-                    />
-
-                    <span className="text-sm text-slate-700">Beginner</span>
-                  </label>
-
-                  <label
-                    title="Typically passed Juvenile level or Adult Gold level"
-                    className="flex items-center gap-3 cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-50"
-                  >
-                    <input
-                      type="radio"
-                      value="intermediate"
-                      checked={skaterLevel === 'intermediate'}
-                      onChange={(e) => setSkaterLevel(e.target.value)}
-                    />
-
-                    <span className="text-sm text-slate-700">Intermediate</span>
-                  </label>
-
-                  <label
-                    title="Typically passed Novice level or higher"
-                    className="flex items-center gap-3 cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-50"
-                  >
-                    <input
-                      type="radio"
-                      value="advanced"
-                      checked={skaterLevel === 'advanced'}
-                      onChange={(e) => setSkaterLevel(e.target.value)}
-                    />
-
-                    <span className="text-sm text-slate-700">Advanced</span>
-                  </label>
-
-                  <label
-                    title="Parent, fan, or non-skating user"
-                    className="flex items-center gap-3 cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-50"
-                  >
-                    <input
-                      type="radio"
-                      value="non_skater"
-                      checked={skaterLevel === 'non_skater'}
-                      onChange={(e) => setSkaterLevel(e.target.value)}
-                    />
-
-                    <span className="text-sm text-slate-700">Non-skater</span>
-                  </label>
-                </div>
+                <SkaterLevelSelector
+                  skaterLevel={skaterLevel}
+                  setSkaterLevel={setSkaterLevel}
+                />
               </div>
 
               <div className="space-y-4 pt-3">
@@ -2759,12 +3004,28 @@ transition-all duration-200
                   value={highestJump}
                   onChange={(e) => setHighestJump(e.target.value)}
                   className="
-      w-full
-      rounded-xl
-      border border-slate-300
-      px-4 py-3
-      focus:outline-none focus:ring-2 focus:ring-slate-200
-    "
+w-full
+
+px-5 py-4
+
+rounded-[1.4rem]
+
+bg-white/72
+backdrop-blur-xl
+
+border border-sky-100/80
+
+text-slate-700
+placeholder:text-slate-400
+
+shadow-[0_8px_24px_rgba(15,23,42,0.04)]
+
+focus:outline-none
+focus:border-sky-200
+focus:bg-sky-50/80
+
+transition-all duration-250
+"
                 />
 
                 <input
@@ -2773,12 +3034,28 @@ transition-all duration-200
                   value={highestTestLevel}
                   onChange={(e) => setHighestTestLevel(e.target.value)}
                   className="
-      w-full
-      rounded-xl
-      border border-slate-300
-      px-4 py-3
-      focus:outline-none focus:ring-2 focus:ring-slate-200
-    "
+w-full
+
+px-5 py-4
+
+rounded-[1.4rem]
+
+bg-white/72
+backdrop-blur-xl
+
+border border-sky-100/80
+
+text-slate-700
+placeholder:text-slate-400
+
+shadow-[0_8px_24px_rgba(15,23,42,0.04)]
+
+focus:outline-none
+focus:border-sky-200
+focus:bg-sky-50/80
+
+transition-all duration-250
+"
                 />
               </div>
 
@@ -2803,18 +3080,21 @@ transition-all duration-200
                   }
 
                   setProfileModalOpen(false)
-                  showToast('✓ Profile saved')
+                  showToast(' Profile saved')
                 }}
                 className="
-          w-full
-          rounded-xl
-          bg-slate-800
-          text-white
-          py-3
-          font-medium
-          hover:bg-slate-700
-          transition-all
-          "
+w-full
+py-4
+rounded-[1.5rem]
+bg-[linear-gradient(135deg,rgba(59,130,246,0.94),rgba(124,58,237,0.90))]
+text-white
+font-medium
+shadow-[0_18px_45px_rgba(99,102,241,0.28)]
+hover:shadow-[0_24px_60px_rgba(99,102,241,0.38)]
+hover:scale-[1.01]
+active:scale-[0.985]
+transition-all duration-250
+"
               >
                 Save
               </button>
@@ -2876,13 +3156,26 @@ transition-all duration-200
                   setProfileUpdateCandidate(null)
                 }}
                 className="
-          px-4 py-2
-          text-sm
-          rounded-xl
-          border border-slate-300
-          hover:bg-slate-100
-          transition-all
-          "
+px-3.5 py-2
+
+rounded-xl
+
+bg-white/45
+backdrop-blur-xl
+
+border border-white/70
+
+text-sm
+font-medium
+text-slate-700
+
+shadow-[0_8px_24px_rgba(59,130,246,0.06)]
+
+hover:bg-[linear-gradient(135deg,rgba(224,242,254,0.92),rgba(186,230,253,0.72))]
+hover:border-sky-200
+
+transition-all duration-200
+"
               >
                 Dismiss
               </button>
@@ -2928,7 +3221,7 @@ transition-all duration-200
                       setHighestJump(profileUpdateCandidate.new_value)
                     }
 
-                    showToast('✓ Profile updated')
+                    showToast(' Profile updated')
 
                     setProfileUpdateCandidate(null)
                   } catch (err) {
@@ -2957,29 +3250,83 @@ transition-all duration-200
       {toastMessage && (
         <div
           className="
-    fixed inset-0 z-[100]
-    flex items-center justify-center
-    pointer-events-none
-    "
+fixed
+
+left-1/2 bottom-7
+-translate-x-1/2
+
+z-[140]
+
+pointer-events-none
+
+animate-[toastFloat_0.32s_cubic-bezier(0.22,1,0.36,1)]
+
+"
         >
           <div
             className="
-      px-5 py-3
+relative overflow-hidden
 
-      rounded-2xl
+flex items-center gap-3
 
-      bg-slate-800/95
-      backdrop-blur-sm
+px-5 py-3.5
 
-      text-white text-sm font-medium
+rounded-[1.7rem]
 
-      shadow-2xl
-      border border-slate-700
+bg-[linear-gradient(
+145deg,
+rgba(255,255,255,0.82),
+rgba(255,255,255,0.58)
+)]
 
-      animate-[fadeIn_0.2s_ease]
-      "
+backdrop-blur-[24px]
+
+border border-white/70
+
+shadow-[0_18px_50px_rgba(15,23,42,0.10)]
+
+text-slate-700
+text-sm
+font-medium
+
+before:absolute
+before:inset-0
+before:pointer-events-none
+
+before:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.95),transparent_40%)]
+
+after:absolute
+after:inset-0
+after:pointer-events-none
+
+after:bg-[linear-gradient(180deg,rgba(255,255,255,0.12),transparent)]
+"
           >
-            {toastMessage}
+            <div
+              className="
+relative z-10
+
+w-5 h-5
+
+rounded-full
+
+bg-emerald-100
+
+flex items-center justify-center
+
+text-emerald-600
+text-[11px]
+font-bold
+
+shadow-sm
+"
+            >
+              ✓
+            </div>
+
+            <div className="relative z-10">
+              {toastMessage.replace('✓ ', '')}
+            </div>
           </div>
         </div>
       )}
@@ -3045,12 +3392,20 @@ transition-all duration-200
                     value={authFirstName}
                     onChange={(e) => setAuthFirstName(e.target.value)}
                     className="
-  w-full
-  rounded-xl
-  border border-slate-300
-  px-4 py-3
-  focus:outline-none focus:ring-2 focus:ring-slate-200
-  "
+w-full
+px-5 py-4
+rounded-[1.4rem]
+bg-white/62
+backdrop-blur-xl
+border border-sky-100/80
+text-slate-700
+placeholder:text-slate-400
+shadow-[0_12px_32px_rgba(59,130,246,0.08)]
+focus:outline-none
+focus:border-violet-200
+focus:bg-white/78
+transition-all duration-250
+"
                   />
 
                   <input
@@ -3059,12 +3414,20 @@ transition-all duration-200
                     value={authLastName}
                     onChange={(e) => setAuthLastName(e.target.value)}
                     className="
-  w-full
-  rounded-xl
-  border border-slate-300
-  px-4 py-3
-  focus:outline-none focus:ring-2 focus:ring-slate-200
-  "
+w-full
+px-5 py-4
+rounded-[1.4rem]
+bg-white/62
+backdrop-blur-xl
+border border-sky-100/80
+text-slate-700
+placeholder:text-slate-400
+shadow-[0_12px_32px_rgba(59,130,246,0.08)]
+focus:outline-none
+focus:border-violet-200
+focus:bg-white/78
+transition-all duration-250
+"
                   />
                 </>
               )}
@@ -3075,12 +3438,20 @@ transition-all duration-200
                 value={authEmail}
                 onChange={(e) => setAuthEmail(e.target.value)}
                 className="
-          w-full
-          rounded-xl
-          border border-slate-300
-          px-4 py-3
-          focus:outline-none focus:ring-2 focus:ring-slate-200
-          "
+w-full
+px-5 py-4
+rounded-[1.4rem]
+bg-white/62
+backdrop-blur-xl
+border border-sky-100/80
+text-slate-700
+placeholder:text-slate-400
+shadow-[0_12px_32px_rgba(59,130,246,0.08)]
+focus:outline-none
+focus:border-violet-200
+focus:bg-white/78
+transition-all duration-250
+"
               />
 
               <input
@@ -3089,12 +3460,20 @@ transition-all duration-200
                 value={authPassword}
                 onChange={(e) => setAuthPassword(e.target.value)}
                 className="
-          w-full
-          rounded-xl
-          border border-slate-300
-          px-4 py-3
-          focus:outline-none focus:ring-2 focus:ring-slate-200
-          "
+w-full
+px-5 py-4
+rounded-[1.4rem]
+bg-white/62
+backdrop-blur-xl
+border border-sky-100/80
+text-slate-700
+placeholder:text-slate-400
+shadow-[0_12px_32px_rgba(59,130,246,0.08)]
+focus:outline-none
+focus:border-violet-200
+focus:bg-white/78
+transition-all duration-250
+"
               />
 
               {authMode === 'signup' && (
@@ -3104,67 +3483,10 @@ transition-all duration-200
                       What best describes your skating level?
                     </p>
 
-                    <div className="space-y-2">
-                      <label
-                        title="New skater or learning basic skating skills"
-                        className="flex items-center gap-3 cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-50"
-                      >
-                        <input
-                          type="radio"
-                          value="beginner"
-                          checked={skaterLevel === 'beginner'}
-                          onChange={(e) => setSkaterLevel(e.target.value)}
-                        />
-
-                        <span className="text-sm text-slate-700">Beginner</span>
-                      </label>
-
-                      <label
-                        title="Typically passed Juvenile level or Adult Gold level"
-                        className="flex items-center gap-3 cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-50"
-                      >
-                        <input
-                          type="radio"
-                          value="intermediate"
-                          checked={skaterLevel === 'intermediate'}
-                          onChange={(e) => setSkaterLevel(e.target.value)}
-                        />
-
-                        <span className="text-sm text-slate-700">
-                          Intermediate
-                        </span>
-                      </label>
-
-                      <label
-                        title="Typically passed Novice level or higher"
-                        className="flex items-center gap-3 cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-50"
-                      >
-                        <input
-                          type="radio"
-                          value="advanced"
-                          checked={skaterLevel === 'advanced'}
-                          onChange={(e) => setSkaterLevel(e.target.value)}
-                        />
-
-                        <span className="text-sm text-slate-700">Advanced</span>
-                      </label>
-
-                      <label
-                        title="Parent, fan, or non-skating user"
-                        className="flex items-center gap-3 cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-50"
-                      >
-                        <input
-                          type="radio"
-                          value="non_skater"
-                          checked={skaterLevel === 'non_skater'}
-                          onChange={(e) => setSkaterLevel(e.target.value)}
-                        />
-
-                        <span className="text-sm text-slate-700">
-                          Non-skater
-                        </span>
-                      </label>
-                    </div>
+                    <SkaterLevelSelector
+                      skaterLevel={skaterLevel}
+                      setSkaterLevel={setSkaterLevel}
+                    />
                   </div>
                   <div className="space-y-4 pt-3">
                     <input
@@ -3173,12 +3495,28 @@ transition-all duration-200
                       value={highestJump}
                       onChange={(e) => setHighestJump(e.target.value)}
                       className="
-      w-full
-      rounded-xl
-      border border-slate-300
-      px-4 py-3
-      focus:outline-none focus:ring-2 focus:ring-slate-200
-    "
+w-full
+
+px-5 py-4
+
+rounded-[1.4rem]
+
+bg-white/72
+backdrop-blur-xl
+
+border border-sky-100/80
+
+text-slate-700
+placeholder:text-slate-400
+
+shadow-[0_8px_24px_rgba(15,23,42,0.04)]
+
+focus:outline-none
+focus:border-sky-200
+focus:bg-sky-50/80
+
+transition-all duration-250
+"
                     />
 
                     <input
@@ -3187,12 +3525,28 @@ transition-all duration-200
                       value={highestTestLevel}
                       onChange={(e) => setHighestTestLevel(e.target.value)}
                       className="
-      w-full
-      rounded-xl
-      border border-slate-300
-      px-4 py-3
-      focus:outline-none focus:ring-2 focus:ring-slate-200
-    "
+w-full
+
+px-5 py-4
+
+rounded-[1.4rem]
+
+bg-white/72
+backdrop-blur-xl
+
+border border-sky-100/80
+
+text-slate-700
+placeholder:text-slate-400
+
+shadow-[0_8px_24px_rgba(15,23,42,0.04)]
+
+focus:outline-none
+focus:border-sky-200
+focus:bg-sky-50/80
+
+transition-all duration-250
+"
                     />
                   </div>
                 </>
@@ -3202,15 +3556,18 @@ transition-all duration-200
                 <button
                   onClick={handleLogin}
                   className="
-    w-full
-    rounded-xl
-    bg-slate-800
-    text-white
-    py-3
-    font-medium
-    hover:bg-slate-700
-    transition-all
-    "
+w-full
+py-4
+rounded-[1.5rem]
+bg-[linear-gradient(135deg,rgba(59,130,246,0.94),rgba(124,58,237,0.90))]
+text-white
+font-medium
+shadow-[0_18px_45px_rgba(99,102,241,0.28)]
+hover:shadow-[0_24px_60px_rgba(99,102,241,0.38)]
+hover:scale-[1.01]
+active:scale-[0.985]
+transition-all duration-250
+"
                 >
                   Sign In
                 </button>
@@ -3218,15 +3575,18 @@ transition-all duration-200
                 <button
                   onClick={handleSignup}
                   className="
-    w-full
-    rounded-xl
-    bg-slate-800
-    text-white
-    py-3
-    font-medium
-    hover:bg-slate-700
-    transition-all
-    "
+w-full
+py-4
+rounded-[1.5rem]
+bg-[linear-gradient(135deg,rgba(59,130,246,0.94),rgba(124,58,237,0.90))]
+text-white
+font-medium
+shadow-[0_18px_45px_rgba(99,102,241,0.28)]
+hover:shadow-[0_24px_60px_rgba(99,102,241,0.38)]
+hover:scale-[1.01]
+active:scale-[0.985]
+transition-all duration-250
+"
                 >
                   Create Account
                 </button>
