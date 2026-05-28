@@ -1907,7 +1907,7 @@ after:bg-[linear-gradient(180deg,rgba(255,255,255,0.10),transparent)]
 
 p-2 md:p-5
 
-max-w-[480px]
+max-w-[520px]
 mx-auto
 "
                         >
