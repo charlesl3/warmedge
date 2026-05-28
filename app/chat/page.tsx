@@ -116,6 +116,7 @@ export default function ChatPage() {
   const [likedSet, setLikedSet] = useState<Set<string>>(new Set())
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
+  const [actionStatusText, setActionStatusText] = useState('')
   const [finishedTypingIndex, setFinishedTypingIndex] = useState<number | null>(
     null
   )
@@ -833,8 +834,16 @@ Please note:
   ) => {
     if (loading || actionLoading) return // ✅ FIRST check
 
-    setActionTargetIndex(index) // ✅ THEN set target
+    setActionTargetIndex(index)
     setActionLoading(true)
+
+    if (action === 'simplify') {
+      setActionStatusText('Simplifying the explanation...')
+    }
+
+    if (action === 'deeper') {
+      setActionStatusText('Thinking deeper about this...')
+    }
 
     const context = linkedQuestion || assistantAnswer || ''
     const isInfo = isLikelyInfoQuery(linkedQuestion || '')
@@ -916,6 +925,7 @@ ${assistantAnswer}
     } finally {
       setActionLoading(false)
       setActionTargetIndex(null)
+      setActionStatusText('')
     }
   }
 
@@ -2835,6 +2845,45 @@ ${
                                   m.content
                                 )}
                               </div>
+                            </div>
+                          )}
+
+                          {actionLoading && actionTargetIndex === i && (
+                            <div
+                              className="
+mt-3 ml-1
+
+inline-flex items-center gap-3
+
+px-4 py-2.5
+
+rounded-2xl
+
+bg-[linear-gradient(
+145deg,
+rgba(255,255,255,0.78),
+rgba(239,246,255,0.62)
+)]
+
+backdrop-blur-2xl
+
+border border-sky-100/80
+
+shadow-[0_12px_35px_rgba(59,130,246,0.10)]
+
+animate-[fadeUp_0.25s_ease]
+
+text-sm text-slate-600
+font-medium
+"
+                            >
+                              <div className="flex gap-1">
+                                <div className="w-2 h-2 rounded-full bg-sky-400 animate-bounce" />
+                                <div className="w-2 h-2 rounded-full bg-indigo-400 animate-bounce delay-150" />
+                                <div className="w-2 h-2 rounded-full bg-violet-400 animate-bounce delay-300" />
+                              </div>
+
+                              <span>{actionStatusText}</span>
                             </div>
                           )}
 
