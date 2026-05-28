@@ -1954,7 +1954,7 @@ disabled:cursor-not-allowed
                       <div className="mb-8">
                         <div className="mb-4">
                           <h3 className="font-semibold text-slate-800">
-                            Skating Calendar
+                            Select a date to track your skating progress
                           </h3>
                         </div>
 
