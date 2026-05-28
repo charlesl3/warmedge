@@ -16,6 +16,7 @@ import {
   iconBtn,
   navBtn,
   pillBtn,
+  hoverTooltip,
 } from '../../components/design'
 
 type Message = {
@@ -88,11 +89,15 @@ export default function ChatPage() {
 
   const [sessionHours, setSessionHours] = useState('')
   const [sessionNote, setSessionNote] = useState('')
+  const [practiceFocus, setPracticeFocus] = useState<string[]>([])
   const [editingSessionDate, setEditingSessionDate] = useState<string | null>(
     null
   )
 
   const [editingNoteText, setEditingNoteText] = useState('')
+  const [editingHours, setEditingHours] = useState('')
+  const [sessionDirty, setSessionDirty] = useState(false)
+  const [editingPracticeFocus, setEditingPracticeFocus] = useState<string[]>([])
   const [sessionsPage, setSessionsPage] = useState(1)
 
   const SESSIONS_PER_PAGE = 5
@@ -333,6 +338,10 @@ Please note:
       const data = await res.json()
 
       if (data.success) {
+        console.log('BLADE TRACKER RESPONSE:', data.tracker)
+
+        console.log('SESSIONS:', data.tracker?.sessions)
+
         setBladeTracker(data.tracker)
       }
     } catch (err) {
@@ -342,13 +351,55 @@ Please note:
     }
   }
 
-  const handleLogSession = async () => {
-    if (!sessionHours) return
-    const numericHours = parseFloat(sessionHours)
+  const togglePracticeFocus = (focus: string) => {
+    // existing logged session → edit mode
+    if (selectedSession) {
+      if (editingSessionDate !== selectedDate) {
+        setEditingSessionDate(selectedDate)
 
+        setEditingHours(String(selectedSession.hours || ''))
+
+        setEditingNoteText(selectedSession.note || '')
+
+        setEditingPracticeFocus(selectedSession.practice_focus || [])
+      }
+
+      setEditingPracticeFocus((prev) =>
+        prev.includes(focus)
+          ? prev.filter((item) => item !== focus)
+          : [...prev, focus]
+      )
+
+      setSessionDirty(true)
+
+      return
+    }
+
+    // new session
+    setPracticeFocus((prev) =>
+      prev.includes(focus)
+        ? prev.filter((item) => item !== focus)
+        : [...prev, focus]
+    )
+  }
+
+  const handleLogSession = async () => {
     const existingSession = bladeTracker?.sessions?.find(
       (s: any) => s.session_date === selectedDate
     )
+
+    if (!sessionHours && existingSession) {
+      await handleDeleteSession(selectedDate)
+      setSessionHours('')
+      setSessionNote('')
+      setPracticeFocus([])
+      showToast(' Session removed')
+      return
+    }
+
+    if (!sessionHours) return
+
+    const numericHours = parseFloat(sessionHours)
 
     // 0 hrs behavior
     if (numericHours === 0) {
@@ -385,6 +436,7 @@ Please note:
             hours: numericHours,
             session_date: selectedDate,
             note: sessionNote,
+            practice_focus: practiceFocus,
           }),
         }
       )
@@ -393,8 +445,6 @@ Please note:
 
       if (data.success) {
         setBladeTracker(data.tracker)
-        setSessionHours('')
-        setSessionNote('')
         showToast(' Session logged')
       }
     } catch (err) {
@@ -471,6 +521,15 @@ Please note:
       if (data.success) {
         setBladeTracker(data.tracker)
 
+        setEditingSessionDate(null)
+
+        setEditingHours('')
+
+        setEditingNoteText('')
+
+        setEditingPracticeFocus([])
+
+        setSessionDirty(false)
         showToast(' Session deleted')
       }
     } catch (err) {
@@ -478,22 +537,13 @@ Please note:
     }
   }
 
-  const handleSaveSessionNote = async (
-    sessionDate: string,
-    hours: number,
-    noteText: string
-  ) => {
+  const handleSaveSessionEdit = async (sessionDate: string) => {
     try {
       const {
         data: { session },
       } = await supabase.auth.getSession()
 
       const accessToken = session?.access_token
-
-      console.log('[NOTE SAVE]')
-      console.log('date:', sessionDate)
-      console.log('hours:', hours)
-      console.log('note:', noteText)
 
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_CHAT_API_URL}/blade-tracker/session`,
@@ -507,31 +557,32 @@ Please note:
 
           body: JSON.stringify({
             session_date: sessionDate,
-            hours: hours,
-            note: noteText,
+
+            hours: parseFloat(editingHours),
+
+            note: editingNoteText,
+
+            practice_focus: editingPracticeFocus,
           }),
         }
       )
 
       const data = await res.json()
 
-      console.log('[NOTE SAVE RESPONSE]', data)
+      if (data.success) {
+        setBladeTracker(data.tracker)
 
-      if (!data.success) {
-        console.error('NOTE SAVE ERROR:', data)
+        setEditingSessionDate(null)
 
-        alert(JSON.stringify(data))
-        showToast('Failed to save note')
-        return
+        setEditingHours('')
+
+        setEditingNoteText('')
+
+        setEditingPracticeFocus([])
+        setSessionDirty(false)
+
+        showToast(' Session updated')
       }
-
-      setBladeTracker(data.tracker)
-
-      setEditingSessionDate(null)
-
-      setEditingNoteText('')
-
-      showToast(' Note saved')
     } catch (err) {
       console.error(err)
     }
@@ -1116,6 +1167,22 @@ ${assistantAnswer}
     sessionsPage * SESSIONS_PER_PAGE
   )
 
+  const selectedSession = bladeTracker?.sessions?.find(
+    (s: any) => s.session_date === selectedDate
+  )
+
+  useEffect(() => {
+    if (selectedSession) {
+      setSessionHours(String(selectedSession.hours || ''))
+      setSessionNote(selectedSession.note || '')
+      setPracticeFocus(selectedSession.practice_focus || [])
+    } else {
+      setSessionHours('')
+      setSessionNote('')
+      setPracticeFocus([])
+    }
+  }, [selectedDate, bladeTracker])
+
   return (
     <div className={appShell}>
       {/* Mobile Overlay */}
@@ -1650,174 +1717,161 @@ transition-all duration-200
           >
             <div className="w-full max-w-6xl mx-auto space-y-6">
               <div className={`${glassStrong} rounded-[2rem] p-6 md:p-8`}>
-                <h2 className="text-2xl font-semibold mb-4">
-                  Blade Sharpening Tracker
-                </h2>
+                <div className="mb-5">
+                  <h2 className="text-2xl font-semibold text-slate-800">
+                    Skating Tracker
+                  </h2>
+
+                  <p className="mt-1 text-sm text-slate-500">
+                    Sessions • Sharpening • Practice
+                  </p>
+                </div>
 
                 {session && bladeTracker ? (
                   <>
-                    <div className="mb-4">
-                      <div className="text-sm text-slate-500 mb-1">
-                        Hours since sharpening
-                      </div>
+                    <div
+                      className="
+mb-6
 
-                      <div className="text-3xl font-bold">
-                        {bladeTracker.hours_since_sharpening} /{' '}
-                        {bladeTracker.threshold_hours} hrs
-                      </div>
-                      <div className="text-sm text-slate-500 mt-2">
-                        Last sharpened:
-                        <span className="ml-2 font-medium text-slate-700">
-                          {bladeTracker.last_sharpened_at || 'Not recorded'}
-                        </span>
-                      </div>
-                    </div>
+rounded-[1.75rem]
 
-                    <div className="w-full h-4 bg-slate-200 rounded-full overflow-hidden mb-4">
-                      <div
-                        className={`h-full transition-all duration-700 ${
-                          bladeTracker.should_sharpen
-                            ? 'bg-red-500'
-                            : 'bg-[linear-gradient(90deg,#38bdf8,#6366f1)]'
-                        }`}
-                        style={{
-                          width: `${Math.min(
-                            100,
-                            (bladeTracker.hours_since_sharpening /
-                              bladeTracker.threshold_hours) *
-                              100
-                          )}%`,
-                        }}
-                      />
-                    </div>
+bg-[linear-gradient(
+145deg,
+rgba(255,255,255,0.72),
+rgba(255,255,255,0.52)
+)]
 
-                    {bladeTracker.should_sharpen && (
-                      <div className="text-red-600 font-medium mb-4">
-                        Your blades may need sharpening.
-                      </div>
-                    )}
+backdrop-blur-2xl
 
-                    {!bladeTracker.last_sharpened_at && (
-                      <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                        Please record your last sharpening date before tracking
-                        skating hours.
-                      </div>
-                    )}
+border border-white/70
 
-                    <div className="mb-6">
-                      <div className="flex flex-col sm:flex-row gap-3">
-                        <input
-                          type="number"
-                          step="0.5"
-                          placeholder="Hours"
-                          value={sessionHours}
-                          onChange={(e) => setSessionHours(e.target.value)}
-                          className="
-w-full sm:w-32
+shadow-[0_18px_45px_rgba(15,23,42,0.06)]
 
-px-4 py-2.5
-
-rounded-2xl
-
-bg-white/68
-backdrop-blur-xl
-
-border border-sky-100/80
-
-text-slate-700
-
-shadow-[0_8px_24px_rgba(15,23,42,0.04)]
-
-placeholder:text-slate-400
-
-focus:outline-none
-focus:border-sky-200
-focus:bg-white/65
-
-transition-all duration-200
+px-5 py-4
 "
-                        />
+                    >
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+                        <div>
+                          <div className="text-sm text-slate-500">
+                            Hours since sharpening
+                          </div>
 
-                        <button
-                          onClick={handleLogSession}
-                          disabled={sessionLoggingLoading}
-                          className={`
-px-5 py-2.5
+                          <div className="text-3xl font-bold text-slate-800 mt-1">
+                            {bladeTracker.hours_since_sharpening} /{' '}
+                            {bladeTracker.threshold_hours} hrs
+                          </div>
 
-rounded-2xl
+                          <div className="mt-4 w-[320px]">
+                            <div
+                              className="
+w-full
+h-3
 
-backdrop-blur-xl
+rounded-full
 
-border border-sky-100/80
+bg-slate-100
 
-font-medium
+border border-slate-100
 
-transition-all duration-250
+overflow-hidden
 
-shadow-[0_10px_30px_rgba(15,23,42,0.05)]
+shadow-inner
+"
+                            >
+                              <div
+                                className="
+h-full
 
-${
-  sessionLoggingLoading
-    ? 'bg-slate-200/70 text-slate-400'
-    : `
-      bg-white/45
-      text-slate-700
+rounded-full
 
-      hover:bg-sky-50
-      hover:text-sky-700
-      hover:border-sky-200
+bg-gradient-to-r
+from-blue-500
+to-indigo-600
 
-      hover:shadow-[0_14px_40px_rgba(14,165,233,0.14)]
-    `
-}
-`}
-                        >
-                          {sessionLoggingLoading ? 'Logging...' : 'Log Session'}
-                        </button>
+shadow-sm
 
-                        <button
-                          onClick={handleSharpened}
-                          disabled={sharpeningLoading}
-                          className={`
-px-5 py-2.5
+transition-all duration-700
+"
+                                style={{
+                                  width: `${Math.max(
+                                    Math.min(
+                                      (bladeTracker.hours_since_sharpening /
+                                        bladeTracker.threshold_hours) *
+                                        100,
+                                      100
+                                    ),
+                                    bladeTracker.hours_since_sharpening > 0
+                                      ? 6
+                                      : 0
+                                  )}%`,
+                                }}
+                              />
+                            </div>
 
-rounded-2xl
+                            <div className="mt-1 text-xs text-slate-400">
+                              {Math.round(
+                                (bladeTracker.hours_since_sharpening /
+                                  bladeTracker.threshold_hours) *
+                                  100
+                              )}
+                              % used
+                            </div>
+                          </div>
 
-backdrop-blur-xl
+                          <div className="mt-2 text-sm text-slate-500">
+                            Last sharpened:
+                            <span className="ml-2 font-medium text-slate-700">
+                              {bladeTracker.last_sharpened_at || 'Not recorded'}
+                            </span>
+                          </div>
 
-border border-sky-100/80
+                          <div className="mt-2 text-[11px] text-slate-400">
+                            Tap a date below to log or review skating sessions.
+                          </div>
+                        </div>
 
-font-medium
+                        <div className="flex items-center">
+                          <button
+                            onClick={handleSharpened}
+                            disabled={sharpeningLoading}
+                            className="
+px-4 py-2
 
-transition-all duration-250
+rounded-full
 
-shadow-[0_10px_30px_rgba(15,23,42,0.05)]
+text-xs font-medium
 
-${
-  sharpeningLoading
-    ? 'bg-slate-200/70 text-slate-400'
-    : `
-      bg-white/45
-      text-slate-700
+bg-[linear-gradient(135deg,#60a5fa,#6366f1)]
 
-      hover:bg-amber-50
-      hover:text-amber-700
-      hover:border-amber-200
+text-white
 
-      hover:shadow-[0_14px_40px_rgba(251,191,36,0.18)]
-    `
-}
-`}
-                        >
-                          {sharpeningLoading
-                            ? 'Recording...'
-                            : 'Record Sharpening'}
-                        </button>
+shadow-[0_10px_30px_rgba(59,130,246,0.22)]
+
+hover:opacity-90
+
+transition-all
+"
+                          >
+                            {sharpeningLoading
+                              ? 'Recording...'
+                              : 'Record Sharpening'}
+                          </button>
+                        </div>
                       </div>
                     </div>
+
                     <div>
                       <div className="mb-8">
-                        <h3 className="font-semibold mb-4">Skating Calendar</h3>
+                        <div className="mb-4">
+                          <h3 className="font-semibold text-slate-800">
+                            Skating Calendar
+                          </h3>
+
+                          <p className="mt-1 text-sm text-slate-500">
+                            Select a date to log skating sessions, notes, and
+                            practice details.
+                          </p>
+                        </div>
 
                         <div
                           className="
@@ -1831,7 +1885,7 @@ rgba(255,255,255,0.78),
 rgba(255,255,255,0.58)
 )]
 
-backdrop-blur-2xl
+backdrop-blur-md
 
 shadow-[0_18px_50px_rgba(15,23,42,0.06)]
 
@@ -1857,18 +1911,22 @@ p-2 md:p-4
                           <Calendar
                             className="warm-calendar"
                             calendarType="gregory"
-                            value={new Date(selectedDate)}
+                            value={new Date(selectedDate + 'T12:00:00')}
                             onChange={(value: any) => {
-                              const d = new Date(value)
+                              const d = value as Date
 
                               const yyyy = d.getFullYear()
+
                               const mm = String(d.getMonth() + 1).padStart(
                                 2,
                                 '0'
                               )
+
                               const dd = String(d.getDate()).padStart(2, '0')
 
-                              setSelectedDate(`${yyyy}-${mm}-${dd}`)
+                              const clickedDate = `${yyyy}-${mm}-${dd}`
+
+                              setSelectedDate(clickedDate)
                             }}
                             tileClassName={({ date, view }) => {
                               if (view !== 'month') return ''
@@ -1888,7 +1946,7 @@ p-2 md:p-4
 
                               const hours = sessionHoursByDate[key]
 
-                              if (hours) {
+                              if (hours !== undefined && hours !== null) {
                                 if (hours >= 2) {
                                   return 'session-day-heavy'
                                 }
@@ -1937,90 +1995,406 @@ p-2 md:p-4
                           </div>
 
                           <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-2">
-                              <div className="w-4 h-4 rounded bg-yellow-400" />
-                              Sharpened
-                            </div>
+                            <div className="w-4 h-4 rounded bg-yellow-400" />
+                            Sharpened
                           </div>
                         </div>
-                      </div>
-                      <h3 className="font-semibold mb-3">Recent Sessions</h3>
 
-                      <div className="space-y-2">
-                        {paginatedSessions.map((s: any) => (
-                          <div
-                            key={s.id}
-                            className="
-      bg-white/20 backdrop-blur-sm
-      rounded-xl
-      px-4 py-4
-      border border-slate-100
-      space-y-3
-    "
-                          >
-                            {/* TOP ROW */}
-                            <div className="flex items-center justify-between gap-4">
-                              <div>
-                                <div className="font-semibold text-slate-800">
-                                  {s.session_date}
-                                </div>
+                        <div
+                          className="
+mt-8
 
-                                <div className="text-sm text-slate-500 mt-1">
-                                  {s.hours} hrs
-                                </div>
-                              </div>
+bg-white/78
 
-                              <button
-                                onClick={() =>
-                                  handleDeleteSession(s.session_date)
+border border-white/70
+
+shadow-[0_18px_50px_rgba(15,23,42,0.06)]
+
+rounded-[2rem]
+
+p-6 md:p-7
+
+animate-[fadeUp_0.25s_ease]
+"
+                        >
+                          <div className="flex items-start justify-between gap-4 mb-6">
+                            <div>
+                              <h3 className="text-xl font-semibold text-slate-800">
+                                {selectedDate}
+                              </h3>
+
+                              <p className="mt-1 text-sm text-slate-500">
+                                Log or review your skating session for this
+                                date.
+                              </p>
+                            </div>
+
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {selectedSession ? (
+                                <>
+                                  <div
+                                    className="
+px-3 py-1.5
+
+rounded-full
+
+text-xs font-medium
+
+bg-emerald-50/80
+border border-emerald-100
+
+text-emerald-700
+"
+                                  >
+                                    Session Logged
+                                  </div>
+
+                                  {editingSessionDate === selectedDate &&
+                                    sessionDirty && (
+                                      <>
+                                        <button
+                                          onClick={() =>
+                                            handleSaveSessionEdit(selectedDate)
+                                          }
+                                          className="
+px-3 py-1.5
+rounded-full
+text-xs font-medium
+bg-[linear-gradient(135deg,#60a5fa,#6366f1)]
+text-white
+hover:opacity-90
+transition-all
+"
+                                        >
+                                          Save Changes
+                                        </button>
+
+                                        <button
+                                          onClick={() => {
+                                            setEditingSessionDate(null)
+
+                                            setEditingHours('')
+
+                                            setEditingNoteText('')
+
+                                            setEditingPracticeFocus([])
+
+                                            setSessionDirty(false)
+                                          }}
+                                          className="
+px-3 py-1.5
+rounded-full
+text-xs font-medium
+bg-slate-100
+text-slate-600
+border border-slate-200
+hover:bg-slate-200
+transition-all
+"
+                                        >
+                                          Discard
+                                        </button>
+                                      </>
+                                    )}
+
+                                  <button
+                                    onClick={() =>
+                                      handleDeleteSession(selectedDate)
+                                    }
+                                    className="
+px-3 py-1.5
+
+rounded-full
+
+text-xs font-medium
+
+bg-rose-50
+text-rose-600
+
+border border-rose-100
+
+hover:bg-rose-100
+
+transition-all
+"
+                                  >
+                                    Delete Session
+                                  </button>
+                                </>
+                              ) : (
+                                <button
+                                  onClick={handleLogSession}
+                                  disabled={
+                                    sessionLoggingLoading || !sessionHours
+                                  }
+                                  className="
+px-4 py-2
+
+rounded-full
+
+text-xs font-medium
+
+bg-[linear-gradient(135deg,#60a5fa,#6366f1)]
+
+text-white
+
+shadow-[0_10px_30px_rgba(59,130,246,0.22)]
+
+disabled:opacity-40
+
+transition-all
+"
+                                >
+                                  {sessionLoggingLoading
+                                    ? 'Logging...'
+                                    : 'Log Session'}
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="grid lg:grid-cols-[220px_1fr] gap-7 items-start">
+                            <div>
+                              <label className="block text-sm font-medium text-slate-600 mb-2">
+                                Skating Hours
+                              </label>
+
+                              <input
+                                type="number"
+                                step="0.5"
+                                value={
+                                  editingSessionDate === selectedDate
+                                    ? editingHours
+                                    : sessionHours
                                 }
+                                onChange={(e) => {
+                                  if (editingSessionDate === selectedDate) {
+                                    setEditingHours(e.target.value)
+                                    setSessionDirty(true)
+                                  } else if (selectedSession) {
+                                    setEditingSessionDate(selectedDate)
+
+                                    setEditingHours(e.target.value)
+
+                                    setEditingNoteText(
+                                      selectedSession.note || ''
+                                    )
+
+                                    setEditingPracticeFocus(
+                                      selectedSession.practice_focus || []
+                                    )
+
+                                    setSessionDirty(true)
+                                  } else {
+                                    setSessionHours(e.target.value)
+                                  }
+                                }}
+                                placeholder="0"
                                 className="
-text-xs
-font-medium
+w-full
 
-px-3.5 py-2
+rounded-2xl
 
-rounded-xl
+bg-white/88
+backdrop-blur-sm
 
-bg-[linear-gradient(135deg,rgba(255,255,255,0.55),rgba(254,242,242,0.55))]
+border border-white/70
 
-backdrop-blur-xl
+px-4 py-3
 
-border border-red-100
+text-slate-700
 
-text-rose-500
+shadow-[0_8px_24px_rgba(15,23,42,0.04)]
 
-shadow-[0_8px_24px_rgba(244,63,94,0.08)]
-
-hover:bg-[linear-gradient(135deg,rgba(254,242,242,0.82),rgba(255,255,255,0.72))]
+focus:outline-none
+focus:border-sky-200
+focus:bg-white/72
 
 transition-all duration-200
 "
-                              >
-                                Delete
-                              </button>
+                              />
                             </div>
 
-                            {/* NOTE AREA */}
-                            {/* NOTE AREA */}
+                            <div>
+                              <label className="block text-sm font-medium text-slate-600 mb-2">
+                                Practice Focus
+                              </label>
 
-                            {editingSessionDate === s.session_date ? (
-                              <div className="space-y-2">
-                                <textarea
-                                  value={editingNoteText}
-                                  onChange={(e) =>
-                                    setEditingNoteText(e.target.value)
-                                  }
-                                  placeholder=""
-                                  className="
+                              <div className="flex flex-wrap gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => togglePracticeFocus('Jumps')}
+                                  className={`
+${pillBtn}
+px-4 py-2.5 text-sm font-medium
+hover:-translate-y-[1px]
+transition-all duration-200
+${
+  (editingSessionDate === selectedDate
+    ? editingPracticeFocus
+    : practiceFocus
+  ).includes('Jumps')
+    ? `
+bg-[linear-gradient(135deg,#60a5fa,#6366f1)]
+text-white
+border-sky-300
+
+shadow-[0_12px_35px_rgba(59,130,246,0.32)]
+
+scale-[1.03]
+`
+    : `
+bg-white/40
+text-slate-700
+`
+}
+`}
+                                >
+                                  Jumps
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => togglePracticeFocus('Spins')}
+                                  className={`
+${pillBtn}
+px-4 py-2.5 text-sm font-medium
+hover:-translate-y-[1px]
+transition-all duration-200
+${
+  (editingSessionDate === selectedDate
+    ? editingPracticeFocus
+    : practiceFocus
+  ).includes('Spins')
+    ? `
+bg-[linear-gradient(135deg,#60a5fa,#6366f1)]
+text-white
+border-sky-300
+
+shadow-[0_12px_35px_rgba(59,130,246,0.32)]
+
+scale-[1.03]
+`
+    : `
+bg-white/40
+text-slate-700
+`
+}
+`}
+                                >
+                                  Spins
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => togglePracticeFocus('Moves')}
+                                  className={`
+${pillBtn}
+px-4 py-2.5 text-sm font-medium
+hover:-translate-y-[1px]
+transition-all duration-200
+${
+  (editingSessionDate === selectedDate
+    ? editingPracticeFocus
+    : practiceFocus
+  ).includes('Moves')
+    ? `
+bg-[linear-gradient(135deg,#60a5fa,#6366f1)]
+text-white
+border-sky-300
+
+shadow-[0_12px_35px_rgba(59,130,246,0.32)]
+
+scale-[1.03]
+`
+    : `
+bg-white/40
+text-slate-700
+`
+}
+`}
+                                >
+                                  Moves
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => togglePracticeFocus('Lesson')}
+                                  className={`
+${pillBtn}
+px-4 py-2.5 text-sm font-medium
+hover:-translate-y-[1px]
+transition-all duration-200
+${
+  (editingSessionDate === selectedDate
+    ? editingPracticeFocus
+    : practiceFocus
+  ).includes('Lesson')
+    ? `
+bg-[linear-gradient(135deg,#60a5fa,#6366f1)]
+text-white
+border-sky-300
+
+shadow-[0_12px_35px_rgba(59,130,246,0.32)]
+
+scale-[1.03]
+`
+    : `
+bg-white/40
+text-slate-700
+`
+}
+`}
+                                >
+                                  Lesson
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="mt-6">
+                            <label className="block text-sm font-medium text-slate-600 mb-2">
+                              Session Notes
+                            </label>
+
+                            <textarea
+                              value={
+                                editingSessionDate === selectedDate
+                                  ? editingNoteText
+                                  : sessionNote
+                              }
+                              onChange={(e) => {
+                                if (editingSessionDate === selectedDate) {
+                                  setEditingNoteText(e.target.value)
+                                  setSessionDirty(true)
+                                } else if (selectedSession) {
+                                  setEditingSessionDate(selectedDate)
+
+                                  setEditingHours(
+                                    String(selectedSession.hours || '')
+                                  )
+
+                                  setEditingNoteText(e.target.value)
+
+                                  setEditingPracticeFocus(
+                                    selectedSession.practice_focus || []
+                                  )
+
+                                  setSessionDirty(true)
+                                } else {
+                                  setSessionNote(e.target.value)
+                                }
+                              }}
+                              placeholder="Session notes, struggles, breakthroughs, corrections..."
+                              className="
 w-full
 
-min-h-[110px]
+min-h-[88px]
 
 rounded-[1.5rem]
 
-bg-white/55
-backdrop-blur-2xl
+bg-white/88
+backdrop-blur-sm
 
 border border-white/70
 
@@ -2028,304 +2402,21 @@ px-5 py-4
 
 text-sm
 text-slate-700
-placeholder:text-slate-400
 
-shadow-[0_12px_35px_rgba(59,130,246,0.08)]
+shadow-[0_12px_35px_rgba(59,130,246,0.06)]
 
 resize-none
 
 focus:outline-none
 focus:border-sky-200
-focus:bg-white/72
+focus:bg-white
 
 transition-all duration-250
 "
-                                />
-
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    onClick={() =>
-                                      handleSaveSessionNote(
-                                        s.session_date,
-                                        s.hours,
-                                        editingNoteText
-                                      )
-                                    }
-                                    className="
-w-full
-
-py-4
-
-rounded-[1.5rem]
-
-bg-[linear-gradient(
-135deg,
-rgba(37,99,235,0.94),
-rgba(99,102,241,0.94)
-)]
-
-text-white
-font-medium
-
-shadow-[0_18px_40px_rgba(59,130,246,0.24)]
-
-hover:scale-[1.01]
-
-hover:shadow-[0_24px_55px_rgba(59,130,246,0.34)]
-
-active:scale-[0.985]
-
-transition-all duration-250
-"
-                                  >
-                                    Save
-                                  </button>
-
-                                  <button
-                                    onClick={() => {
-                                      setEditingSessionDate(null)
-                                      setEditingNoteText('')
-                                    }}
-                                    className="
-px-3.5 py-2
-
-rounded-xl
-
-bg-white/45
-backdrop-blur-xl
-
-border border-white/70
-
-text-sm
-font-medium
-text-slate-700
-
-shadow-[0_8px_24px_rgba(59,130,246,0.06)]
-
-hover:bg-[linear-gradient(135deg,rgba(224,242,254,0.92),rgba(186,230,253,0.72))]
-hover:border-sky-200
-
-transition-all duration-200
-"
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
-                              </div>
-                            ) : (
-                              <div
-                                className={`
-    rounded-xl
-    px-4 py-3
-    transition-all
-
-    ${
-      s.note?.trim()
-        ? `
-          border border-slate-200
-          bg-white
-          shadow-sm
-        `
-        : `
-          border border-dashed border-slate-200
-          bg-white/20 backdrop-blur-sm
-        `
-    }
-  `}
-                              >
-                                <div
-                                  className={`
-  text-sm
-  whitespace-pre-wrap
-
-  ${s.note?.trim() ? 'text-slate-700' : 'text-slate-400 italic'}
-`}
-                                >
-                                  {s.note?.trim()
-                                    ? s.note
-                                    : 'Add your skating note here.'}
-                                </div>
-
-                                <div className="mt-3 flex items-center gap-2">
-                                  <button
-                                    onClick={() => {
-                                      setEditingSessionDate(s.session_date)
-
-                                      setEditingNoteText(s.note || '')
-                                    }}
-                                    className="
-px-3.5 py-2
-
-rounded-xl
-
-bg-white/45
-backdrop-blur-xl
-
-border border-white/70
-
-text-sm
-font-medium
-text-slate-700
-
-shadow-[0_8px_24px_rgba(59,130,246,0.06)]
-
-hover:bg-[linear-gradient(135deg,rgba(224,242,254,0.92),rgba(186,230,253,0.72))]
-hover:border-sky-200
-
-transition-all duration-200
-"
-                                  >
-                                    Edit
-                                  </button>
-
-                                  {s.note && (
-                                    <button
-                                      onClick={async () => {
-                                        setEditingSessionDate(null)
-
-                                        setEditingNoteText('')
-
-                                        try {
-                                          const {
-                                            data: { session },
-                                          } = await supabase.auth.getSession()
-
-                                          const accessToken =
-                                            session?.access_token
-
-                                          const res = await fetch(
-                                            `${process.env.NEXT_PUBLIC_CHAT_API_URL}/blade-tracker/session`,
-                                            {
-                                              method: 'POST',
-
-                                              headers: {
-                                                'Content-Type':
-                                                  'application/json',
-                                                Authorization: `Bearer ${accessToken}`,
-                                              },
-
-                                              body: JSON.stringify({
-                                                session_date: s.session_date,
-                                                hours: s.hours,
-                                                note: '',
-                                              }),
-                                            }
-                                          )
-
-                                          const data = await res.json()
-
-                                          if (data.success) {
-                                            setBladeTracker(data.tracker)
-
-                                            showToast(' Note cleared')
-                                          }
-                                        } catch (err) {
-                                          console.error(err)
-                                        }
-                                      }}
-                                      className="
-text-xs
-font-medium
-
-px-3.5 py-2
-
-rounded-xl
-
-bg-[linear-gradient(135deg,rgba(255,255,255,0.55),rgba(254,242,242,0.55))]
-
-backdrop-blur-xl
-
-border border-red-100
-
-text-rose-500
-
-shadow-[0_8px_24px_rgba(244,63,94,0.08)]
-
-hover:bg-[linear-gradient(135deg,rgba(254,242,242,0.82),rgba(255,255,255,0.72))]
-
-transition-all duration-200
-"
-                                    >
-                                      Clear note
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                            )}
+                            />
                           </div>
-                        ))}
-                      </div>
-                      {/* PAGINATION */}
-
-                      {totalSessionPages > 1 && (
-                        <div className="flex items-center justify-center gap-4 mt-6">
-                          <button
-                            disabled={sessionsPage === 1}
-                            onClick={() =>
-                              setSessionsPage((p) => Math.max(1, p - 1))
-                            }
-                            className="
-px-3.5 py-2
-
-rounded-xl
-
-bg-white/45
-backdrop-blur-xl
-
-border border-white/70
-
-text-sm
-font-medium
-text-slate-700
-
-shadow-[0_8px_24px_rgba(59,130,246,0.06)]
-
-hover:bg-[linear-gradient(135deg,rgba(224,242,254,0.92),rgba(186,230,253,0.72))]
-hover:border-sky-200
-
-transition-all duration-200
-"
-                          >
-                            ← Previous
-                          </button>
-
-                          <div className="text-sm text-slate-500">
-                            Page {sessionsPage} / {totalSessionPages}
-                          </div>
-
-                          <button
-                            disabled={sessionsPage === totalSessionPages}
-                            onClick={() =>
-                              setSessionsPage((p) =>
-                                Math.min(totalSessionPages, p + 1)
-                              )
-                            }
-                            className="
-px-3.5 py-2
-
-rounded-xl
-
-bg-white/45
-backdrop-blur-xl
-
-border border-white/70
-
-text-sm
-font-medium
-text-slate-700
-
-shadow-[0_8px_24px_rgba(59,130,246,0.06)]
-
-hover:bg-[linear-gradient(135deg,rgba(224,242,254,0.92),rgba(186,230,253,0.72))]
-hover:border-sky-200
-
-transition-all duration-200
-"
-                          >
-                            Next →
-                          </button>
                         </div>
-                      )}
+                      </div>
                     </div>
                   </>
                 ) : (

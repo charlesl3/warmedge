@@ -67,8 +67,23 @@ button:disabled {
 }
 
 .warm-calendar .react-calendar__tile--active {
-  background: transparent !important;
-  color: inherit !important;
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.95),
+    rgba(59, 130, 246, 0.92)
+  ) !important;
+
+  color: white !important;
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 14px 40px rgba(99, 102, 241, 0.28),
+    0 0 0 2px rgba(255, 255, 255, 0.82);
+
+  transform: scale(1.04);
+
+  transition: all 0.22s ease;
 }
 
 .warm-calendar .react-calendar__tile:enabled:hover {

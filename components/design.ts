@@ -146,3 +146,36 @@ active:scale-95
 
 transition-all duration-250
 `
+
+export const hoverTooltip = `
+absolute
+
+px-3 py-1.5
+
+text-[11px]
+font-medium
+text-slate-600
+
+bg-[linear-gradient(
+145deg,
+rgba(255,255,255,0.82),
+rgba(255,255,255,0.62)
+)]
+
+backdrop-blur-2xl
+
+border border-white/80
+
+rounded-xl
+
+shadow-[0_10px_30px_rgba(15,23,42,0.08)]
+
+opacity-0
+group-hover:opacity-100
+
+transition-all duration-200
+
+pointer-events-none
+whitespace-nowrap
+z-50
+`
