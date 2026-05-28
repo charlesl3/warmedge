@@ -2656,10 +2656,10 @@ hover:bg-white/80
 `}
                             >
                               {range === 'week'
-                                ? 'This Week'
+                                ? 'Week'
                                 : range === 'month'
-                                  ? 'This Month'
-                                  : 'This Year'}
+                                  ? 'Month'
+                                  : 'Year'}
                             </button>
                           ))}
                         </div>
