@@ -104,6 +104,9 @@ export default function ChatPage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [statsRange, setStatsRange] = useState<'week' | 'month' | 'year'>(
+    'year'
+  )
   const [activeView, setActiveView] = useState<'chat' | 'blade_tracker'>('chat')
   const [reloading, setReloading] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -2606,6 +2609,121 @@ transition-all duration-250
                             </div>
                           </div>
                         )}
+                      </div>
+                    </div>
+                    <div
+                      className="
+mt-8
+rounded-[32px]
+border border-white/40
+bg-white/55
+backdrop-blur-xl
+p-6
+shadow-[0_20px_60px_rgba(15,23,42,0.06)]
+"
+                    >
+                      <div className="flex items-center justify-between mb-6">
+                        <div>
+                          <div className="text-xl font-semibold text-slate-800">
+                            Practice Focus
+                          </div>
+
+                          <div className="text-sm text-slate-500 mt-1">
+                            Your skating emphasis patterns
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          {['week', 'month', 'year'].map((range) => (
+                            <button
+                              key={range}
+                              onClick={() => setStatsRange(range as any)}
+                              className={`
+px-4 py-2
+rounded-2xl
+text-sm
+transition-all
+
+${
+  statsRange === range
+    ? `
+bg-blue-500
+text-white
+shadow-[0_0_20px_rgba(59,130,246,0.45)]
+`
+    : `
+bg-white/50
+text-slate-600
+hover:bg-white/80
+`
+}
+`}
+                            >
+                              {range === 'week'
+                                ? 'This Week'
+                                : range === 'month'
+                                  ? 'This Month'
+                                  : 'This Year'}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-5">
+                        {Object.entries(
+                          bladeTracker?.focus_statistics?.[statsRange] || {}
+                        ).map(([label, count]: any) => {
+                          const maxValue = Math.max(
+                            ...Object.values(
+                              bladeTracker?.focus_statistics?.[statsRange] || {}
+                            ).map(Number),
+                            1
+                          )
+
+                          const width = (Number(count) / maxValue) * 100
+
+                          return (
+                            <div key={label}>
+                              <div className="flex justify-between mb-2">
+                                <div className="text-slate-700 font-medium">
+                                  {label}
+                                </div>
+
+                                <div className="text-slate-500 text-sm">
+                                  {count}
+                                </div>
+                              </div>
+
+                              <div
+                                className="
+h-4
+rounded-full
+bg-slate-100/80
+overflow-hidden
+"
+                              >
+                                <div
+                                  className="
+h-full
+rounded-full
+
+bg-gradient-to-r
+from-blue-400
+to-indigo-500
+
+shadow-[0_0_20px_rgba(96,165,250,0.65)]
+
+transition-all
+duration-700
+"
+                                  style={{
+                                    width: `${width}%`,
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          )
+                        })}
                       </div>
                     </div>
                   </>
