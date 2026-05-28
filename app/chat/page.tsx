@@ -1752,8 +1752,19 @@ px-5 py-4
                     >
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
                         <div>
-                          <div className="text-sm text-slate-500">
-                            Hours since sharpening
+                          <div className="flex items-center gap-3">
+                            <div className="text-sm text-slate-500">
+                              Hours since sharpening
+                            </div>
+
+                            <div className="text-xs text-slate-400">
+                              {Math.round(
+                                (bladeTracker.hours_since_sharpening /
+                                  bladeTracker.threshold_hours) *
+                                  100
+                              )}
+                              % used
+                            </div>
                           </div>
 
                           <div className="text-3xl font-bold text-slate-800 mt-1">
@@ -1824,7 +1835,7 @@ to-indigo-600
                               />
                             </div>
 
-                            <div className="mt-1 text-xs text-slate-400">
+                            {/* <div className="mt-1 text-xs text-slate-400">
                               {bladeTracker.hours_since_sharpening >=
                                 bladeTracker.threshold_hours && (
                                 <div
@@ -1863,7 +1874,7 @@ text-amber-600
                                   100
                               )}
                               % used
-                            </div>
+                            </div> */}
                           </div>
 
                           <div className="mt-2 text-sm text-slate-500">
@@ -1873,9 +1884,9 @@ text-amber-600
                             </span>
                           </div>
 
-                          <div className="mt-2 text-[11px] text-slate-400">
+                          {/* <div className="mt-2 text-[11px] text-slate-400">
                             Tap a date below to log or review skating sessions.
-                          </div>
+                          </div> */}
                         </div>
 
                         <div className="flex items-center">
@@ -1914,11 +1925,6 @@ transition-all
                           <h3 className="font-semibold text-slate-800">
                             Skating Calendar
                           </h3>
-
-                          <p className="mt-1 text-sm text-slate-500">
-                            Select a date to log skating sessions, notes, and
-                            practice details.
-                          </p>
                         </div>
 
                         <div
@@ -2063,27 +2069,22 @@ shadow-[0_18px_50px_rgba(15,23,42,0.06)]
 
 rounded-[2rem]
 
-p-6 md:p-7
+p-5 md:p-6
 
 animate-[fadeUp_0.25s_ease]
 "
                         >
                           <div className="flex items-start justify-between gap-4 mb-6">
                             <div>
-                              <h3 className="text-xl font-semibold text-slate-800">
+                              <h3 className="text-lg font-semibold text-slate-800">
                                 {selectedDate}
                               </h3>
-
-                              <p className="mt-1 text-sm text-slate-500">
-                                Log or review your skating session for this
-                                date.
-                              </p>
                             </div>
 
                             <div className="flex items-center gap-2 flex-wrap">
                               {selectedSession ? (
                                 <>
-                                  <div
+                                  {/* <div
                                     className="
 px-3 py-1.5
 
@@ -2098,7 +2099,7 @@ text-emerald-700
 "
                                   >
                                     Session Logged
-                                  </div>
+                                  </div> */}
 
                                   {editingSessionDate === selectedDate &&
                                     sessionDirty && (
@@ -2117,7 +2118,7 @@ hover:opacity-90
 transition-all
 "
                                         >
-                                          Save Changes
+                                          Save
                                         </button>
 
                                         <button
@@ -2143,7 +2144,7 @@ hover:bg-slate-200
 transition-all
 "
                                         >
-                                          Discard
+                                          Cancel
                                         </button>
                                       </>
                                     )}
@@ -2169,7 +2170,7 @@ hover:bg-rose-100
 transition-all
 "
                                   >
-                                    Delete Session
+                                    Delete
                                   </button>
                                 </>
                               ) : (
@@ -2207,7 +2208,7 @@ transition-all
                           <div className="grid lg:grid-cols-[220px_1fr] gap-7 items-start">
                             <div>
                               <label className="block text-sm font-medium text-slate-600 mb-2">
-                                Skating Hours
+                                Hours
                               </label>
 
                               <input
@@ -2268,7 +2269,7 @@ transition-all duration-200
 
                             <div>
                               <label className="block text-sm font-medium text-slate-600 mb-2">
-                                Practice Focus
+                                Focus
                               </label>
 
                               <div className="flex flex-wrap gap-2">
@@ -2277,7 +2278,7 @@ transition-all duration-200
                                   onClick={() => togglePracticeFocus('Jumps')}
                                   className={`
 ${pillBtn}
-px-4 py-2.5 text-sm font-medium
+px-3 py-2 text-xs font-medium
 hover:-translate-y-[1px]
 transition-all duration-200
 ${
@@ -2405,7 +2406,7 @@ text-slate-700
 
                           <div className="mt-6">
                             <label className="block text-sm font-medium text-slate-600 mb-2">
-                              Session Notes
+                              Notes
                             </label>
 
                             <textarea
@@ -2436,11 +2437,11 @@ text-slate-700
                                   setSessionNote(e.target.value)
                                 }
                               }}
-                              placeholder="Session notes, struggles, breakthroughs, corrections..."
+                              placeholder="How was your skating today?"
                               className="
 w-full
 
-min-h-[88px]
+min-h-[64px]
 
 rounded-[1.5rem]
 
