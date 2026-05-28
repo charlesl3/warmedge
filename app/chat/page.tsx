@@ -1265,7 +1265,7 @@ flex flex-col
             }}
             className={navBtn}
           >
-            Blade Sharpening Tracker
+            Skating Tracker
           </button>
 
           <button
@@ -1722,9 +1722,9 @@ transition-all duration-200
                     Skating Tracker
                   </h2>
 
-                  <p className="mt-1 text-sm text-slate-500">
+                  {/* <p className="mt-1 text-sm text-slate-500">
                     Sessions • Sharpening • Practice
-                  </p>
+                  </p> */}
                 </div>
 
                 {session && bladeTracker ? (
