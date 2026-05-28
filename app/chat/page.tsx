@@ -456,7 +456,19 @@ Please note:
     }
   }
 
-  const handleSharpened = async () => {
+  const handleSharpened = async (dateOverride?: string | null) => {
+    console.log('SHARPEN CLICKED')
+
+    const finalDate = dateOverride || selectedDate
+
+    console.log('FINAL DATE =', finalDate)
+
+    if (!finalDate) {
+      console.error('NO DATE SELECTED')
+      showToast('Select a date first')
+      return
+    }
+
     try {
       setSharpeningLoading(true)
 
@@ -465,6 +477,7 @@ Please note:
       } = await supabase.auth.getSession()
 
       const accessToken = session?.access_token
+      console.log('SELECTED DATE:', selectedDate)
 
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_CHAT_API_URL}/blade-tracker/sharpened`,
@@ -475,7 +488,7 @@ Please note:
             Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify({
-            sharpened_at: selectedDate,
+            sharpened_at: finalDate,
           }),
         }
       )
@@ -483,7 +496,10 @@ Please note:
       const data = await res.json()
 
       if (data.success) {
-        setBladeTracker(data.tracker)
+        console.log('SHARPEN RESPONSE:', data)
+
+        // force refresh from backend truth
+        await loadBladeTracker()
 
         showToast(' Sharpening recorded')
       }
@@ -1204,9 +1220,17 @@ ${assistantAnswer}
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+
+      const clickedCalendar =
+        target.closest('.react-calendar') ||
+        target.closest('.react-calendar__tile')
+
       if (
         calendarAreaRef.current &&
-        !calendarAreaRef.current.contains(e.target as Node)
+        !calendarAreaRef.current.contains(target) &&
+        !clickedCalendar &&
+        !target.closest('button')
       ) {
         setSelectedDate(null)
 
@@ -1949,8 +1973,8 @@ text-amber-600
 
                         <div className="flex items-center">
                           <button
-                            onClick={handleSharpened}
-                            disabled={sharpeningLoading || !selectedDate}
+                            onClick={() => handleSharpened(selectedDate)}
+                            disabled={sharpeningLoading}
                             className="
 px-4 py-2
 
@@ -2034,10 +2058,15 @@ mx-auto
                                 ? new Date(selectedDate + 'T12:00:00')
                                 : null
                             }
-                            onChange={(value: any) => {
-                              if (!value || Array.isArray(value)) return
+                            onChange={(value) => {
+                              console.log('CALENDAR RAW VALUE:', value)
 
-                              const d = value
+                              const d = Array.isArray(value) ? value[0] : value
+
+                              if (!(d instanceof Date)) {
+                                console.error('NOT A DATE:', d)
+                                return
+                              }
 
                               const yyyy = d.getFullYear()
 
@@ -2049,6 +2078,8 @@ mx-auto
                               const dd = String(d.getDate()).padStart(2, '0')
 
                               const clickedDate = `${yyyy}-${mm}-${dd}`
+
+                              console.log('SETTING DATE:', clickedDate)
 
                               setSelectedDate(clickedDate)
                             }}
