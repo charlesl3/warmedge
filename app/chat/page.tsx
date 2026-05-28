@@ -101,9 +101,7 @@ export default function ChatPage() {
   const [sessionsPage, setSessionsPage] = useState(1)
 
   const SESSIONS_PER_PAGE = 5
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().slice(0, 10)
-  )
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeView, setActiveView] = useState<'chat' | 'blade_tracker'>('chat')
@@ -172,6 +170,7 @@ export default function ChatPage() {
   }
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
+  const calendarAreaRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -389,6 +388,8 @@ Please note:
     )
 
     if (!sessionHours && existingSession) {
+      if (!selectedDate) return
+
       await handleDeleteSession(selectedDate)
       setSessionHours('')
       setSessionNote('')
@@ -404,7 +405,7 @@ Please note:
     // 0 hrs behavior
     if (numericHours === 0) {
       // existing record → delete it
-      if (existingSession) {
+      if (existingSession && selectedDate) {
         await handleDeleteSession(selectedDate)
 
         setSessionHours('')
@@ -1172,6 +1173,33 @@ ${assistantAnswer}
   )
 
   useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (
+        calendarAreaRef.current &&
+        !calendarAreaRef.current.contains(e.target as Node)
+      ) {
+        setSelectedDate(null)
+
+        setEditingSessionDate(null)
+        setSessionDirty(false)
+
+        setEditingHours('')
+        setEditingNoteText('')
+        setEditingPracticeFocus([])
+
+        setSessionHours('')
+        setSessionNote('')
+        setPracticeFocus([])
+      }
+    }
+
+    document.addEventListener('mousedown', handleOutsideClick)
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+    }
+  }, [])
+  useEffect(() => {
     if (selectedSession) {
       setSessionHours(String(selectedSession.hours || ''))
       setSessionNote(selectedSession.note || '')
@@ -1892,7 +1920,7 @@ text-amber-600
                         <div className="flex items-center">
                           <button
                             onClick={handleSharpened}
-                            disabled={sharpeningLoading}
+                            disabled={sharpeningLoading || !selectedDate}
                             className="
 px-4 py-2
 
@@ -1909,6 +1937,9 @@ shadow-[0_10px_30px_rgba(59,130,246,0.22)]
 hover:opacity-90
 
 transition-all
+
+disabled:opacity-35
+disabled:cursor-not-allowed
 "
                           >
                             {sharpeningLoading
@@ -1919,7 +1950,7 @@ transition-all
                       </div>
                     </div>
 
-                    <div>
+                    <div ref={calendarAreaRef}>
                       <div className="mb-8">
                         <div className="mb-4">
                           <h3 className="font-semibold text-slate-800">
@@ -1968,9 +1999,15 @@ mx-auto
                           <Calendar
                             className="warm-calendar"
                             calendarType="gregory"
-                            value={new Date(selectedDate + 'T12:00:00')}
+                            value={
+                              selectedDate
+                                ? new Date(selectedDate + 'T12:00:00')
+                                : null
+                            }
                             onChange={(value: any) => {
-                              const d = value as Date
+                              if (!value || Array.isArray(value)) return
+
+                              const d = value
 
                               const yyyy = d.getFullYear()
 
@@ -2057,8 +2094,9 @@ mx-auto
                           </div>
                         </div>
 
-                        <div
-                          className="
+                        {selectedDate && (
+                          <div
+                            className="
 mt-8
 
 bg-white/78
@@ -2073,18 +2111,18 @@ p-5 md:p-6
 
 animate-[fadeUp_0.25s_ease]
 "
-                        >
-                          <div className="flex items-start justify-between gap-4 mb-6">
-                            <div>
-                              <h3 className="text-lg font-semibold text-slate-800">
-                                {selectedDate}
-                              </h3>
-                            </div>
+                          >
+                            <div className="flex items-start justify-between gap-4 mb-6">
+                              <div>
+                                <h3 className="text-lg font-semibold text-slate-800">
+                                  {selectedDate}
+                                </h3>
+                              </div>
 
-                            <div className="flex items-center gap-2 flex-wrap">
-                              {selectedSession ? (
-                                <>
-                                  {/* <div
+                              <div className="flex items-center gap-2 flex-wrap">
+                                {selectedSession ? (
+                                  <>
+                                    {/* <div
                                     className="
 px-3 py-1.5
 
@@ -2101,14 +2139,16 @@ text-emerald-700
                                     Session Logged
                                   </div> */}
 
-                                  {editingSessionDate === selectedDate &&
-                                    sessionDirty && (
-                                      <>
-                                        <button
-                                          onClick={() =>
-                                            handleSaveSessionEdit(selectedDate)
-                                          }
-                                          className="
+                                    {editingSessionDate === selectedDate &&
+                                      sessionDirty && (
+                                        <>
+                                          <button
+                                            onClick={() =>
+                                              handleSaveSessionEdit(
+                                                selectedDate
+                                              )
+                                            }
+                                            className="
 px-3 py-1.5
 rounded-full
 text-xs font-medium
@@ -2117,23 +2157,23 @@ text-white
 hover:opacity-90
 transition-all
 "
-                                        >
-                                          Save
-                                        </button>
+                                          >
+                                            Save
+                                          </button>
 
-                                        <button
-                                          onClick={() => {
-                                            setEditingSessionDate(null)
+                                          <button
+                                            onClick={() => {
+                                              setEditingSessionDate(null)
 
-                                            setEditingHours('')
+                                              setEditingHours('')
 
-                                            setEditingNoteText('')
+                                              setEditingNoteText('')
 
-                                            setEditingPracticeFocus([])
+                                              setEditingPracticeFocus([])
 
-                                            setSessionDirty(false)
-                                          }}
-                                          className="
+                                              setSessionDirty(false)
+                                            }}
+                                            className="
 px-3 py-1.5
 rounded-full
 text-xs font-medium
@@ -2143,17 +2183,17 @@ border border-slate-200
 hover:bg-slate-200
 transition-all
 "
-                                        >
-                                          Cancel
-                                        </button>
-                                      </>
-                                    )}
+                                          >
+                                            Cancel
+                                          </button>
+                                        </>
+                                      )}
 
-                                  <button
-                                    onClick={() =>
-                                      handleDeleteSession(selectedDate)
-                                    }
-                                    className="
+                                    <button
+                                      onClick={() =>
+                                        handleDeleteSession(selectedDate)
+                                      }
+                                      className="
 px-3 py-1.5
 
 rounded-full
@@ -2169,17 +2209,17 @@ hover:bg-rose-100
 
 transition-all
 "
-                                  >
-                                    Delete
-                                  </button>
-                                </>
-                              ) : (
-                                <button
-                                  onClick={handleLogSession}
-                                  disabled={
-                                    sessionLoggingLoading || !sessionHours
-                                  }
-                                  className="
+                                    >
+                                      Delete
+                                    </button>
+                                  </>
+                                ) : (
+                                  <button
+                                    onClick={handleLogSession}
+                                    disabled={
+                                      sessionLoggingLoading || !sessionHours
+                                    }
+                                    className="
 px-4 py-2
 
 rounded-full
@@ -2196,53 +2236,53 @@ disabled:opacity-40
 
 transition-all
 "
-                                >
-                                  {sessionLoggingLoading
-                                    ? 'Logging...'
-                                    : 'Log Session'}
-                                </button>
-                              )}
+                                  >
+                                    {sessionLoggingLoading
+                                      ? 'Logging...'
+                                      : 'Log Session'}
+                                  </button>
+                                )}
+                              </div>
                             </div>
-                          </div>
 
-                          <div className="grid lg:grid-cols-[220px_1fr] gap-7 items-start">
-                            <div>
-                              <label className="block text-sm font-medium text-slate-600 mb-2">
-                                Hours
-                              </label>
+                            <div className="grid lg:grid-cols-[220px_1fr] gap-7 items-start">
+                              <div>
+                                <label className="block text-sm font-medium text-slate-600 mb-2">
+                                  Hours
+                                </label>
 
-                              <input
-                                type="number"
-                                step="0.5"
-                                value={
-                                  editingSessionDate === selectedDate
-                                    ? editingHours
-                                    : sessionHours
-                                }
-                                onChange={(e) => {
-                                  if (editingSessionDate === selectedDate) {
-                                    setEditingHours(e.target.value)
-                                    setSessionDirty(true)
-                                  } else if (selectedSession) {
-                                    setEditingSessionDate(selectedDate)
-
-                                    setEditingHours(e.target.value)
-
-                                    setEditingNoteText(
-                                      selectedSession.note || ''
-                                    )
-
-                                    setEditingPracticeFocus(
-                                      selectedSession.practice_focus || []
-                                    )
-
-                                    setSessionDirty(true)
-                                  } else {
-                                    setSessionHours(e.target.value)
+                                <input
+                                  type="number"
+                                  step="0.5"
+                                  value={
+                                    editingSessionDate === selectedDate
+                                      ? editingHours
+                                      : sessionHours
                                   }
-                                }}
-                                placeholder="0"
-                                className="
+                                  onChange={(e) => {
+                                    if (editingSessionDate === selectedDate) {
+                                      setEditingHours(e.target.value)
+                                      setSessionDirty(true)
+                                    } else if (selectedSession) {
+                                      setEditingSessionDate(selectedDate)
+
+                                      setEditingHours(e.target.value)
+
+                                      setEditingNoteText(
+                                        selectedSession.note || ''
+                                      )
+
+                                      setEditingPracticeFocus(
+                                        selectedSession.practice_focus || []
+                                      )
+
+                                      setSessionDirty(true)
+                                    } else {
+                                      setSessionHours(e.target.value)
+                                    }
+                                  }}
+                                  placeholder="0"
+                                  className="
 w-full
 
 rounded-2xl
@@ -2264,19 +2304,19 @@ focus:bg-white/72
 
 transition-all duration-200
 "
-                              />
-                            </div>
+                                />
+                              </div>
 
-                            <div>
-                              <label className="block text-sm font-medium text-slate-600 mb-2">
-                                Focus
-                              </label>
+                              <div>
+                                <label className="block text-sm font-medium text-slate-600 mb-2">
+                                  Focus
+                                </label>
 
-                              <div className="flex flex-wrap gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => togglePracticeFocus('Jumps')}
-                                  className={`
+                                <div className="flex flex-wrap gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => togglePracticeFocus('Jumps')}
+                                    className={`
 ${pillBtn}
 px-3 py-2 text-xs font-medium
 hover:-translate-y-[1px]
@@ -2301,14 +2341,14 @@ text-slate-700
 `
 }
 `}
-                                >
-                                  Jumps
-                                </button>
+                                  >
+                                    Jumps
+                                  </button>
 
-                                <button
-                                  type="button"
-                                  onClick={() => togglePracticeFocus('Spins')}
-                                  className={`
+                                  <button
+                                    type="button"
+                                    onClick={() => togglePracticeFocus('Spins')}
+                                    className={`
 ${pillBtn}
 px-4 py-2.5 text-sm font-medium
 hover:-translate-y-[1px]
@@ -2333,14 +2373,14 @@ text-slate-700
 `
 }
 `}
-                                >
-                                  Spins
-                                </button>
+                                  >
+                                    Spins
+                                  </button>
 
-                                <button
-                                  type="button"
-                                  onClick={() => togglePracticeFocus('Moves')}
-                                  className={`
+                                  <button
+                                    type="button"
+                                    onClick={() => togglePracticeFocus('Moves')}
+                                    className={`
 ${pillBtn}
 px-4 py-2.5 text-sm font-medium
 hover:-translate-y-[1px]
@@ -2365,14 +2405,16 @@ text-slate-700
 `
 }
 `}
-                                >
-                                  Moves
-                                </button>
+                                  >
+                                    Moves
+                                  </button>
 
-                                <button
-                                  type="button"
-                                  onClick={() => togglePracticeFocus('Lesson')}
-                                  className={`
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      togglePracticeFocus('Lesson')
+                                    }
+                                    className={`
 ${pillBtn}
 px-4 py-2.5 text-sm font-medium
 hover:-translate-y-[1px]
@@ -2397,48 +2439,48 @@ text-slate-700
 `
 }
 `}
-                                >
-                                  Lesson
-                                </button>
+                                  >
+                                    Lesson
+                                  </button>
+                                </div>
                               </div>
                             </div>
-                          </div>
 
-                          <div className="mt-6">
-                            <label className="block text-sm font-medium text-slate-600 mb-2">
-                              Notes
-                            </label>
+                            <div className="mt-6">
+                              <label className="block text-sm font-medium text-slate-600 mb-2">
+                                Notes
+                              </label>
 
-                            <textarea
-                              value={
-                                editingSessionDate === selectedDate
-                                  ? editingNoteText
-                                  : sessionNote
-                              }
-                              onChange={(e) => {
-                                if (editingSessionDate === selectedDate) {
-                                  setEditingNoteText(e.target.value)
-                                  setSessionDirty(true)
-                                } else if (selectedSession) {
-                                  setEditingSessionDate(selectedDate)
-
-                                  setEditingHours(
-                                    String(selectedSession.hours || '')
-                                  )
-
-                                  setEditingNoteText(e.target.value)
-
-                                  setEditingPracticeFocus(
-                                    selectedSession.practice_focus || []
-                                  )
-
-                                  setSessionDirty(true)
-                                } else {
-                                  setSessionNote(e.target.value)
+                              <textarea
+                                value={
+                                  editingSessionDate === selectedDate
+                                    ? editingNoteText
+                                    : sessionNote
                                 }
-                              }}
-                              placeholder="How was your skating today?"
-                              className="
+                                onChange={(e) => {
+                                  if (editingSessionDate === selectedDate) {
+                                    setEditingNoteText(e.target.value)
+                                    setSessionDirty(true)
+                                  } else if (selectedSession) {
+                                    setEditingSessionDate(selectedDate)
+
+                                    setEditingHours(
+                                      String(selectedSession.hours || '')
+                                    )
+
+                                    setEditingNoteText(e.target.value)
+
+                                    setEditingPracticeFocus(
+                                      selectedSession.practice_focus || []
+                                    )
+
+                                    setSessionDirty(true)
+                                  } else {
+                                    setSessionNote(e.target.value)
+                                  }
+                                }}
+                                placeholder="How was your skating today?"
+                                className="
 w-full
 
 min-h-[64px]
@@ -2465,9 +2507,10 @@ focus:bg-white
 
 transition-all duration-250
 "
-                            />
+                              />
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
                   </>
