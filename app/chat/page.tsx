@@ -2054,7 +2054,7 @@ mx-auto
 "
                         >
                           <Calendar
-                            className="warm-calendar"
+                            className="warm-calendar calendar-hover-hours"
                             calendarType="gregory"
                             value={
                               selectedDate
@@ -2133,13 +2133,68 @@ mx-auto
                               const dd = String(date.getDate()).padStart(2, '0')
 
                               const key = `${yyyy}-${mm}-${dd}`
+
                               const hours = sessionHoursByDate[key]
 
-                              if (!hours) return null
+                              if (hours === undefined || hours === null)
+                                return null
 
                               return (
-                                <div className="calendar-hour-tooltip">
-                                  {hours} hrs
+                                <div
+                                  className="
+absolute
+inset-0
+
+group
+
+flex items-center justify-center
+"
+                                >
+                                  <div
+                                    className="
+absolute
+
+top-7
+left-1/2
+
+-translate-x-1/2
+
+px-3 py-1.5
+
+rounded-xl
+
+text-[11px]
+font-semibold
+text-slate-800
+
+bg-[linear-gradient(
+135deg,
+rgba(255,255,255,0.96),
+rgba(239,246,255,0.96)
+)]
+
+backdrop-blur-xl
+
+border border-white/40
+
+shadow-[0_12px_35px_rgba(59,130,246,0.18)]
+
+opacity-0
+group-hover:opacity-100
+
+translate-y-1
+group-hover:translate-y-0
+
+transition-all
+duration-200
+
+whitespace-nowrap
+
+z-50
+"
+                                  >
+                                    {hours} hrs
+                                  </div>
                                 </div>
                               )
                             }}

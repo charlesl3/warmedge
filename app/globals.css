@@ -115,6 +115,7 @@ button:disabled {
 
 .warm-calendar .react-calendar__tile {
   position: relative;
+  overflow: visible !important;
 }
 
 .warm-calendar .sharpen-day {
@@ -125,6 +126,7 @@ button:disabled {
 
 .warm-calendar .react-calendar__tile {
   position: relative;
+  overflow: visible !important;
 }
 
 .calendar-hour-tooltip {
@@ -360,4 +362,13 @@ body::before {
 
   pointer-events: none;
   z-index: 0;
+}
+
+.calendar-hover-hours .react-calendar__tile {
+  position: relative;
+  overflow: visible !important;
+}
+
+.calendar-hover-hours .react-calendar__tile:hover {
+  z-index: 20;
 }
