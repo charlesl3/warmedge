@@ -28,31 +28,68 @@ export const darkBubble =
   'bg-[linear-gradient(135deg,rgba(99,102,241,0.78),rgba(168,85,247,0.72))] text-white border border-white/20 backdrop-blur-[24px] shadow-[0_20px_60px_rgba(99,102,241,0.18)]'
 
 export const softBubble = `
-bg-[linear-gradient(145deg,
-rgba(255,255,255,0.72),
-rgba(255,255,255,0.52)
+relative overflow-hidden
+
+bg-[linear-gradient(
+145deg,
+rgba(255,255,255,0.86),
+rgba(245,249,255,0.80),
+rgba(232,242,255,0.76)
 )]
 
-backdrop-blur-[22px]
+backdrop-blur-[34px]
 
-border border-white/65
+border-[2.8px]
+border-[#38bdf8]
 
-shadow-[0_12px_45px_rgba(148,163,184,0.10)]
+rounded-[2rem]
 
-relative overflow-hidden
+shadow-[
+
+0_0_0_1px_rgba(255,255,255,0.72),
+
+0_0_14px_rgba(56,189,248,0.72),
+
+0_0_32px_rgba(14,165,233,0.58),
+
+0_0_68px_rgba(37,99,235,0.42),
+
+0_0_120px_rgba(59,130,246,0.28),
+
+0_28px_85px_rgba(37,99,235,0.16)
+
+]
 
 before:absolute
 before:inset-0
 before:pointer-events-none
+before:rounded-[inherit]
 
-before:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.65),transparent_35%)]
+before:bg-[linear-gradient(
+135deg,
+rgba(255,255,255,0.70),
+transparent_26%,
+transparent_72%,
+rgba(125,211,252,0.10)
+)]
 
 after:absolute
 after:inset-0
 after:pointer-events-none
+after:rounded-[inherit]
 
-after:bg-[linear-gradient(180deg,rgba(255,255,255,0.14),transparent)]
+after:border-[1.8px]
+after:border-cyan-200/65
 
+after:shadow-[
+
+inset_0_0_20px_rgba(255,255,255,0.36),
+
+inset_0_0_52px_rgba(56,189,248,0.34),
+
+inset_0_0_90px_rgba(37,99,235,0.16)
+
+]
 `
 
 export const iconBtn = `

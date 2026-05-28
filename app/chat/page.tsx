@@ -880,8 +880,28 @@ Strict rules:
 - Add technical reasoning, mechanics, common mistakes, practical cues, and realistic skating nuance.
 - Explain why things happen, not only what to do.
 - Add several useful details that were not in the original.
-- Stay organized and practical.
-- Do not mention sources or internal systems.
+- Stay fluid, conversational, and coaching-oriented.
+- Use elegant conversational formatting.
+- Markdown tables are STRICTLY FORBIDDEN.
+- NEVER output lines like:
+  | text | text |
+- NEVER create spreadsheet-style layouts.
+- NEVER generate table headers or alignment rows.
+- If comparison is needed, use bullets or mini-sections instead.
+- Prefer:
+  • short titled sections
+  • bullets
+  • spacing
+  • coaching-style flow
+- Avoid:
+  • report formatting
+  • academic formatting
+  • tables
+  • matrix layouts
+- Before finalizing:
+  • scan for "|" characters
+  • rewrite any table-like formatting into bullets
+- The answer should feel like a premium skating coach explanation, not a technical document.
 
 Context:
 ${context}
