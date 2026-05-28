@@ -2629,7 +2629,7 @@ shadow-[0_20px_60px_rgba(15,23,42,0.06)]
                           </div>
 
                           <div className="text-sm text-slate-500 mt-1">
-                            Your skating emphasis patterns
+                            Your skating focus by session
                           </div>
                         </div>
 
@@ -2670,40 +2670,38 @@ hover:bg-white/80
                       </div>
 
                       <div className="space-y-5">
-                        {Object.entries(
-                          bladeTracker?.focus_statistics?.[statsRange] || {}
-                        ).map(([label, count]: any) => {
-                          const maxValue = Math.max(
-                            ...Object.values(
-                              bladeTracker?.focus_statistics?.[statsRange] || {}
-                            ).map(Number),
-                            1
-                          )
+                        {(() => {
+                          const stats =
+                            bladeTracker?.focus_statistics?.[statsRange]
 
-                          const width = (Number(count) / maxValue) * 100
+                          const focusStats = stats?.focuses || {}
 
-                          return (
-                            <div key={label}>
-                              <div className="flex justify-between mb-2">
-                                <div className="text-slate-700 font-medium">
-                                  {label}
-                                </div>
+                          const totalSessions = stats?.total_sessions || 0
 
-                                <div className="text-slate-500 text-sm">
-                                  {count}
-                                </div>
-                              </div>
+                          return Object.entries(focusStats).map(
+                            ([label, item]: any) => {
+                              return (
+                                <div key={label}>
+                                  <div className="flex justify-between mb-2">
+                                    <div className="text-slate-700 font-medium">
+                                      {label}
+                                    </div>
 
-                              <div
-                                className="
+                                    <div className="text-slate-500 text-sm">
+                                      {item.count} / {totalSessions} sessions
+                                    </div>
+                                  </div>
+
+                                  <div
+                                    className="
 h-4
 rounded-full
 bg-slate-100/80
 overflow-hidden
 "
-                              >
-                                <div
-                                  className="
+                                  >
+                                    <div
+                                      className="
 h-full
 rounded-full
 
@@ -2716,14 +2714,16 @@ shadow-[0_0_20px_rgba(96,165,250,0.65)]
 transition-all
 duration-700
 "
-                                  style={{
-                                    width: `${width}%`,
-                                  }}
-                                />
-                              </div>
-                            </div>
+                                      style={{
+                                        width: `${item.percentage}%`,
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                              )
+                            }
                           )
-                        })}
+                        })()}
                       </div>
                     </div>
                   </>
