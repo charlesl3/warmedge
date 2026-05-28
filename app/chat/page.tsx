@@ -2681,7 +2681,7 @@ hover:bg-white/80
                           return Object.entries(focusStats).map(
                             ([label, item]: any) => {
                               return (
-                                <div key={label}>
+                                <div key={label} className="group relative">
                                   <div className="flex justify-between mb-2">
                                     <div className="text-slate-700 font-medium">
                                       {label}
@@ -2694,14 +2694,19 @@ hover:bg-white/80
 
                                   <div
                                     className="
+relative
+group
+
 h-4
 rounded-full
 bg-slate-100/80
-overflow-hidden
+overflow-visible
 "
                                   >
                                     <div
                                       className="
+relative
+
 h-full
 rounded-full
 
@@ -2713,11 +2718,59 @@ shadow-[0_0_20px_rgba(96,165,250,0.65)]
 
 transition-all
 duration-700
+
+group-hover:brightness-110
 "
                                       style={{
                                         width: `${item.percentage}%`,
                                       }}
-                                    />
+                                    >
+                                      <div
+                                        className="
+absolute
+
+left-1/2
+-top-12
+
+-translate-x-1/2
+
+px-3 py-1.5
+
+rounded-xl
+
+text-xs
+font-semibold
+text-slate-800
+
+bg-[linear-gradient(
+135deg,
+rgba(255,255,255,0.96),
+rgba(239,246,255,0.96)
+)]
+
+backdrop-blur-xl
+
+border border-white/40
+
+shadow-[0_12px_35px_rgba(59,130,246,0.18)]
+
+opacity-0
+group-hover:opacity-100
+
+translate-y-1
+group-hover:translate-y-0
+
+transition-all
+duration-200
+
+pointer-events-none
+whitespace-nowrap
+z-40
+"
+                                      >
+                                        {item.percentage}%
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
                               )
