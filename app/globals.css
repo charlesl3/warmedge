@@ -67,25 +67,38 @@ button:disabled {
 }
 
 .warm-calendar .react-calendar__tile--active {
+  position: relative !important;
+
   background: linear-gradient(
     135deg,
-    rgba(99, 102, 241, 0.95),
-    rgba(59, 130, 246, 0.92)
+    rgba(99, 102, 241, 0.98),
+    rgba(59, 130, 246, 0.95)
   ) !important;
 
   color: white !important;
 
   border-radius: 16px;
 
+  border: 3px solid rgba(255, 255, 255, 0.96) !important;
+
+  outline: 3px solid rgba(59, 130, 246, 0.95) !important;
+
+  outline-offset: -3px;
+
   box-shadow:
-    0 14px 40px rgba(99, 102, 241, 0.28),
-    0 0 0 2px rgba(255, 255, 255, 0.82);
+    0 0 0 4px rgba(59, 130, 246, 0.18),
+    0 18px 40px rgba(59, 130, 246, 0.34) !important;
 
-  transform: scale(1.04);
+  transform: scale(1.08);
 
-  transition: all 0.22s ease;
+  z-index: 20;
+
+  transition: all 0.18s ease;
 }
 
+.warm-calendar .react-calendar__tile--active abbr {
+  font-weight: 700;
+}
 .warm-calendar .react-calendar__tile:enabled:hover {
   background: linear-gradient(
     135deg,
