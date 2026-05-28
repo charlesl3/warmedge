@@ -1779,19 +1779,35 @@ shadow-inner
 "
                             >
                               <div
-                                className="
+                                className={`
 h-full
 
 rounded-full
 
-bg-gradient-to-r
-from-blue-500
-to-indigo-600
-
 shadow-sm
 
 transition-all duration-700
-"
+
+${
+  bladeTracker.hours_since_sharpening >= bladeTracker.threshold_hours
+    ? `
+bg-gradient-to-r
+from-red-500
+to-rose-600
+`
+    : bladeTracker.hours_since_sharpening >= bladeTracker.threshold_hours * 0.8
+      ? `
+bg-gradient-to-r
+from-amber-400
+to-orange-500
+`
+      : `
+bg-gradient-to-r
+from-blue-500
+to-indigo-600
+`
+}
+`}
                                 style={{
                                   width: `${Math.max(
                                     Math.min(
@@ -1809,6 +1825,38 @@ transition-all duration-700
                             </div>
 
                             <div className="mt-1 text-xs text-slate-400">
+                              {bladeTracker.hours_since_sharpening >=
+                                bladeTracker.threshold_hours && (
+                                <div
+                                  className="
+mt-2
+
+text-xs font-medium
+
+text-rose-600
+
+animate-pulse
+"
+                                >
+                                  Blade sharpening overdue
+                                </div>
+                              )}
+                              {bladeTracker.hours_since_sharpening >=
+                                bladeTracker.threshold_hours * 0.8 &&
+                                bladeTracker.hours_since_sharpening <
+                                  bladeTracker.threshold_hours && (
+                                  <div
+                                    className="
+mt-2
+
+text-xs font-medium
+
+text-amber-600
+"
+                                  >
+                                    Approaching sharpening threshold
+                                  </div>
+                                )}
                               {Math.round(
                                 (bladeTracker.hours_since_sharpening /
                                   bladeTracker.threshold_hours) *
