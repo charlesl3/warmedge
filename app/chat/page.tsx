@@ -2442,6 +2442,40 @@ text-slate-700
                                   >
                                     Lesson
                                   </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      togglePracticeFocus('For Fun')
+                                    }
+                                    className={`
+${pillBtn}
+px-4 py-2.5 text-sm font-medium
+hover:-translate-y-[1px]
+transition-all duration-200
+${
+  (editingSessionDate === selectedDate
+    ? editingPracticeFocus
+    : practiceFocus
+  ).includes('For Fun')
+    ? `
+bg-[linear-gradient(135deg,#60a5fa,#6366f1)]
+text-white
+border-sky-300
+
+shadow-[0_12px_35px_rgba(59,130,246,0.32)]
+
+scale-[1.03]
+`
+    : `
+bg-white/40
+text-slate-700
+`
+}
+`}
+                                  >
+                                    For Fun
+                                  </button>
                                 </div>
                               </div>
                             </div>
