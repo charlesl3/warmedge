@@ -2680,7 +2680,7 @@ shadow-[0_20px_60px_rgba(15,23,42,0.06)]
                       <div className="flex items-center justify-between mb-6">
                         <div>
                           <div className="text-xl font-semibold text-slate-800">
-                            Focus Distribution
+                            Focuses
                           </div>
                         </div>
 
