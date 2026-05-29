@@ -3874,9 +3874,38 @@ shadow-[0_12px_30px_rgba(59,130,246,0.25)]
                             </div>
                           </div>
                         ) : (
-                          <button
-                            onClick={() => setQuickSkateOpen(true)}
-                            className="
+                          <div className="relative">
+                            {/* glow layer */}
+
+                            <div
+                              className="
+absolute
+inset-0
+
+rounded-full
+
+bg-gradient-to-r
+from-blue-400
+via-indigo-400
+to-violet-400
+
+blur-2xl
+
+opacity-80
+
+scale-[1.35]
+
+animate-pulse
+"
+                            />
+
+                            {/* button */}
+
+                            <button
+                              onClick={() => setQuickSkateOpen(true)}
+                              className="
+relative
+
 px-5
 py-3
 
@@ -3888,16 +3917,22 @@ bg-gradient-to-r
 from-blue-500
 to-indigo-500
 
-shadow-
-[0_0_22px_rgba(59,130,246,0.45),
-0_0_55px_rgba(99,102,241,0.35),
-0_18px_45px_rgba(59,130,246,0.28)]
+border
+border-white/20
+
+shadow-[0_20px_60px_rgba(59,130,246,0.35)]
 
 backdrop-blur-xl
+
+hover:scale-[1.03]
+
+transition-all
+duration-300
 "
-                          >
-                            Quick Skate Goal
-                          </button>
+                            >
+                              Quick Skate Goal
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>
