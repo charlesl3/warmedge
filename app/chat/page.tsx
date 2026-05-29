@@ -3085,7 +3085,7 @@ shadow-[0_20px_60px_rgba(15,23,42,0.06)]
               <div className="flex items-center justify-between gap-4 mb-5">
                 <div>
                   <div className="text-2xl font-semibold text-slate-800">
-                    Archetype
+                    Archetypes
                   </div>
                 </div>
 
