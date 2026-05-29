@@ -2849,10 +2849,8 @@ shadow-[0_20px_60px_rgba(15,23,42,0.06)]
 
                       <div className="footprint-tooltip">
                         {day.active
-                          ? `${sessionHoursByDate[day.date] || 0} hrs`
-                          : 'No session'}
-                        <br />
-                        {day.date.slice(5)}
+                          ? `${sessionHoursByDate[day.date] || 0} hrs · ${day.date.slice(5)}`
+                          : `0 hrs · ${day.date.slice(5)}`}
                       </div>
                     </div>
                   ))}

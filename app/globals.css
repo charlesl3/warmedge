@@ -373,7 +373,7 @@ body::before {
   z-index: 20;
 }
 
-.footprint-grid {
+/* .footprint-grid {
   display: grid;
 
   grid-auto-flow: column;
@@ -384,8 +384,31 @@ body::before {
 
   overflow-x: auto;
 
-  padding: 6px 0;
-  padding-top: 40px;
+  padding: 0;
+} */
+
+/* Locate your .footprint-grid rule and replace its layout properties with this: */
+
+.footprint-grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(7, 1fr);
+  gap: 4px;
+
+  /* Layout constraints */
+  overflow-x: auto;
+  overflow-y: visible; /* Keeps tooltips visible vertically */
+
+  /* Symmetrical padding:
+     - 34px on top to give room for the bubble height
+     - 45px on left/right so the first and last columns have plenty of room for centered tooltips 
+     - 12px on bottom for a clean baseline layout */
+  padding: 34px 45px 5px 45px;
+
+  flex-shrink: 0;
+
+  /* Ensures browsers accurately calculate scroll space including the left padding */
+  scroll-padding-left: 45px;
 }
 
 .footprint-cell {
@@ -407,7 +430,7 @@ body::before {
   box-shadow: 0 0 10px rgba(99, 102, 241, 0.18);
 }
 
-.footprint-cell-wrapper {
+/* .footprint-cell-wrapper {
   position: relative;
 }
 
@@ -457,4 +480,60 @@ body::before {
   opacity: 1;
 
   transform: translateX(-50%) translateY(-2px);
+} */
+
+/* Find these classes near the bottom of your globals.css and update them */
+
+.footprint-cell-wrapper {
+  position: relative;
+  display: inline-block; /* Ensures the wrapper matches the exact size of the cell */
+}
+
+.footprint-tooltip {
+  position: absolute;
+  /* Centered perfectly above the cell */
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+
+  /* Theme Matching: Light Glassmorphism */
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+
+  /* Typography matching your slate-700 tokens */
+  color: #334155;
+  padding: 5px 9px;
+  border-radius: 0.75rem; /* Matches modern rounded corners of your UI */
+  font-size: 0.72rem;
+  font-weight: 500;
+  white-space: nowrap;
+
+  /* Interactive properties */
+  pointer-events: none;
+  opacity: 0;
+
+  /* Clean, soft shadow matching design.ts layout depths */
+  box-shadow:
+    0 6px 20px rgba(15, 23, 42, 0.06),
+    0 2px 6px rgba(15, 23, 42, 0.04);
+
+  /* Smooth transform state transitions */
+  transition:
+    opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 50;
+}
+
+/* Smooth float up into place upon hover */
+.footprint-cell-wrapper:hover .footprint-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Trigger the animation flawlessly on hover */
+.footprint-cell-wrapper:hover .footprint-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
