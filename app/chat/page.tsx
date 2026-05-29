@@ -3085,7 +3085,7 @@ shadow-[0_20px_60px_rgba(15,23,42,0.06)]
               <div className="flex items-center justify-between gap-4 mb-5">
                 <div>
                   <div className="text-2xl font-semibold text-slate-800">
-                    Skater Identity
+                    Archetype
                   </div>
                 </div>
 
@@ -3107,7 +3107,7 @@ disabled:opacity-45
 disabled:cursor-not-allowed
 "
                 >
-                  {identityLoading ? 'Discovering...' : 'Discover Identity'}
+                  {identityLoading ? 'Discovering...' : 'Identify Me'}
                 </button>
               </div>
 
@@ -3138,24 +3138,37 @@ p-5
                       <div
                         key={label}
                         className="
-px-6 py-3
+relative
+overflow-hidden
+
+px-5 py-3
 
 rounded-full
 
-bg-gradient-to-r
-from-blue-500
-via-indigo-500
-to-violet-500
+bg-[linear-gradient(
+145deg,
+rgba(255,255,255,0.86),
+rgba(239,246,255,0.74)
+)]
 
-text-white
+backdrop-blur-2xl
+
+border border-white/80
+
+shadow-[0_14px_38px_rgba(59,130,246,0.12)]
+
+text-sm
 font-semibold
+tracking-wide
+text-slate-700
 
-shadow-[0_10px_30px_rgba(59,130,246,0.25)]
+before:absolute
+before:inset-0
+before:pointer-events-none
+before:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.95),transparent_42%)]
 
-border
-border-white/20
-
-hover:scale-[1.03]
+hover:shadow-[0_18px_48px_rgba(59,130,246,0.18)]
+hover:scale-[1.015]
 
 transition-all
 duration-200
@@ -3167,7 +3180,8 @@ duration-200
                   </div>
                 ) : (
                   <div className="text-sm text-slate-500">
-                    Click the button to reveal your skating identity cards.
+                    Click the button to reveal your personalized archetype
+                    cards.
                   </div>
                 )}
               </div>
