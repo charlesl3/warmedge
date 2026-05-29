@@ -133,6 +133,11 @@ export default function ChatPage() {
   const [summaryLoading, setSummaryLoading] = useState(false)
 
   const [skaterIdentityLabels, setSkaterIdentityLabels] = useState<string[]>([])
+  const [quickSkateOpen, setQuickSkateOpen] = useState(false)
+
+  const [quickSkateIdea, setQuickSkateIdea] = useState(' ')
+
+  const [quickSkateLoading, setQuickSkateLoading] = useState(false)
   const [identityLoading, setIdentityLoading] = useState(false)
 
   const createNewChat = (firstMessage: Message) => {
@@ -429,6 +434,38 @@ Please note:
       setSkaterIdentityLabels(['Emerging Skater', 'Future Pattern Finder'])
     } finally {
       setIdentityLoading(false)
+    }
+  }
+
+  const handleQuickSkateIdea = async () => {
+    try {
+      setQuickSkateLoading(true)
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const accessToken = session?.access_token
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_CHAT_API_URL}/quick-skate-idea`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: accessToken ? `Bearer ${accessToken}` : '',
+          },
+        }
+      )
+
+      const data = await res.json()
+
+      if (data.success) {
+        setQuickSkateIdea(data.idea)
+      }
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setQuickSkateLoading(false)
     }
   }
 
@@ -3705,6 +3742,163 @@ before:opacity-70
                               </div>
                             )}
                         </div>
+                      </div>
+                      <div
+                        className={`
+fixed
+bottom-44
+right-6
+
+z-[999]
+
+transition-all
+duration-300
+`}
+                      >
+                        {quickSkateOpen ? (
+                          <div
+                            className="
+w-[290px]
+
+rounded-[28px]
+
+bg-[linear-gradient(
+145deg,
+rgba(255,255,255,0.92),
+rgba(239,246,255,0.88)
+)]
+
+backdrop-blur-[28px]
+
+border
+border-white/70
+
+shadow-[0_25px_70px_rgba(59,130,246,0.18)]
+
+overflow-hidden
+"
+                          >
+                            <div
+                              className="
+px-5
+pt-4
+pb-2
+
+flex
+justify-between
+items-center
+"
+                            >
+                              <div
+                                className="
+text-sm
+font-semibold
+text-slate-700
+"
+                              ></div>
+
+                              <button
+                                onClick={() => setQuickSkateOpen(false)}
+                                className="text-slate-400"
+                              >
+                                ×
+                              </button>
+                            </div>
+
+                            <div
+                              className="
+px-5
+pb-4
+"
+                            >
+                              <div
+                                className="
+text-center
+
+px-3
+pt-2
+pb-4
+"
+                              >
+                                <div
+                                  className="
+text-[11px]
+uppercase
+tracking-[0.18em]
+
+text-indigo-400
+
+mb-3
+"
+                                >
+                                  Today's Skate Goal
+                                </div>
+
+                                <div
+                                  className="
+text-[15px]
+font-medium
+
+leading-relaxed
+
+text-slate-700
+"
+                                >
+                                  {quickSkateIdea}
+                                </div>
+                              </div>
+
+                              <button
+                                onClick={handleQuickSkateIdea}
+                                disabled={quickSkateLoading}
+                                className="
+mt-3
+w-full
+
+rounded-2xl
+
+py-2.5
+
+text-white
+font-medium
+
+bg-gradient-to-r
+from-blue-500
+to-indigo-500
+
+shadow-[0_12px_30px_rgba(59,130,246,0.25)]
+"
+                              >
+                                {quickSkateLoading ? 'Thinking...' : 'New Idea'}
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setQuickSkateOpen(true)}
+                            className="
+px-5
+py-3
+
+rounded-full
+
+text-white
+
+bg-gradient-to-r
+from-blue-500
+to-indigo-500
+
+shadow-
+[0_0_22px_rgba(59,130,246,0.45),
+0_0_55px_rgba(99,102,241,0.35),
+0_18px_45px_rgba(59,130,246,0.28)]
+
+backdrop-blur-xl
+"
+                          >
+                            Quick Skate Goal
+                          </button>
+                        )}
                       </div>
                     </div>
                   )
