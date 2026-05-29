@@ -129,6 +129,9 @@ export default function ChatPage() {
     null
   )
 
+  const [skaterSummary, setSkaterSummary] = useState('')
+  const [summaryLoading, setSummaryLoading] = useState(false)
+
   const createNewChat = (firstMessage: Message) => {
     const id = Date.now().toString()
 
@@ -353,6 +356,41 @@ Please note:
       console.error(err)
     } finally {
       setTrackerLoading(false)
+    }
+  }
+
+  const handleGenerateSkaterSummary = async () => {
+    try {
+      setSummaryLoading(true)
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const accessToken = session?.access_token
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_CHAT_API_URL}/skater-summary`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      )
+
+      const data = await res.json()
+
+      if (data.success) {
+        setSkaterSummary(data.summary)
+      } else {
+        setSkaterSummary('Could not generate summary yet.')
+      }
+    } catch (err) {
+      console.error(err)
+      setSkaterSummary('Something went wrong while generating your summary.')
+    } finally {
+      setSummaryLoading(false)
     }
   }
 
@@ -2681,170 +2719,6 @@ transition-all duration-250
                         )}
                       </div>
                     </div>
-                    {/* <div
-                      className="
-mt-8
-rounded-[32px]
-border border-white/40
-bg-white/55
-backdrop-blur-xl
-p-6
-shadow-[0_20px_60px_rgba(15,23,42,0.06)]
-"
-                    >
-                      <div className="flex items-center justify-between mb-6">
-                        <div>
-                          <div className="text-xl font-semibold text-slate-800">
-                            Focuses
-                          </div>
-                        </div>
-
-                        <div className="flex gap-2">
-                          {['week', 'month', 'year'].map((range) => (
-                            <button
-                              key={range}
-                              onClick={() => setStatsRange(range as any)}
-                              className={`
-px-4 py-2
-rounded-2xl
-text-sm
-transition-all
-
-${
-  statsRange === range
-    ? `
-bg-blue-500
-text-white
-shadow-[0_0_20px_rgba(59,130,246,0.45)]
-`
-    : `
-bg-white/50
-text-slate-600
-hover:bg-white/80
-`
-}
-`}
-                            >
-                              {range === 'week'
-                                ? 'Week'
-                                : range === 'month'
-                                  ? 'Month'
-                                  : 'Year'}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="space-y-5">
-                        {(() => {
-                          const stats =
-                            bladeTracker?.focus_statistics?.[statsRange]
-
-                          const focusStats = stats?.focuses || {}
-
-                          const totalSessions = stats?.total_sessions || 0
-
-                          return Object.entries(focusStats).map(
-                            ([label, item]: any) => {
-                              return (
-                                <div key={label} className="group relative">
-                                  <div className="flex justify-between mb-2">
-                                    <div className="text-slate-700 font-medium">
-                                      {label}
-                                    </div>
-
-                                    <div className="text-slate-500 text-sm">
-                                      {item.count} / {totalSessions} sessions
-                                    </div>
-                                  </div>
-
-                                  <div
-                                    className="
-relative
-group
-
-h-4
-rounded-full
-bg-slate-100/80
-overflow-visible
-"
-                                  >
-                                    <div
-                                      className="
-relative
-
-h-full
-rounded-full
-
-bg-gradient-to-r
-from-blue-400
-to-indigo-500
-
-shadow-[0_0_20px_rgba(96,165,250,0.65)]
-
-transition-all
-duration-700
-
-group-hover:brightness-110
-"
-                                      style={{
-                                        width: `${item.percentage}%`,
-                                      }}
-                                    >
-                                      <div
-                                        className="
-absolute
-
-left-1/2
--top-12
-
--translate-x-1/2
-
-px-3 py-1.5
-
-rounded-xl
-
-text-xs
-font-semibold
-text-slate-800
-
-bg-[linear-gradient(
-135deg,
-rgba(255,255,255,0.96),
-rgba(239,246,255,0.96)
-)]
-
-backdrop-blur-xl
-
-border border-white/40
-
-shadow-[0_12px_35px_rgba(59,130,246,0.18)]
-
-opacity-0
-group-hover:opacity-100
-
-translate-y-1
-group-hover:translate-y-0
-
-transition-all
-duration-200
-
-pointer-events-none
-whitespace-nowrap
-z-40
-"
-                                      >
-                                        {item.percentage}%
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              )
-                            }
-                          )
-                        })()}
-                      </div>
-                    </div> */}
                   </>
                 ) : (
                   <div className="py-16 text-center">
@@ -2915,14 +2789,20 @@ px-4 py-6 md:p-8
 bg-white/20 backdrop-blur-sm
 "
           >
-            <div className="w-full max-w-6xl mx-auto space-y-6">
+            <div className="w-full max-w-6xl mx-auto space-y-16">
               <div
                 className="
+max-w-5xl
+mx-auto
+
 rounded-[32px]
 border border-white/40
 bg-white/55
+
 backdrop-blur-xl
+
 p-6
+
 shadow-[0_20px_60px_rgba(15,23,42,0.06)]
 "
               >
@@ -3013,7 +2893,7 @@ bg-gradient-to-r
 from-blue-400
 to-indigo-500
 
-shadow-[0_0_20px_rgba(96,165,250,0.65)]
+shadow-[0_0_12px_rgba(96,165,250,0.35)]
 
 transition-all
 duration-700
@@ -3077,6 +2957,136 @@ z-40
                     )
                   })()}
                 </div>
+              </div>
+            </div>
+
+            <div
+              className="
+max-w-5xl
+mx-auto
+mt-4
+
+rounded-[32px]
+border border-white/40
+bg-white/55
+
+backdrop-blur-xl
+
+p-6
+
+shadow-[0_20px_60px_rgba(15,23,42,0.06)]
+"
+            >
+              <div className="flex items-center justify-between gap-4 mb-5">
+                <div>
+                  <div className="text-2xl font-semibold text-slate-800">
+                    Skater Summary
+                  </div>
+
+                  <div className="text-sm text-slate-500 mt-1">
+                    One-click reflection based on your sessions, topics, and
+                    practice balance
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleGenerateSkaterSummary}
+                  disabled={summaryLoading}
+                  className="
+px-5 py-2.5
+rounded-2xl
+text-sm font-medium
+text-white
+bg-[linear-gradient(135deg,#60a5fa,#6366f1)]
+shadow-[0_14px_35px_rgba(59,130,246,0.28)]
+hover:shadow-[0_18px_45px_rgba(59,130,246,0.36)]
+hover:scale-[1.015]
+active:scale-[0.985]
+transition-all
+disabled:opacity-45
+disabled:cursor-not-allowed
+"
+                >
+                  {summaryLoading ? 'Summarizing...' : 'Summarize Me'}
+                </button>
+              </div>
+
+              <div
+                className="
+min-h-[180px]
+
+rounded-[28px]
+
+bg-[linear-gradient(
+145deg,
+rgba(255,255,255,0.82),
+rgba(248,250,252,0.72)
+)]
+
+backdrop-blur-xl
+
+border border-white/70
+
+shadow-[
+
+inset_0_1px_0_rgba(255,255,255,0.8),
+
+0_10px_35px_rgba(15,23,42,0.05)
+
+]
+
+p-6
+backdrop-blur-xl
+p-5
+text-slate-700
+leading-7
+shadow-inner
+"
+              >
+                {skaterSummary ? (
+                  <>
+                    <div
+                      className="
+inline-flex
+items-center
+gap-2
+
+mb-4
+
+px-3 py-1.5
+
+rounded-full
+
+bg-blue-50
+
+text-blue-600
+
+text-xs
+font-medium
+"
+                    >
+                      ✨ AI Reflection
+                    </div>
+
+                    <div
+                      className="
+whitespace-pre-wrap
+
+text-[15px]
+leading-8
+
+text-slate-700
+"
+                    >
+                      {skaterSummary}
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-sm text-slate-500">
+                    Click the button to generate a lightweight personal skating
+                    reflection.
+                  </div>
+                )}
               </div>
             </div>
           </div>
