@@ -2980,12 +2980,7 @@ shadow-[0_20px_60px_rgba(15,23,42,0.06)]
               <div className="flex items-center justify-between gap-4 mb-5">
                 <div>
                   <div className="text-2xl font-semibold text-slate-800">
-                    Skater Summary
-                  </div>
-
-                  <div className="text-sm text-slate-500 mt-1">
-                    One-click reflection based on your sessions, topics, and
-                    practice balance
+                    Summary
                   </div>
                 </div>
 
@@ -3083,8 +3078,7 @@ text-slate-700
                   </>
                 ) : (
                   <div className="text-sm text-slate-500">
-                    Click the button to generate a lightweight personal skating
-                    reflection.
+                    Click the button to generate a personal skating reflection.
                   </div>
                 )}
               </div>
