@@ -132,6 +132,9 @@ export default function ChatPage() {
   const [skaterSummary, setSkaterSummary] = useState('')
   const [summaryLoading, setSummaryLoading] = useState(false)
 
+  const [skaterIdentityLabels, setSkaterIdentityLabels] = useState<string[]>([])
+  const [identityLoading, setIdentityLoading] = useState(false)
+
   const createNewChat = (firstMessage: Message) => {
     const id = Date.now().toString()
 
@@ -391,6 +394,41 @@ Please note:
       setSkaterSummary('Something went wrong while generating your summary.')
     } finally {
       setSummaryLoading(false)
+    }
+  }
+
+  const handleGenerateSkaterIdentity = async () => {
+    try {
+      setIdentityLoading(true)
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const accessToken = session?.access_token
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_CHAT_API_URL}/skater-identity`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      )
+
+      const data = await res.json()
+
+      if (data.success && Array.isArray(data.labels)) {
+        setSkaterIdentityLabels(data.labels)
+      } else {
+        setSkaterIdentityLabels(['Emerging Skater', 'Curious Observer'])
+      }
+    } catch (err) {
+      console.error(err)
+      setSkaterIdentityLabels(['Emerging Skater', 'Future Pattern Finder'])
+    } finally {
+      setIdentityLoading(false)
     }
   }
 
@@ -3024,6 +3062,114 @@ z-40
                     )
                   })()}
                 </div>
+              </div>
+            </div>
+
+            <div
+              className="
+max-w-5xl
+mx-auto
+mt-4
+
+rounded-[32px]
+border border-white/40
+bg-white/55
+
+backdrop-blur-xl
+
+p-6
+
+shadow-[0_20px_60px_rgba(15,23,42,0.06)]
+"
+            >
+              <div className="flex items-center justify-between gap-4 mb-5">
+                <div>
+                  <div className="text-2xl font-semibold text-slate-800">
+                    Skater Identity
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleGenerateSkaterIdentity}
+                  disabled={identityLoading}
+                  className="
+px-5 py-2.5
+rounded-2xl
+text-sm font-medium
+text-white
+bg-[linear-gradient(135deg,#60a5fa,#6366f1)]
+shadow-[0_14px_35px_rgba(59,130,246,0.28)]
+hover:shadow-[0_18px_45px_rgba(59,130,246,0.36)]
+hover:scale-[1.015]
+active:scale-[0.985]
+transition-all
+disabled:opacity-45
+disabled:cursor-not-allowed
+"
+                >
+                  {identityLoading ? 'Discovering...' : 'Discover Identity'}
+                </button>
+              </div>
+
+              <div
+                className="
+min-h-[72px]
+
+rounded-[28px]
+
+bg-[linear-gradient(
+145deg,
+rgba(255,255,255,0.82),
+rgba(248,250,252,0.72)
+)]
+
+backdrop-blur-xl
+
+border border-white/70
+
+shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_10px_35px_rgba(15,23,42,0.05)]
+
+p-5
+"
+              >
+                {skaterIdentityLabels.length > 0 ? (
+                  <div className="flex flex-wrap gap-3">
+                    {skaterIdentityLabels.map((label) => (
+                      <div
+                        key={label}
+                        className="
+px-6 py-3
+
+rounded-full
+
+bg-gradient-to-r
+from-blue-500
+via-indigo-500
+to-violet-500
+
+text-white
+font-semibold
+
+shadow-[0_10px_30px_rgba(59,130,246,0.25)]
+
+border
+border-white/20
+
+hover:scale-[1.03]
+
+transition-all
+duration-200
+"
+                      >
+                        <span className="relative z-10">{label}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-sm text-slate-500">
+                    Click the button to reveal your skating identity cards.
+                  </div>
+                )}
               </div>
             </div>
 
