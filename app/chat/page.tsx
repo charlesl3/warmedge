@@ -107,7 +107,9 @@ export default function ChatPage() {
   const [statsRange, setStatsRange] = useState<'week' | 'month' | 'year'>(
     'year'
   )
-  const [activeView, setActiveView] = useState<'chat' | 'blade_tracker'>('chat')
+  const [activeView, setActiveView] = useState<
+    'chat' | 'blade_tracker' | 'skater_summary'
+  >('chat')
   const [reloading, setReloading] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [isTablet, setIsTablet] = useState(false)
@@ -1351,6 +1353,19 @@ flex flex-col
             className={navBtn}
           >
             Skating Tracker
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveView('skater_summary')
+
+              if (isMobile) {
+                setSidebarOpen(false)
+              }
+            }}
+            className={navBtn}
+          >
+            Skater Summary
           </button>
 
           <button
@@ -2666,7 +2681,7 @@ transition-all duration-250
                         )}
                       </div>
                     </div>
-                    <div
+                    {/* <div
                       className="
 mt-8
 rounded-[32px]
@@ -2829,7 +2844,7 @@ z-40
                           )
                         })()}
                       </div>
-                    </div>
+                    </div> */}
                   </>
                 ) : (
                   <div className="py-16 text-center">
@@ -2889,6 +2904,183 @@ transition-colors duration-200
                     </div>
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+        ) : activeView === 'skater_summary' ? (
+          <div
+            className="
+flex-1 overflow-y-auto
+px-4 py-6 md:p-8
+bg-white/20 backdrop-blur-sm
+"
+          >
+            <div className="w-full max-w-6xl mx-auto space-y-6">
+              <div
+                className="
+rounded-[32px]
+border border-white/40
+bg-white/55
+backdrop-blur-xl
+p-6
+shadow-[0_20px_60px_rgba(15,23,42,0.06)]
+"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <div className="text-2xl font-semibold text-slate-800">
+                      Skater Summary
+                    </div>
+
+                    <div className="text-sm text-slate-500 mt-1">
+                      Your skating habits and focus distribution
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    {['week', 'month', 'year'].map((range) => (
+                      <button
+                        key={range}
+                        onClick={() => setStatsRange(range as any)}
+                        className={`
+px-4 py-2
+rounded-2xl
+text-sm
+transition-all
+
+${
+  statsRange === range
+    ? `
+bg-blue-500
+text-white
+shadow-[0_0_20px_rgba(59,130,246,0.45)]
+`
+    : `
+bg-white/50
+text-slate-600
+hover:bg-white/80
+`
+}
+`}
+                      >
+                        {range === 'week'
+                          ? 'This Week'
+                          : range === 'month'
+                            ? 'This Month'
+                            : 'This Year'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-5">
+                  {(() => {
+                    const stats = bladeTracker?.focus_statistics?.[statsRange]
+
+                    const focusStats = stats?.focuses || {}
+
+                    const totalSessions = stats?.total_sessions || 0
+
+                    return Object.entries(focusStats).map(
+                      ([label, item]: any) => {
+                        return (
+                          <div key={label} className="group relative">
+                            <div className="flex justify-between mb-2">
+                              <div className="text-slate-700 font-medium">
+                                {label}
+                              </div>
+
+                              <div className="text-slate-500 text-sm">
+                                {item.count} / {totalSessions} sessions
+                              </div>
+                            </div>
+
+                            <div
+                              className="
+relative
+group
+
+h-4
+rounded-full
+bg-slate-100/80
+overflow-visible
+"
+                            >
+                              <div
+                                className="
+relative
+
+h-full
+rounded-full
+
+bg-gradient-to-r
+from-blue-400
+to-indigo-500
+
+shadow-[0_0_20px_rgba(96,165,250,0.65)]
+
+transition-all
+duration-700
+
+group-hover:brightness-110
+"
+                                style={{
+                                  width: `${item.percentage}%`,
+                                }}
+                              >
+                                <div
+                                  className="
+absolute
+
+left-1/2
+-top-12
+
+-translate-x-1/2
+
+px-3 py-1.5
+
+rounded-xl
+
+text-xs
+font-semibold
+text-slate-800
+
+bg-[linear-gradient(
+135deg,
+rgba(255,255,255,0.96),
+rgba(239,246,255,0.96)
+)]
+
+backdrop-blur-xl
+
+border border-white/40
+
+shadow-[0_12px_35px_rgba(59,130,246,0.18)]
+
+opacity-0
+group-hover:opacity-100
+
+translate-y-1
+group-hover:translate-y-0
+
+transition-all
+duration-200
+
+pointer-events-none
+whitespace-nowrap
+z-40
+"
+                                >
+                                  {item.percentage}%
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      }
+                    )
+                  })()}
+                </div>
               </div>
             </div>
           </div>
