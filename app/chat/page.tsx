@@ -2933,7 +2933,7 @@ shadow-[0_20px_60px_rgba(15,23,42,0.06)]
                     </div>
 
                     <div className="text-sm text-slate-500 mt-1">
-                      Your skating habits and focus distribution
+                      Your focus distribution
                     </div>
                   </div>
 
@@ -2964,10 +2964,10 @@ hover:bg-white/80
 `}
                       >
                         {range === 'week'
-                          ? 'This Week'
+                          ? 'Week'
                           : range === 'month'
-                            ? 'This Month'
-                            : 'This Year'}
+                            ? 'Month'
+                            : 'Year'}
                       </button>
                     ))}
                   </div>
