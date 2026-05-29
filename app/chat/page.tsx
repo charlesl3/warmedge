@@ -124,6 +124,54 @@ export default function ChatPage() {
   )
 
   const [skaterSummary, setSkaterSummary] = useState('')
+
+  const progressStats = (() => {
+    const sessions = bladeTracker?.sessions || []
+
+    const totalSessions = sessions.length
+
+    const totalHours = sessions.reduce(
+      (sum: number, s: any) => sum + Number(s.hours || 0),
+      0
+    )
+
+    const hasSharpeningDate = Boolean(bladeTracker?.last_sharpened_at)
+
+    const hoursSinceSharpening = Number(
+      bladeTracker?.hours_since_sharpening || 0
+    )
+
+    // Average blade-quality decay model.
+    // This is not exact physics; it is a practical skating estimate.
+    // Score = 100 * exp(-hoursSinceSharpening / 50)
+    const bladeQualityScore = hasSharpeningDate
+      ? Math.max(
+          0,
+          Math.min(100, Math.round(100 * Math.exp(-hoursSinceSharpening / 50)))
+        )
+      : null
+
+    const bladeQualityLabel =
+      bladeQualityScore === null
+        ? 'Not tracked'
+        : bladeQualityScore >= 80
+          ? 'Fresh'
+          : bladeQualityScore >= 60
+            ? 'Good'
+            : bladeQualityScore >= 40
+              ? 'Wearing'
+              : 'Low'
+
+    return {
+      totalSessions,
+      totalHours,
+      hoursSinceSharpening,
+      hasSharpeningDate,
+      bladeQualityScore,
+      bladeQualityLabel,
+    }
+  })()
+
   const [summaryLoading, setSummaryLoading] = useState(false)
 
   const [skaterIdentityLabels, setSkaterIdentityLabels] = useState<string[]>([])
@@ -2874,7 +2922,7 @@ px-4 py-6 md:p-8
 bg-white/20 backdrop-blur-sm
 "
           >
-            <div className="w-full max-w-6xl mx-auto space-y-5">
+            <div className="w-full max-w-6xl mx-auto space-y-4">
               <div
                 className="
 max-w-5xl
@@ -3215,6 +3263,114 @@ duration-200
                     cards.
                   </div>
                 )}
+              </div>
+            </div>
+
+            <div
+              className={`
+    ${glassStrong}
+
+    max-w-5xl
+    mx-auto
+
+    rounded-[32px]
+
+    p-5
+    mt-4
+  `}
+            >
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-[1.6rem] font-semibold text-slate-800">
+                  Progress
+                </h2>
+
+                <div
+                  className="
+      px-4 py-2
+      rounded-full
+      text-xs
+      font-medium
+      text-sky-700
+      bg-sky-50
+      border
+      border-sky-100
+    "
+                >
+                  Journey Snapshot
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="progress-stat-card">
+                  <div className="progress-stat-value">
+                    {progressStats.totalSessions}
+                  </div>
+
+                  <div className="progress-stat-label">Sessions Logged</div>
+                </div>
+
+                <div className="progress-stat-card">
+                  <div className="progress-stat-value">
+                    {progressStats.totalHours.toFixed(1)}
+                  </div>
+
+                  <div className="progress-stat-label">Total Ice Hours</div>
+                </div>
+
+                <div className="progress-stat-card">
+                  <div className="progress-stat-value">
+                    {progressStats.bladeQualityScore === null
+                      ? '—'
+                      : progressStats.bladeQualityScore}
+                  </div>
+
+                  <div className="progress-stat-label">Blade Quality</div>
+
+                  <div className="mt-2 text-[11px] leading-relaxed text-slate-400">
+                    {progressStats.bladeQualityScore === null ? (
+                      <>
+                        <div>Record sharpening date</div>
+                        <div>to estimate blade quality.</div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="font-medium text-sky-500">
+                          {progressStats.bladeQualityLabel}
+                        </div>
+                        <div className="font-mono">
+                          Decay model: 100 × e^(-h/50)
+                        </div>
+
+                        <div>
+                          h = {progressStats.hoursSinceSharpening.toFixed(1)}{' '}
+                          hrs
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div className="progress-stat-card">
+                  <div className="progress-stat-value">
+                    {progressStats.hoursSinceSharpening.toFixed(1)}
+                  </div>
+
+                  <div className="progress-stat-label">
+                    Hours Since Sharpening
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <div className="progress-achievement-card">
+                  <div className="text-sm font-semibold text-slate-700 mb-2">
+                    Next Milestone
+                  </div>
+
+                  <div className="text-slate-600 text-sm">
+                    Reach 30 total skating hours.
+                  </div>
+                </div>
               </div>
             </div>
 
