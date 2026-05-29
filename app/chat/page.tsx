@@ -1235,6 +1235,20 @@ ${assistantAnswer}
     bladeTracker?.sessions?.map((s: any) => s.session_date)
   )
 
+  const footprintDays = []
+
+  for (let i = 364; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+
+    const key = d.toISOString().split('T')[0]
+
+    footprintDays.push({
+      date: key,
+      active: sessionDateSet.has(key),
+    })
+  }
+
   const sessionHoursByDate: Record<string, number> = {}
 
   bladeTracker?.sessions?.forEach((s: any) => {
@@ -1854,7 +1868,9 @@ transition-all duration-200
 "
           >
             <div className="w-full max-w-6xl mx-auto space-y-6">
-              <div className={`${glassStrong} rounded-[2rem] p-6 md:p-8`}>
+              <div
+                className={`${glassStrong} rounded-[2rem] p-6 md:p-8 overflow-visible`}
+              >
                 <div className="mb-5">
                   <h2 className="text-2xl font-semibold text-slate-800">
                     Skating Tracker
@@ -2789,7 +2805,60 @@ px-4 py-6 md:p-8
 bg-white/20 backdrop-blur-sm
 "
           >
-            <div className="w-full max-w-6xl mx-auto space-y-16">
+            <div className="w-full max-w-6xl mx-auto space-y-5">
+              <div
+                className="
+max-w-5xl
+mx-auto
+
+rounded-[32px]
+border border-white/40
+bg-white/55
+
+backdrop-blur-xl
+
+p-6
+
+shadow-[0_20px_60px_rgba(15,23,42,0.06)]
+"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-2xl font-semibold text-slate-800">
+                    Skating Footprint
+                  </h2>
+
+                  <div className="text-sm text-slate-500">Last 365 days</div>
+                </div>
+
+                <div
+                  className="footprint-grid"
+                  style={{ overflowY: 'visible' }}
+                >
+                  {footprintDays.map((day) => (
+                    <div
+                      key={day.date.slice(5)}
+                      className="footprint-cell-wrapper"
+                    >
+                      <div
+                        className={
+                          day.active
+                            ? 'footprint-cell footprint-active'
+                            : 'footprint-cell'
+                        }
+                      />
+
+                      <div className="footprint-tooltip">
+                        {day.active
+                          ? `${sessionHoursByDate[day.date] || 0} hrs`
+                          : 'No session'}
+                        <br />
+                        {day.date.slice(5)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div
                 className="
 max-w-5xl
