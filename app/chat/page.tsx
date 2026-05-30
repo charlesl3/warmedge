@@ -4187,9 +4187,9 @@ fixed inset-0 z-50
 
 flex items-center justify-center
 
-bg-[rgba(15,23,42,0.34)]
+bg-slate-900/12
 
-backdrop-blur-[12px]
+backdrop-blur-[8px]
 
 p-4
 "
@@ -4210,30 +4210,40 @@ pb-8
 
 rounded-[2.4rem]
 
-bg-[linear-gradient(
-145deg,
-rgba(255,255,255,0.97),
-rgba(248,252,255,0.96),
-rgba(224,242,254,0.92)
-)]
+bg-white/80
 
 backdrop-blur-[30px]
 
-border border-white/95
+border border-white/80
 
-shadow-[0_35px_120px_rgba(56,189,248,0.22)]
+shadow-[0_32px_96px_rgba(15,23,42,0.08),0_0_0_1px_rgba(255,255,255,0.5)]
 
 p-6 md:p-8 pb-10
 
 before:absolute
 before:inset-0
 before:pointer-events-none
-before:bg-[radial-gradient(circle_at_18%_10%,rgba(255,255,255,0.98),transparent_30%),radial-gradient(circle_at_90%_0%,rgba(125,211,252,0.18),transparent_36%)]
+before:bg-[
 
-after:absolute
-after:inset-0
-after:pointer-events-none
-after:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),transparent)]
+radial-gradient(
+circle_at_15%_10%,
+rgba(255,255,255,0.6),
+transparent_40%
+),
+
+radial-gradient(
+circle_at_85%_0%,
+rgba(56,189,248,0.12),
+transparent_35%
+),
+
+radial-gradient(
+circle_at_50%_100%,
+rgba(56,189,248,0.06),
+transparent_40%
+)
+
+]
 "
           >
             <div className="relative z-10 flex items-center justify-between mb-6">
