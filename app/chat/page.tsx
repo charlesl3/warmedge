@@ -162,9 +162,67 @@ export default function ChatPage() {
               ? 'Wearing'
               : 'Low'
 
+    let nextMilestone = 10
+
+    if (totalHours >= 10) nextMilestone = 25
+    if (totalHours >= 25) nextMilestone = 50
+    if (totalHours >= 50) nextMilestone = 100
+    if (totalHours >= 100) nextMilestone = 250
+    if (totalHours >= 250) nextMilestone = 500
+    if (totalHours >= 500) nextMilestone = 1000
+
+    const weekCounts: Record<string, number> = {}
+
+    sessions.forEach((s: any) => {
+      const d = new Date(s.session_date)
+
+      const monday = new Date(d)
+
+      monday.setHours(12, 0, 0, 0)
+
+      monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7))
+
+      const weekKey = `${monday.getFullYear()}-${
+        monday.getMonth() + 1
+      }-${monday.getDate()}`
+
+      weekCounts[weekKey] = (weekCounts[weekKey] || 0) + 1
+    })
+
+    // current week Monday
+    const currentMonday = new Date()
+
+    currentMonday.setHours(0, 0, 0, 0)
+
+    currentMonday.setDate(
+      currentMonday.getDate() - ((currentMonday.getDay() + 6) % 7)
+    )
+
+    const currentWeekKey = `${currentMonday.getFullYear()}-${
+      currentMonday.getMonth() + 1
+    }-${currentMonday.getDate()}`
+
+    // exclude current unfinished week
+    const weeks = Object.keys(weekCounts)
+      .filter((week) => week !== currentWeekKey)
+      .sort()
+      .reverse()
+
+    let weeklyStreak = 0
+
+    for (const week of weeks) {
+      if (weekCounts[week] >= 3) {
+        weeklyStreak++
+      } else {
+        break
+      }
+    }
+
     return {
+      weeklyStreak,
       totalSessions,
       totalHours,
+      nextMilestone,
       hoursSinceSharpening,
       hasSharpeningDate,
       bladeQualityScore,
@@ -3296,7 +3354,7 @@ duration-200
       border-sky-100
     "
                 >
-                  Journey Snapshot
+                  🔥 {progressStats.weeklyStreak} Week Streak
                 </div>
               </div>
 
@@ -3363,12 +3421,69 @@ duration-200
 
               <div className="mt-6">
                 <div className="progress-achievement-card">
-                  <div className="text-sm font-semibold text-slate-700 mb-2">
-                    Next Milestone
+                  <div className="flex items-center gap-2">
+                    <span>🎯</span>
+
+                    <span className="font-semibold text-slate-800">
+                      Next Milestone
+                    </span>
                   </div>
 
-                  <div className="text-slate-600 text-sm">
-                    Reach 30 total skating hours.
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between">
+                      <div className="text-2xl font-bold text-slate-800">
+                        {progressStats.totalHours.toFixed(1)} /
+                        {progressStats.nextMilestone} hrs
+                      </div>
+
+                      <div className="text-sm text-slate-500">
+                        {Math.round(
+                          (progressStats.totalHours /
+                            progressStats.nextMilestone) *
+                            100
+                        )}
+                        %
+                      </div>
+                    </div>
+
+                    <div
+                      className="
+mt-3
+h-3
+rounded-full
+bg-slate-100
+overflow-hidden
+"
+                    >
+                      <div
+                        className="
+h-full
+rounded-full
+
+bg-gradient-to-r
+from-sky-500
+to-indigo-500
+
+transition-all
+duration-700
+"
+                        style={{
+                          width: `${Math.min(
+                            100,
+                            (progressStats.totalHours /
+                              progressStats.nextMilestone) *
+                              100
+                          )}%`,
+                        }}
+                      />
+                    </div>
+
+                    <div className="mt-3 text-sm text-slate-500">
+                      {(
+                        progressStats.nextMilestone - progressStats.totalHours
+                      ).toFixed(1)}
+                      hrs remaining
+                    </div>
                   </div>
                 </div>
               </div>
