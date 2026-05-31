@@ -4091,7 +4091,7 @@ text-[11px]
 uppercase
 tracking-[0.18em]
 
-text-indigo-400
+text-indigo-600
 
 mb-3
 "
