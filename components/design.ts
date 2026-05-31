@@ -24,6 +24,19 @@ export const glass =
 export const glassStrong =
   'bg-white/78 backdrop-blur-2xl border border-white/80 shadow-[0_28px_90px_rgba(15,23,42,0.13)]'
 
+export const portalCard = `
+bg-white/78
+backdrop-blur-2xl
+
+border border-white/80
+
+rounded-[28px]
+
+shadow-[0_24px_80px_rgba(15,23,42,0.10)]
+
+p-6
+`
+
 export const darkBubble =
   'bg-[linear-gradient(135deg,rgba(99,102,241,0.78),rgba(168,85,247,0.72))] text-white border border-white/20 backdrop-blur-[24px] shadow-[0_20px_60px_rgba(99,102,241,0.18)]'
 

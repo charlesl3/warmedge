@@ -11,6 +11,7 @@ import {
   appShell,
   glass,
   glassStrong,
+  portalCard,
   darkBubble,
   softBubble,
   iconBtn,
@@ -102,8 +103,86 @@ export default function ChatPage() {
     'year'
   )
   const [activeView, setActiveView] = useState<
-    'chat' | 'blade_tracker' | 'skater_summary'
+    | 'chat'
+    | 'blade_tracker'
+    | 'skater_summary'
+    | 'coach_portal'
+    | 'student_profile'
   >('chat')
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(
+    null
+  )
+
+  const coachStudents = [
+    {
+      id: '1',
+      name: 'Charles Liu',
+      level: 'Adult Gold',
+      nextLesson: 'Tue 10:00',
+    },
+    {
+      id: '2',
+      name: 'Ashley',
+      level: 'Adult Bronze',
+      nextLesson: 'Today 11:00',
+    },
+    {
+      id: '3',
+      name: 'Alex Yin',
+      level: 'Juvenile',
+      nextLesson: 'Thu 14:00',
+    },
+    {
+      id: '4',
+      name: 'XiaoQi',
+      level: 'Adult Silver',
+      nextLesson: 'Fri 09:00',
+    },
+  ]
+
+  const selectedStudent =
+    coachStudents.find((s) => s.id === selectedStudentId) || null
+  const [expandedLessonId, setExpandedLessonId] = useState<string | null>(null)
+
+  const [coachLessons, setCoachLessons] = useState([
+    {
+      id: 'l1',
+      studentId: '1',
+      date: '2026-06-05',
+      time: '10:00',
+      note: 'Worked on loop edge, entry control, and outside edge quality.',
+    },
+
+    {
+      id: 'l2',
+      studentId: '1',
+      date: '2026-06-03',
+      time: '09:00',
+      note: 'Power pulls and posture alignment.',
+    },
+
+    {
+      id: 'l3',
+      studentId: '1',
+      date: '2026-05-28',
+      time: '11:00',
+      note: 'Forward crossover speed generation.',
+    },
+  ])
+
+  const studentLessons = coachLessons
+    .filter((lesson) => lesson.studentId === selectedStudentId)
+    .sort(
+      (a, b) =>
+        new Date(`${b.date} ${b.time}`).getTime() -
+        new Date(`${a.date} ${a.time}`).getTime()
+    )
+  useEffect(() => {
+    if (studentLessons.length > 0 && !expandedLessonId) {
+      setExpandedLessonId(studentLessons[0].id)
+    }
+  }, [selectedStudentId])
+
   const [reloading, setReloading] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [isTablet, setIsTablet] = useState(false)
@@ -1593,6 +1672,19 @@ flex flex-col
             className={navBtn}
           >
             Skater Summary
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveView('coach_portal')
+
+              if (isMobile) {
+                setSidebarOpen(false)
+              }
+            }}
+            className={navBtn}
+          >
+            Coach Portal (coming soon)
           </button>
 
           <button
@@ -3610,6 +3702,293 @@ text-slate-700
                     Click the button to generate a personal skating reflection.
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+        ) : activeView === 'coach_portal' ? (
+          <div
+            className="
+flex-1 overflow-y-auto
+px-4 py-6 md:p-8
+bg-white/20 backdrop-blur-sm
+"
+          >
+            <div className="w-full max-w-6xl mx-auto">
+              {/* HEADER */}
+
+              <div
+                className="
+rounded-[32px]
+border border-white/40
+bg-white/55
+backdrop-blur-xl
+p-6
+shadow-[0_20px_60px_rgba(15,23,42,0.06)]
+mb-6
+"
+              >
+                <h2 className="text-2xl font-semibold text-slate-800">
+                  Coach Portal
+                </h2>
+              </div>
+
+              {/* SCHEDULE ROW */}
+
+              <div className="grid md:grid-cols-2 gap-6 mb-8">
+                <div
+                  className="
+rounded-[32px]
+border border-white/40
+bg-white/55
+backdrop-blur-xl
+p-6
+shadow-[0_20px_60px_rgba(15,23,42,0.06)]
+"
+                >
+                  <div className="flex justify-between mb-5">
+                    <div className="text-xl font-semibold text-slate-800">
+                      Today's Schedule
+                    </div>
+
+                    <button className={`${pillBtn} px-4`}>+ Lesson</button>
+                  </div>
+
+                  <div className="space-y-3 text-slate-600">
+                    <div>10:00 Charles</div>
+                    <div>11:00 Ashley</div>
+                    <div>14:00 Alex</div>
+                  </div>
+                </div>
+
+                <div
+                  className="
+rounded-[32px]
+border border-white/40
+bg-white/55
+backdrop-blur-xl
+p-6
+shadow-[0_20px_60px_rgba(15,23,42,0.06)]
+"
+                >
+                  <div className="text-xl font-semibold text-slate-800 mb-5">
+                    This Week Schedule
+                  </div>
+
+                  <div className="space-y-3 text-slate-600">
+                    <div>Mon ••</div>
+                    <div>Tue •</div>
+                    <div>Wed •••</div>
+                    <div>Thu -</div>
+                    <div>Fri ••</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* STUDENTS */}
+
+              <div className="flex justify-between mb-5">
+                <div className="text-xl font-semibold text-slate-800">
+                  Students
+                </div>
+
+                <button className={`${pillBtn} px-4`}>+ Student</button>
+              </div>
+
+              <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {coachStudents.map((student) => (
+                  <button
+                    key={student.id}
+                    onClick={() => {
+                      setSelectedStudentId(student.id)
+                      setActiveView('student_profile')
+                    }}
+                    className="
+text-left
+
+rounded-[28px]
+border border-white/40
+bg-white/55
+
+backdrop-blur-xl
+
+p-6
+
+shadow-[0_20px_60px_rgba(15,23,42,0.06)]
+
+hover:scale-[1.01]
+hover:bg-white/75
+
+transition-all
+"
+                  >
+                    <div className="font-semibold text-lg">{student.name}</div>
+
+                    <div className="text-slate-500 mt-2">{student.level}</div>
+
+                    <div className="text-slate-600 mt-4">
+                      Next: {student.nextLesson}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : activeView === 'student_profile' ? (
+          <div
+            className="
+flex-1 overflow-y-auto
+px-4 py-6 md:p-8
+bg-white/20 backdrop-blur-sm
+"
+          >
+            <div className="w-full max-w-6xl mx-auto">
+              {/* STICKY COACH TOOLBAR */}
+
+              <div
+                className="
+sticky
+top-4
+z-50
+
+flex items-center
+justify-between
+
+mb-6
+"
+              >
+                <button
+                  onClick={() => setActiveView('coach_portal')}
+                  className={`${pillBtn} px-5 py-3`}
+                >
+                  ← Back
+                </button>
+
+                <button className={`${pillBtn} px-5 py-3`}>+ Add Lesson</button>
+              </div>
+
+              {/* STUDENT CARD */}
+
+              <div
+                className="
+rounded-[32px]
+border border-white/40
+bg-white/55
+backdrop-blur-xl
+p-6
+mb-6
+"
+              >
+                <div className="mb-4">
+                  {/* <button
+                    onClick={() => setActiveView('coach_portal')}
+                    className={`${pillBtn} px-5 py-3`}
+                  >
+                    ← Back
+                  </button> */}
+                </div>
+
+                <div className="text-3xl font-bold text-slate-800">
+                  {selectedStudent?.name}
+                </div>
+
+                <div className="text-slate-500 mt-2">
+                  {selectedStudent?.level}
+                </div>
+              </div>
+
+              <div className="space-y-8">
+                <div>
+                  {/* <button
+                    className={`${pillBtn} px-6 py-3 text-sm font-medium`}
+                  >
+                    + Add Lesson
+                  </button> */}
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-500 mb-3">
+                    Upcoming Lessons
+                  </h3>
+
+                  <div className="space-y-2">
+                    <div className={portalCard}>Fri Jun 5 • 10:00</div>
+
+                    <div className={portalCard}>Tue Jun 9 • 09:00</div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-500 mb-4">
+                    Lesson History
+                  </h3>
+
+                  <div className="space-y-3">
+                    {studentLessons.map((lesson) => {
+                      const expanded = expandedLessonId === lesson.id
+
+                      return (
+                        <div
+                          key={lesson.id}
+                          className={`
+${portalCard}
+${expanded ? 'p-5' : 'p-3'}
+`}
+                        >
+                          <button
+                            onClick={() =>
+                              setExpandedLessonId(expanded ? null : lesson.id)
+                            }
+                            className="
+w-full
+flex
+items-center
+justify-between
+text-left
+"
+                          >
+                            <div className="flex items-center gap-3">
+                              <span className="font-semibold">
+                                {lesson.date}
+                              </span>
+
+                              <span className="text-slate-400">•</span>
+
+                              <span className="text-slate-500">
+                                {lesson.time}
+                              </span>
+                            </div>
+
+                            <div>{expanded ? '▼' : '▶'}</div>
+                          </button>
+
+                          <div
+                            className={`
+overflow-hidden
+transition-all
+duration-300
+ease-in-out
+
+${expanded ? 'max-h-40 opacity-100 mt-4 pt-4' : 'max-h-0 opacity-0'}
+`}
+                          >
+                            <div
+                              className="
+border-t
+border-slate-200
+text-sm
+text-slate-600
+leading-relaxed
+pt-4
+"
+                            >
+                              {lesson.note}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
