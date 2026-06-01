@@ -4224,10 +4224,25 @@ mb-6
                   </button>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-4 relative z-[300] overflow-visible">
+                <div
+                  className="
+grid
+md:grid-cols-3
+gap-4
+
+relative
+
+overflow-visible
+
+z-[300]
+
+pb-[260px]
+md:pb-0
+"
+                >
                   {/* MOVES */}
 
-                  <div className="relative z-[400]">
+                  <div className="relative z-[400] overflow-visible">
                     <div className="text-xs uppercase tracking-wide text-slate-400 mb-2">
                       Moves
                     </div>
@@ -4245,7 +4260,7 @@ mb-6
 
                   {/* FREESKATE */}
 
-                  <div className="relative z-[400]">
+                  <div className="relative z-[400] overflow-visible">
                     <div className="text-xs uppercase tracking-wide text-slate-400 mb-2">
                       Freeskate
                     </div>
@@ -4263,7 +4278,7 @@ mb-6
 
                   {/* DANCE */}
 
-                  <div className="relative z-[400]">
+                  <div className="relative z-[400] overflow-visible">
                     <div className="text-xs uppercase tracking-wide text-slate-400 mb-2">
                       Dance
                     </div>

@@ -34,7 +34,13 @@ flex items-center justify-between
         <Listbox.Options
           className={`
 absolute left-0 right-0 z-[99999]
-w-full max-h-[220px] overflow-y-auto overflow-x-hidden
+w-full
+
+max-h-[40vh]
+md:max-h-[220px]
+
+overflow-y-auto
+overflow-x-hidden
 rounded-2xl
 bg-white/95 backdrop-blur-2xl
 border border-white/80
