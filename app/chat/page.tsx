@@ -175,6 +175,18 @@ export default function ChatPage() {
     setEditingFreeskateLevel(selectedStudent.freeskate_level || '')
     setEditingDanceLevel(selectedStudent.dance_level || '')
   }, [selectedStudent])
+
+  const previousTrackRef = useRef(editingStudentTrack)
+
+  useEffect(() => {
+    if (previousTrackRef.current === editingStudentTrack) return
+
+    previousTrackRef.current = editingStudentTrack
+
+    setEditingMovesLevel('')
+    setEditingFreeskateLevel('')
+    setEditingDanceLevel('')
+  }, [editingStudentTrack])
   const studentInputClass = `
 w-full
 px-4 py-3
@@ -4148,6 +4160,11 @@ mb-6
 
               <div
                 className="
+relative
+z-[200]
+
+overflow-visible
+
 rounded-[32px]
 border border-white/40
 bg-white/55
@@ -4207,10 +4224,10 @@ mb-6
                   </button>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-4">
+                <div className="grid md:grid-cols-3 gap-4 relative z-[300] overflow-visible">
                   {/* MOVES */}
 
-                  <div>
+                  <div className="relative z-[400]">
                     <div className="text-xs uppercase tracking-wide text-slate-400 mb-2">
                       Moves
                     </div>
@@ -4228,7 +4245,7 @@ mb-6
 
                   {/* FREESKATE */}
 
-                  <div>
+                  <div className="relative z-[400]">
                     <div className="text-xs uppercase tracking-wide text-slate-400 mb-2">
                       Freeskate
                     </div>
@@ -4246,7 +4263,7 @@ mb-6
 
                   {/* DANCE */}
 
-                  <div>
+                  <div className="relative z-[400]">
                     <div className="text-xs uppercase tracking-wide text-slate-400 mb-2">
                       Dance
                     </div>
@@ -4264,7 +4281,7 @@ mb-6
                 </div>
               </div>
 
-              <div className="space-y-8">
+              <div className="space-y-8 relative z-0">
                 <div>
                   {/* <button
                     className={`${pillBtn} px-6 py-3 text-sm font-medium`}
@@ -5475,7 +5492,10 @@ px-4
         >
           <div
             className="
+relative z-[210]
 w-full max-w-md
+max-h-[88vh]
+overflow-visible
 rounded-[32px]
 border border-white/70
 bg-white/80
@@ -5511,7 +5531,7 @@ transition-all
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 relative z-[220]">
               <div>
                 <label className="block text-sm font-medium text-slate-600 mb-2">
                   Student name
@@ -5576,6 +5596,7 @@ ${
                   value={movesLevel}
                   onChange={setMovesLevel}
                   options={CURRENT_LEVELS}
+                  direction="up"
                 />
               </div>
 
@@ -5588,6 +5609,7 @@ ${
                   value={freeskateLevel}
                   onChange={setFreeskateLevel}
                   options={CURRENT_LEVELS}
+                  direction="up"
                 />
               </div>
 
@@ -5600,6 +5622,7 @@ ${
                   value={danceLevel}
                   onChange={setDanceLevel}
                   options={CURRENT_LEVELS}
+                  direction="up"
                 />
               </div>
             </div>
