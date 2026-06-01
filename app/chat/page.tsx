@@ -4236,7 +4236,6 @@ overflow-visible
 
 z-[300]
 
-pb-[260px]
 md:pb-0
 "
                 >
