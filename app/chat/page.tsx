@@ -7,6 +7,8 @@ import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
 import AssistantAvatar from '../../components/AssistantAvatar'
 import SkaterLevelSelector from '../../components/SkaterLevelSelector'
+import GlassSelect from '../../components/GlassSelect'
+
 import {
   appShell,
   glass,
@@ -113,35 +115,85 @@ export default function ChatPage() {
     null
   )
 
-  const coachStudents = [
-    {
-      id: '1',
-      name: 'Charles Liu',
-      level: 'Adult Gold',
-      nextLesson: 'Tue 10:00',
-    },
-    {
-      id: '2',
-      name: 'Ashley',
-      level: 'Adult Bronze',
-      nextLesson: 'Today 11:00',
-    },
-    {
-      id: '3',
-      name: 'Alex Yin',
-      level: 'Juvenile',
-      nextLesson: 'Thu 14:00',
-    },
-    {
-      id: '4',
-      name: 'XiaoQi',
-      level: 'Adult Silver',
-      nextLesson: 'Fri 09:00',
-    },
+  const [coachStudents, setCoachStudents] = useState<any[]>([])
+  const [addStudentOpen, setAddStudentOpen] = useState(false)
+  const [deleteStudentModalOpen, setDeleteStudentModalOpen] = useState(false)
+
+  const [studentPendingDelete, setStudentPendingDelete] = useState<any>(null)
+  const [newStudentName, setNewStudentName] = useState('')
+  const [newStudentLevel, setNewStudentLevel] = useState('')
+
+  const [movesLevel, setMovesLevel] = useState('')
+  const [freeskateLevel, setFreeskateLevel] = useState('')
+  const [danceLevel, setDanceLevel] = useState('')
+  const [studentTrack, setStudentTrack] = useState<'adult' | 'regular'>('adult')
+  const ADULT_LEVELS = [
+    'Not specified',
+    'Pre-Bronze',
+    'Bronze',
+    'Silver',
+    'Gold',
+    'Intermediate',
+    'Novice',
+    'Junior',
+    'Senior',
   ]
+
+  const REGULAR_LEVELS = [
+    'Not specified',
+    'Pre-Preliminary',
+    'Preliminary',
+    'Pre-Juvenile',
+    'Juvenile',
+    'Intermediate',
+    'Novice',
+    'Junior',
+    'Senior',
+  ]
+
+  const CURRENT_LEVELS =
+    studentTrack === 'adult' ? ADULT_LEVELS : REGULAR_LEVELS
+
+  const [coachStudentSaving, setCoachStudentSaving] = useState(false)
 
   const selectedStudent =
     coachStudents.find((s) => s.id === selectedStudentId) || null
+
+  const [editingMovesLevel, setEditingMovesLevel] = useState('')
+  const [editingFreeskateLevel, setEditingFreeskateLevel] = useState('')
+  const [studentLevelSaving, setStudentLevelSaving] = useState(false)
+  const [editingDanceLevel, setEditingDanceLevel] = useState('')
+  const [editingStudentTrack, setEditingStudentTrack] = useState<
+    'adult' | 'regular'
+  >('adult')
+
+  useEffect(() => {
+    if (!selectedStudent) return
+
+    setEditingStudentTrack(selectedStudent.track || 'adult')
+    setEditingMovesLevel(selectedStudent.moves_level || '')
+    setEditingFreeskateLevel(selectedStudent.freeskate_level || '')
+    setEditingDanceLevel(selectedStudent.dance_level || '')
+  }, [selectedStudent])
+  const studentInputClass = `
+w-full
+px-4 py-3
+
+rounded-2xl
+
+bg-white/75
+backdrop-blur-md
+
+border border-white/70
+
+text-slate-700
+
+focus:outline-none
+focus:border-sky-200
+
+transition-all
+`
+
   const [expandedLessonId, setExpandedLessonId] = useState<string | null>(null)
 
   const [coachLessons, setCoachLessons] = useState([
@@ -376,6 +428,7 @@ export default function ChatPage() {
         loadProfile(data.session.user.id)
 
         loadBladeTracker()
+        loadCoachStudents()
       }
     })
 
@@ -388,6 +441,7 @@ export default function ChatPage() {
         loadProfile(session.user.id)
 
         loadBladeTracker()
+        loadCoachStudents()
       } else {
         setBladeTracker(null)
       }
@@ -543,6 +597,172 @@ Please note:
       console.error(err)
     } finally {
       setTrackerLoading(false)
+    }
+  }
+
+  const loadCoachStudents = async () => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const accessToken = session?.access_token
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_CHAT_API_URL}/coach/students`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      )
+
+      const data = await res.json()
+
+      if (data.success) {
+        setCoachStudents(data.students)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const handleCreateCoachStudent = async () => {
+    if (!newStudentName.trim()) {
+      showToast('Student name is required')
+      return
+    }
+
+    try {
+      setCoachStudentSaving(true)
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const accessToken = session?.access_token
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_CHAT_API_URL}/coach/students`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            name: newStudentName.trim(),
+
+            track: studentTrack,
+
+            moves_level: movesLevel,
+            freeskate_level: freeskateLevel,
+            dance_level: danceLevel,
+          }),
+        }
+      )
+
+      const data = await res.json()
+
+      if (data.success) {
+        setNewStudentName('')
+        setNewStudentLevel('')
+        setAddStudentOpen(false)
+        await loadCoachStudents()
+        showToast('Student added')
+      } else {
+        showToast(data.error || 'Could not add student')
+      }
+    } catch (err) {
+      console.error(err)
+      showToast('Could not add student')
+    } finally {
+      setCoachStudentSaving(false)
+    }
+  }
+
+  const handleDeleteCoachStudent = async (studentId: string) => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const accessToken = session?.access_token
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_CHAT_API_URL}/coach/students/${studentId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      )
+
+      const data = await res.json()
+
+      if (data.success) {
+        if (selectedStudentId === studentId) {
+          setSelectedStudentId(null)
+          setActiveView('coach_portal')
+        }
+
+        setDeleteStudentModalOpen(false)
+        setStudentPendingDelete(null)
+
+        await loadCoachStudents()
+        showToast('Student deleted')
+      } else {
+        showToast(data.error || 'Could not delete student')
+      }
+    } catch (err) {
+      console.error(err)
+      showToast('Could not delete student')
+    }
+  }
+
+  const handleSaveStudentLevels = async () => {
+    if (!selectedStudent) return
+
+    try {
+      setStudentLevelSaving(true)
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const accessToken = session?.access_token
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_CHAT_API_URL}/coach/students/${selectedStudent.id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            track: editingStudentTrack,
+            moves_level: editingMovesLevel,
+            freeskate_level: editingFreeskateLevel,
+            dance_level: editingDanceLevel,
+          }),
+        }
+      )
+
+      const data = await res.json()
+
+      if (data.success) {
+        await loadCoachStudents()
+        showToast('Student updated')
+      } else {
+        showToast(data.error || 'Could not update student')
+      }
+    } catch (err) {
+      console.error(err)
+      showToast('Could not update student')
+    } finally {
+      setStudentLevelSaving(false)
     }
   }
 
@@ -3791,7 +4011,12 @@ shadow-[0_20px_60px_rgba(15,23,42,0.06)]
                   Students
                 </div>
 
-                <button className={`${pillBtn} px-4`}>+ Student</button>
+                <button
+                  onClick={() => setAddStudentOpen(true)}
+                  className={`${pillBtn} px-4`}
+                >
+                  + Student
+                </button>
               </div>
 
               <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -3821,12 +4046,65 @@ hover:bg-white/75
 transition-all
 "
                   >
-                    <div className="font-semibold text-lg">{student.name}</div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-slate-900">
+                        {student.name}
+                      </h3>
 
-                    <div className="text-slate-500 mt-2">{student.level}</div>
+                      <span
+                        className="
+px-2 py-1
+rounded-full
+text-[11px]
+font-medium
 
-                    <div className="text-slate-600 mt-4">
-                      Next: {student.nextLesson}
+bg-sky-50
+text-sky-600
+border border-sky-100
+"
+                      >
+                        {student.track === 'adult' ? 'Adult' : 'Regular'}
+                      </span>
+                    </div>
+
+                    <div className="text-slate-500 mt-2">
+                      {student.moves_level && (
+                        <div>Moves: {student.moves_level}</div>
+                      )}
+
+                      {student.freeskate_level && (
+                        <div>Free: {student.freeskate_level}</div>
+                      )}
+
+                      {student.dance_level && (
+                        <div>Dance: {student.dance_level}</div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="text-slate-600">
+                        Next: {student.nextLesson || 'No lesson scheduled'}
+                      </div>
+
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setStudentPendingDelete(student)
+                          setDeleteStudentModalOpen(true)
+                        }}
+                        className="
+px-3 py-1.5
+rounded-full
+text-xs font-medium
+text-rose-600
+bg-rose-50/80
+border border-rose-100
+hover:bg-rose-100
+transition-all
+"
+                      >
+                        - Student
+                      </span>
                     </div>
                   </button>
                 ))}
@@ -3887,12 +4165,102 @@ mb-6
                   </button> */}
                 </div>
 
-                <div className="text-3xl font-bold text-slate-800">
-                  {selectedStudent?.name}
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="text-3xl font-bold text-slate-800">
+                      {selectedStudent?.name}
+                    </div>
+
+                    <select
+                      value={editingStudentTrack}
+                      onChange={(e) =>
+                        setEditingStudentTrack(
+                          e.target.value as 'adult' | 'regular'
+                        )
+                      }
+                      className="
+      px-4 py-2
+
+      rounded-full
+
+      bg-sky-50/80
+      border border-sky-100
+
+      text-sky-700
+      text-sm
+      font-medium
+      "
+                    >
+                      <option value="regular">Regular</option>
+                      <option value="adult">Adult</option>
+                    </select>
+                  </div>
+
+                  <button
+                    onClick={handleSaveStudentLevels}
+                    disabled={studentLevelSaving}
+                    className={`${pillBtn} px-5 py-3 ${
+                      studentLevelSaving ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    {studentLevelSaving ? 'Saving...' : 'Save'}
+                  </button>
                 </div>
 
-                <div className="text-slate-500 mt-2">
-                  {selectedStudent?.level}
+                <div className="grid md:grid-cols-3 gap-4">
+                  {/* MOVES */}
+
+                  <div>
+                    <div className="text-xs uppercase tracking-wide text-slate-400 mb-2">
+                      Moves
+                    </div>
+
+                    <GlassSelect
+                      value={editingMovesLevel}
+                      onChange={setEditingMovesLevel}
+                      options={
+                        editingStudentTrack === 'adult'
+                          ? ADULT_LEVELS
+                          : REGULAR_LEVELS
+                      }
+                    />
+                  </div>
+
+                  {/* FREESKATE */}
+
+                  <div>
+                    <div className="text-xs uppercase tracking-wide text-slate-400 mb-2">
+                      Freeskate
+                    </div>
+
+                    <GlassSelect
+                      value={editingFreeskateLevel}
+                      onChange={setEditingFreeskateLevel}
+                      options={
+                        editingStudentTrack === 'adult'
+                          ? ADULT_LEVELS
+                          : REGULAR_LEVELS
+                      }
+                    />
+                  </div>
+
+                  {/* DANCE */}
+
+                  <div>
+                    <div className="text-xs uppercase tracking-wide text-slate-400 mb-2">
+                      Dance
+                    </div>
+
+                    <GlassSelect
+                      value={editingDanceLevel}
+                      onChange={setEditingDanceLevel}
+                      options={
+                        editingStudentTrack === 'adult'
+                          ? ADULT_LEVELS
+                          : REGULAR_LEVELS
+                      }
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -5089,6 +5457,237 @@ transition-all duration-200
           "
               >
                 Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {addStudentOpen && (
+        <div
+          className="
+fixed inset-0 z-[200]
+flex items-center justify-center
+bg-slate-900/20
+backdrop-blur-sm
+px-4
+"
+        >
+          <div
+            className="
+w-full max-w-md
+rounded-[32px]
+border border-white/70
+bg-white/80
+backdrop-blur-2xl
+shadow-[0_30px_100px_rgba(15,23,42,0.18)]
+p-6
+"
+          >
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <div className="text-xl font-semibold text-slate-800">
+                  Add Student
+                </div>
+
+                <div className="text-sm text-slate-500 mt-1">
+                  Create a student profile for this coach portal.
+                </div>
+              </div>
+
+              <button
+                onClick={() => setAddStudentOpen(false)}
+                className="
+h-9 w-9
+rounded-full
+bg-white/70
+border border-white/70
+text-slate-500
+hover:bg-white
+transition-all
+"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-600 mb-2">
+                  Student name
+                </label>
+
+                <input
+                  value={newStudentName}
+                  onChange={(e) => setNewStudentName(e.target.value)}
+                  placeholder=" "
+                  className={studentInputClass}
+                />
+
+                <div className="mt-6">
+                  <label className="block mb-2 text-slate-600 font-medium">
+                    Track
+                  </label>
+
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setStudentTrack('adult')}
+                      className={`
+px-5 py-3 rounded-full
+transition-all
+
+${
+  studentTrack === 'adult'
+    ? 'bg-sky-500 text-white'
+    : 'bg-white/70 text-slate-600'
+}
+`}
+                    >
+                      Adult
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setStudentTrack('regular')}
+                      className={`
+px-5 py-3 rounded-full
+transition-all
+
+${
+  studentTrack === 'regular'
+    ? 'bg-sky-500 text-white'
+    : 'bg-white/70 text-slate-600'
+}
+`}
+                    >
+                      Regular
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-600 mb-2">
+                  Moves Level
+                </label>
+
+                <GlassSelect
+                  value={movesLevel}
+                  onChange={setMovesLevel}
+                  options={CURRENT_LEVELS}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-600 mb-2">
+                  Freeskate Level
+                </label>
+
+                <GlassSelect
+                  value={freeskateLevel}
+                  onChange={setFreeskateLevel}
+                  options={CURRENT_LEVELS}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-600 mb-2">
+                  Dance Level
+                </label>
+
+                <GlassSelect
+                  value={danceLevel}
+                  onChange={setDanceLevel}
+                  options={CURRENT_LEVELS}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 mt-7">
+              <button
+                onClick={() => setAddStudentOpen(false)}
+                className={`${pillBtn} px-5 py-3`}
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleCreateCoachStudent}
+                disabled={coachStudentSaving}
+                className={`${pillBtn} px-5 py-3 ${
+                  coachStudentSaving ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                {coachStudentSaving ? 'Saving...' : 'Save Student'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteStudentModalOpen && studentPendingDelete && (
+        <div
+          className="
+fixed inset-0 z-[220]
+flex items-center justify-center
+bg-slate-900/20
+backdrop-blur-sm
+px-4
+"
+        >
+          <div
+            className="
+w-full max-w-md
+rounded-[32px]
+border border-white/70
+bg-white/85
+backdrop-blur-2xl
+shadow-[0_30px_100px_rgba(15,23,42,0.18)]
+p-6
+"
+          >
+            <div className="text-xl font-semibold text-slate-800">
+              Delete Student
+            </div>
+
+            <div className="text-sm text-slate-500 mt-3 leading-relaxed">
+              Are you sure you want to delete{' '}
+              <span className="font-semibold text-slate-700">
+                {studentPendingDelete.name}
+              </span>
+              ? This action cannot be undone.
+            </div>
+
+            <div className="flex items-center justify-end gap-3 mt-7">
+              <button
+                onClick={() => {
+                  setDeleteStudentModalOpen(false)
+                  setStudentPendingDelete(null)
+                }}
+                className={`${pillBtn} px-5 py-3`}
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={() =>
+                  handleDeleteCoachStudent(studentPendingDelete.id)
+                }
+                className="
+px-5 py-3
+rounded-full
+text-sm font-medium
+text-white
+bg-gradient-to-r
+from-rose-500
+to-red-500
+shadow-[0_12px_30px_rgba(239,68,68,0.25)]
+hover:scale-[1.02]
+transition-all
+"
+              >
+                Delete Student
               </button>
             </div>
           </div>
