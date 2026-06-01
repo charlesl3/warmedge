@@ -127,6 +127,17 @@ export default function ChatPage() {
   const [freeskateLevel, setFreeskateLevel] = useState('')
   const [danceLevel, setDanceLevel] = useState('')
   const [studentTrack, setStudentTrack] = useState<'adult' | 'regular'>('adult')
+  const addStudentTrackRef = useRef(studentTrack)
+
+  useEffect(() => {
+    if (addStudentTrackRef.current === studentTrack) return
+
+    addStudentTrackRef.current = studentTrack
+
+    setMovesLevel('')
+    setFreeskateLevel('')
+    setDanceLevel('')
+  }, [studentTrack])
   const ADULT_LEVELS = [
     'Not specified',
     'Pre-Bronze',
@@ -143,12 +154,12 @@ export default function ChatPage() {
     'Not specified',
     'Pre-Preliminary',
     'Preliminary',
-    'Pre-Juvenile',
-    'Juvenile',
-    'Intermediate',
-    'Novice',
-    'Junior',
-    'Senior',
+    'Pre-Bronze',
+    'Bronze',
+    'Pre-Silver',
+    'Silver',
+    'Pre-Gold',
+    'Gold',
   ]
 
   const CURRENT_LEVELS =
