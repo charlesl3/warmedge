@@ -597,3 +597,41 @@ body::before {
 
   border: 1px solid rgba(186, 230, 253, 0.7);
 }
+
+/* ==========================
+   STUDENT FLIP CARD
+   ========================== */
+
+.student-flip-wrapper {
+  perspective: 1400px;
+}
+
+.student-flip-card {
+  position: relative;
+
+  width: 100%;
+  min-height: 280px;
+
+  transform-style: preserve-3d;
+
+  transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.student-flip-card.flipped {
+  transform: rotateY(180deg) scale(1.03);
+}
+
+.student-flip-face {
+  position: absolute;
+
+  inset: 0;
+
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+
+  border-radius: 28px;
+}
+
+.student-flip-back {
+  transform: rotateY(180deg);
+}

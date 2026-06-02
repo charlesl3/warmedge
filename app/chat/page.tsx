@@ -166,6 +166,8 @@ export default function ChatPage() {
     null
   )
 
+  const [flippedStudentId, setFlippedStudentId] = useState<string | null>(null)
+
   const [coachStudents, setCoachStudents] = useState<any[]>([])
   const [addStudentOpen, setAddStudentOpen] = useState(false)
   const [addLessonOpen, setAddLessonOpen] = useState(false)
@@ -4288,13 +4290,24 @@ shadow-[0_20px_60px_rgba(15,23,42,0.06)]
 
               <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {coachStudents.map((student) => (
-                  <button
+                  <div
                     key={student.id}
-                    onClick={() => {
-                      setSelectedStudentId(student.id)
-                      setActiveView('student_profile')
-                    }}
-                    className="
+                    className="student-flip-wrapper"
+                    onClick={() =>
+                      setFlippedStudentId(
+                        flippedStudentId === student.id ? null : student.id
+                      )
+                    }
+                  >
+                    <div
+                      className={`student-flip-card ${
+                        flippedStudentId === student.id ? 'flipped' : ''
+                      }`}
+                    >
+                      <div
+                        className="
+student-flip-face
+
 text-left
 
 rounded-[28px]
@@ -4307,19 +4320,18 @@ p-6
 
 shadow-[0_20px_60px_rgba(15,23,42,0.06)]
 
-hover:scale-[1.01]
 hover:bg-white/75
 
 transition-all
 "
-                  >
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-bold text-slate-900">
-                        {student.name}
-                      </h3>
+                      >
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-bold text-slate-900">
+                            {student.name}
+                          </h3>
 
-                      <span
-                        className="
+                          <span
+                            className="
 px-2 py-1
 rounded-full
 text-[11px]
@@ -4329,39 +4341,39 @@ bg-sky-50
 text-sky-600
 border border-sky-100
 "
-                      >
-                        {student.track === 'adult' ? 'Adult' : 'Regular'}
-                      </span>
-                    </div>
+                          >
+                            {student.track === 'adult' ? 'Adult' : 'Regular'}
+                          </span>
+                        </div>
 
-                    <div className="text-slate-500 mt-2">
-                      {student.moves_level && (
-                        <div>Moves: {student.moves_level}</div>
-                      )}
+                        <div className="text-slate-500 mt-2">
+                          {student.moves_level && (
+                            <div>Moves: {student.moves_level}</div>
+                          )}
 
-                      {student.freeskate_level && (
-                        <div>Free: {student.freeskate_level}</div>
-                      )}
+                          {student.freeskate_level && (
+                            <div>Free: {student.freeskate_level}</div>
+                          )}
 
-                      {student.dance_level && (
-                        <div>Dance: {student.dance_level}</div>
-                      )}
-                    </div>
+                          {student.dance_level && (
+                            <div>Dance: {student.dance_level}</div>
+                          )}
+                        </div>
 
-                    <div className="flex items-center justify-between mt-4">
-                      <div className="text-slate-600">
-                        Next:{' '}
-                        {getNextLessonForStudent(student.id) ||
-                          'No lesson scheduled'}
-                      </div>
+                        <div className="flex items-center justify-between mt-4">
+                          <div className="text-slate-600">
+                            Next:{' '}
+                            {getNextLessonForStudent(student.id) ||
+                              'No lesson scheduled'}
+                          </div>
 
-                      <span
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setStudentPendingDelete(student)
-                          setDeleteStudentModalOpen(true)
-                        }}
-                        className="
+                          <span
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setStudentPendingDelete(student)
+                              setDeleteStudentModalOpen(true)
+                            }}
+                            className="
 px-3 py-1.5
 rounded-full
 text-xs font-medium
@@ -4371,11 +4383,77 @@ border border-rose-100
 hover:bg-rose-100
 transition-all
 "
+                          >
+                            - Student
+                          </span>
+                        </div>
+                      </div>
+
+                      <div
+                        className="
+student-flip-face
+student-flip-back
+
+rounded-[28px]
+border border-white/40
+bg-white/85
+
+backdrop-blur-xl
+
+p-6
+
+shadow-[0_20px_60px_rgba(15,23,42,0.08)]
+
+flex
+flex-col
+justify-between
+"
                       >
-                        - Student
-                      </span>
+                        <div>
+                          <div className="text-lg font-bold text-slate-900">
+                            {student.name}
+                          </div>
+
+                          <div className="mt-4 space-y-2 text-slate-600">
+                            <div>Moves: {student.moves_level || '—'}</div>
+
+                            <div>Free: {student.freeskate_level || '—'}</div>
+
+                            <div>Dance: {student.dance_level || '—'}</div>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+
+                            setSelectedStudentId(student.id)
+                            setActiveView('student_profile')
+                          }}
+                          className="
+mt-5
+
+px-4 py-3
+
+rounded-full
+
+bg-gradient-to-r
+from-sky-500
+to-violet-500
+
+text-white
+font-medium
+
+hover:scale-[1.02]
+
+transition-all
+"
+                        >
+                          Open Profile
+                        </button>
+                      </div>
                     </div>
-                  </button>
+                  </div>
                 ))}
               </div>
             </div>
@@ -4428,14 +4506,7 @@ p-6
 mb-6
 "
               >
-                <div className="mb-4">
-                  {/* <button
-                    onClick={() => setActiveView('coach_portal')}
-                    className={`${pillBtn} px-5 py-3`}
-                  >
-                    ← Back
-                  </button> */}
-                </div>
+                <div className="mb-4"></div>
 
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-3">
