@@ -8,6 +8,7 @@ import 'react-calendar/dist/Calendar.css'
 import AssistantAvatar from '../../components/AssistantAvatar'
 import SkaterLevelSelector from '../../components/SkaterLevelSelector'
 import GlassSelect from '../../components/GlassSelect'
+import { fromZonedTime } from 'date-fns-tz'
 
 import {
   appShell,
@@ -69,6 +70,32 @@ export default function ChatPage() {
   const [highestJump, setHighestJump] = useState('')
   const [highestTestLevel, setHighestTestLevel] = useState('')
   const [profileModalOpen, setProfileModalOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+
+  const [userTimezone, setUserTimezone] = useState(
+    Intl.DateTimeFormat().resolvedOptions().timeZone
+  )
+
+  const [tempTimezone, setTempTimezone] = useState(
+    Intl.DateTimeFormat().resolvedOptions().timeZone
+  )
+
+  useEffect(() => {
+    const savedTimezone = localStorage.getItem('warmgpt_timezone')
+
+    if (savedTimezone) {
+      setUserTimezone(savedTimezone)
+      setTempTimezone(savedTimezone)
+    } else {
+      const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
+      setUserTimezone(browserTimezone)
+      setTempTimezone(browserTimezone)
+
+      localStorage.setItem('warmgpt_timezone', browserTimezone)
+    }
+  }, [])
+
   const [toastMessage, setToastMessage] = useState('')
   const [profileUpdateCandidate, setProfileUpdateCandidate] =
     useState<any>(null)
@@ -90,6 +117,30 @@ export default function ChatPage() {
   const [editingSessionDate, setEditingSessionDate] = useState<string | null>(
     null
   )
+
+  const formatLessonRange = (lesson: any) => {
+    const start = new Date(lesson.lesson_datetime)
+
+    const startText = start.toLocaleTimeString([], {
+      timeZone: userTimezone,
+      hour: 'numeric',
+      minute: '2-digit',
+    })
+
+    if (!lesson.duration_minutes) {
+      return `${startText} - ??`
+    }
+
+    const end = new Date(start.getTime() + lesson.duration_minutes * 60000)
+
+    const endText = end.toLocaleTimeString([], {
+      timeZone: userTimezone,
+      hour: 'numeric',
+      minute: '2-digit',
+    })
+
+    return `${startText} - ${endText}`
+  }
 
   const [editingNoteText, setEditingNoteText] = useState('')
   const [editingHours, setEditingHours] = useState('')
@@ -117,7 +168,16 @@ export default function ChatPage() {
 
   const [coachStudents, setCoachStudents] = useState<any[]>([])
   const [addStudentOpen, setAddStudentOpen] = useState(false)
+  const [addLessonOpen, setAddLessonOpen] = useState(false)
+
+  const [lessonStudentId, setLessonStudentId] = useState('')
+
+  const [lessonDate, setLessonDate] = useState('')
+
+  const [lessonTime, setLessonTime] = useState('')
+  const [lessonDuration, setLessonDuration] = useState('')
   const [deleteStudentModalOpen, setDeleteStudentModalOpen] = useState(false)
+  const DEFAULT_TIMEZONE = 'America/New_York'
 
   const [studentPendingDelete, setStudentPendingDelete] = useState<any>(null)
   const [newStudentName, setNewStudentName] = useState('')
@@ -219,44 +279,74 @@ transition-all
 
   const [expandedLessonId, setExpandedLessonId] = useState<string | null>(null)
 
-  const [coachLessons, setCoachLessons] = useState([
-    {
-      id: 'l1',
-      studentId: '1',
-      date: '2026-06-05',
-      time: '10:00',
-      note: 'Worked on loop edge, entry control, and outside edge quality.',
-    },
+  const [coachLessons, setCoachLessons] = useState<any[]>([])
 
-    {
-      id: 'l2',
-      studentId: '1',
-      date: '2026-06-03',
-      time: '09:00',
-      note: 'Power pulls and posture alignment.',
-    },
-
-    {
-      id: 'l3',
-      studentId: '1',
-      date: '2026-05-28',
-      time: '11:00',
-      note: 'Forward crossover speed generation.',
-    },
-  ])
-
-  const studentLessons = coachLessons
-    .filter((lesson) => lesson.studentId === selectedStudentId)
-    .sort(
-      (a, b) =>
-        new Date(`${b.date} ${b.time}`).getTime() -
-        new Date(`${a.date} ${a.time}`).getTime()
-    )
+  const studentLessons = coachLessons.filter(
+    (lesson) => lesson.student_id === selectedStudentId
+  )
   useEffect(() => {
     if (studentLessons.length > 0 && !expandedLessonId) {
       setExpandedLessonId(studentLessons[0].id)
     }
   }, [selectedStudentId])
+
+  const isSameLessonDay = (lessonDate: string, timezone: string) => {
+    const lesson = new Date(lessonDate)
+
+    const lessonDay = lesson.toLocaleDateString('en-CA', {
+      timeZone: timezone,
+    })
+
+    const todayDay = new Date().toLocaleDateString('en-CA', {
+      timeZone: timezone,
+    })
+
+    return lessonDay === todayDay
+  }
+
+  const todaysLessons = coachLessons.filter((lesson) =>
+    isSameLessonDay(lesson.lesson_datetime, userTimezone)
+  )
+
+  const now = new Date()
+
+  const upcomingLessons = studentLessons.filter(
+    (lesson) => new Date(lesson.lesson_datetime) > now
+  )
+
+  const lessonHistory = studentLessons.filter(
+    (lesson) => new Date(lesson.lesson_datetime) <= now
+  )
+
+  const formatLessonPreview = (lesson: any) => {
+    const d = new Date(lesson.lesson_datetime)
+
+    return d.toLocaleString([], {
+      timeZone: userTimezone,
+
+      month: 'short',
+      day: 'numeric',
+
+      hour: 'numeric',
+      minute: '2-digit',
+    })
+  }
+
+  const getNextLessonForStudent = (studentId: string) => {
+    const nextLesson = coachLessons
+      .filter(
+        (lesson) =>
+          lesson.student_id === studentId &&
+          new Date(lesson.lesson_datetime) > now
+      )
+      .sort(
+        (a, b) =>
+          new Date(a.lesson_datetime).getTime() -
+          new Date(b.lesson_datetime).getTime()
+      )[0]
+
+    return nextLesson ? formatLessonPreview(nextLesson) : null
+  }
 
   const [reloading, setReloading] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -452,6 +542,7 @@ transition-all
 
         loadBladeTracker()
         loadCoachStudents()
+        loadCoachLessons()
       }
     })
 
@@ -465,6 +556,7 @@ transition-all
 
         loadBladeTracker()
         loadCoachStudents()
+        loadCoachLessons()
       } else {
         setBladeTracker(null)
       }
@@ -650,6 +742,33 @@ Please note:
     }
   }
 
+  const loadCoachLessons = async () => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const accessToken = session?.access_token
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_CHAT_API_URL}/coach/lessons`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      )
+
+      const data = await res.json()
+
+      if (data.success) {
+        setCoachLessons(data.lessons)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   const handleCreateCoachStudent = async () => {
     if (!newStudentName.trim()) {
       showToast('Student name is required')
@@ -786,6 +905,61 @@ Please note:
       showToast('Could not update student')
     } finally {
       setStudentLevelSaving(false)
+    }
+  }
+
+  const handleCreateLesson = async () => {
+    if (!lessonStudentId || !lessonDate || !lessonTime) {
+      showToast('Missing lesson info')
+      return
+    }
+
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const accessToken = session?.access_token
+      const lessonDatetime = fromZonedTime(
+        `${lessonDate} ${lessonTime}`,
+        userTimezone
+      ).toISOString()
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_CHAT_API_URL}/coach/lessons`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            student_id: lessonStudentId,
+            lesson_datetime: lessonDatetime,
+            timezone: userTimezone,
+
+            duration_minutes:
+              lessonDuration === '' ? null : parseInt(lessonDuration),
+          }),
+        }
+      )
+
+      const data = await res.json()
+
+      if (data.success) {
+        setAddLessonOpen(false)
+
+        setLessonStudentId('')
+        setLessonDate('')
+        setLessonTime('')
+        setLessonDuration('')
+
+        await loadCoachLessons()
+
+        showToast('Lesson created')
+      }
+    } catch (err) {
+      console.error(err)
     }
   }
 
@@ -2301,6 +2475,46 @@ z-50
                 </div>
 
                 <button
+                  onClick={() => setSettingsOpen(true)}
+                  className="
+h-11 w-11
+
+rounded-2xl
+
+bg-[linear-gradient(
+145deg,
+rgba(255,255,255,0.72),
+rgba(255,255,255,0.46)
+)]
+
+backdrop-blur-2xl
+
+border border-sky-100/80
+
+shadow-[0_10px_35px_rgba(15,23,42,0.05)]
+
+hover:border-sky-100
+hover:bg-white/78
+
+hover:shadow-[0_14px_40px_rgba(14,165,233,0.12)]
+
+transition-all duration-200
+"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    className="w-5 h-5 text-slate-700 mx-auto"
+                  >
+                    <path d="M12 15.5A3.5 3.5 0 1 0 12 8.5A3.5 3.5 0 0 0 12 15.5Z" />
+                    <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-.4-1.1 1.7 1.7 0 0 0-1-.6 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H2.8a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.1-.4 1.7 1.7 0 0 0 .6-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V2.8a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 .4 1.1 1.7 1.7 0 0 0 1 .6 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9c.3.3.5.7.6 1.1h.1a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-.6 1z" />
+                  </svg>
+                </button>
+
+                <button
                   onClick={handleLogout}
                   className="
 px-4 py-2
@@ -3247,61 +3461,68 @@ transition-all duration-250
                     </div>
                   </>
                 ) : (
-                  <div className="py-16 text-center">
-                    <div className="text-6xl mb-6">⛸️</div>
+                  <div className="flex flex-col items-center text-center py-20 px-6">
+                    <div className="text-5xl mb-6">⛸</div>
 
-                    <h3 className="text-2xl font-semibold text-slate-800 mb-3">
-                      Track your skating and sharpening history
-                    </h3>
+                    <h1
+                      className="
+    text-4xl md:text-5xl
+    font-bold
+    tracking-tight
+    text-slate-800
+    max-w-3xl
+    "
+                    >
+                      Every session counts.
+                    </h1>
 
-                    <p className="text-slate-500 max-w-[560px] mx-auto leading-7 mb-8">
-                      Save skating hours, monitor blade sharpening cycles, and
-                      visualize your training habits over time.
+                    <p
+                      className="
+    mt-4
+    text-lg
+    text-slate-500
+    max-w-xl
+    "
+                    >
+                      Sharpening • Training Hours • Skating Journals
                     </p>
 
-                    <div className="space-y-3">
-                      <button
-                        onClick={() => {
-                          setAuthMode('signup')
-                          setAuthModalOpen(true)
-                        }}
-                        className="
-px-7 py-3.5
-rounded-[1.4rem]
-bg-[linear-gradient(135deg,rgba(59,130,246,0.92),rgba(124,58,237,0.88))]
-text-white
-font-medium
-shadow-[0_18px_45px_rgba(99,102,241,0.28)]
-hover:shadow-[0_22px_55px_rgba(99,102,241,0.38)]
-hover:scale-[1.015]
-active:scale-[0.985]
-transition-all duration-250
-"
-                      >
-                        Create your account
-                      </button>
+                    <button
+                      onClick={() => {
+                        setAuthMode('signup')
+                        setAuthModalOpen(true)
+                      }}
+                      className="
+    mt-8
 
-                      <div>
-                        <button
-                          onClick={() => {
-                            setAuthMode('login')
-                            setAuthModalOpen(true)
-                          }}
-                          className="
-text-sm
-font-medium
+    px-8 py-4
 
-text-indigo-500
+    rounded-full
 
-hover:text-violet-600
+    text-white
+    font-medium
 
-transition-colors duration-200
-"
-                        >
-                          Already have an account? Sign in
-                        </button>
-                      </div>
-                    </div>
+    bg-gradient-to-r
+    from-blue-500
+    to-violet-500
+
+    hover:scale-[1.03]
+
+    shadow-[0_15px_40px_rgba(59,130,246,0.25)]
+
+    transition-all
+    "
+                    >
+                      Start Tracking
+                    </button>
+
+                    <div
+                      className="
+    mt-3
+    text-sm
+    text-slate-400
+    "
+                    ></div>
                   </div>
                 )}
               </div>
@@ -3992,14 +4213,28 @@ shadow-[0_20px_60px_rgba(15,23,42,0.06)]
                     <div className="text-xl font-semibold text-slate-800">
                       Today's Schedule
                     </div>
-
-                    <button className={`${pillBtn} px-4`}>+ Lesson</button>
                   </div>
 
                   <div className="space-y-3 text-slate-600">
-                    <div>10:00 Charles</div>
-                    <div>11:00 Ashley</div>
-                    <div>14:00 Alex</div>
+                    {todaysLessons.map((lesson) => (
+                      <div
+                        key={lesson.id}
+                        className={`
+        ${portalCard}
+        flex
+        items-center
+        gap-4
+      `}
+                      >
+                        <span className="font-medium text-slate-600 whitespace-nowrap">
+                          {formatLessonRange(lesson)}
+                        </span>
+
+                        <span className="font-medium text-slate-700">
+                          {lesson.coach_students?.name}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -4029,17 +4264,26 @@ shadow-[0_20px_60px_rgba(15,23,42,0.06)]
 
               {/* STUDENTS */}
 
-              <div className="flex justify-between mb-5">
+              <div className="flex items-center justify-between mb-5">
                 <div className="text-xl font-semibold text-slate-800">
                   Students
                 </div>
 
-                <button
-                  onClick={() => setAddStudentOpen(true)}
-                  className={`${pillBtn} px-4`}
-                >
-                  + Student
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setAddStudentOpen(true)}
+                    className={`${pillBtn} px-4`}
+                  >
+                    + Student
+                  </button>
+
+                  <button
+                    onClick={() => setAddLessonOpen(true)}
+                    className={`${pillBtn} px-4`}
+                  >
+                    + Lesson
+                  </button>
+                </div>
               </div>
 
               <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -4106,7 +4350,9 @@ border border-sky-100
 
                     <div className="flex items-center justify-between mt-4">
                       <div className="text-slate-600">
-                        Next: {student.nextLesson || 'No lesson scheduled'}
+                        Next:{' '}
+                        {getNextLessonForStudent(student.id) ||
+                          'No lesson scheduled'}
                       </div>
 
                       <span
@@ -4163,8 +4409,6 @@ mb-6
                 >
                   ← Back
                 </button>
-
-                <button className={`${pillBtn} px-5 py-3`}>+ Add Lesson</button>
               </div>
 
               {/* STUDENT CARD */}
@@ -4321,9 +4565,11 @@ md:pb-0
                   </h3>
 
                   <div className="space-y-2">
-                    <div className={portalCard}>Fri Jun 5 • 10:00</div>
-
-                    <div className={portalCard}>Tue Jun 9 • 09:00</div>
+                    {upcomingLessons.map((lesson) => (
+                      <div key={lesson.id} className={portalCard}>
+                        {new Date(lesson.lesson_datetime).toLocaleString()}
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -5361,6 +5607,146 @@ transition-all duration-250
         </div>
       )}
 
+      {settingsOpen && (
+        <div
+          className="
+fixed inset-0 z-[200]
+
+flex items-center justify-center
+
+bg-black/30
+backdrop-blur-sm
+"
+        >
+          <div
+            className="
+w-[680px]
+max-w-[92vw]
+
+rounded-[2rem]
+
+bg-white/90
+backdrop-blur-2xl
+
+border border-white/70
+
+shadow-[0_25px_80px_rgba(15,23,42,0.15)]
+
+p-8
+"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-semibold text-slate-800">
+                Settings
+              </h2>
+
+              <button
+                onClick={() => setSettingsOpen(false)}
+                className="text-slate-500 hover:text-slate-800"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-8">
+              <div>
+                <div className="text-sm font-medium text-slate-700 mb-2">
+                  <div>
+                    <div className="text-lg font-semibold text-slate-800">
+                      Time Zone
+                    </div>
+                  </div>
+                </div>
+
+                <select
+                  value={tempTimezone}
+                  onChange={(e) => {
+                    setTempTimezone(e.target.value)
+                  }}
+                >
+                  {Intl.supportedValuesOf('timeZone').map((tz) => (
+                    <option key={tz} value={tz}>
+                      {tz}
+                    </option>
+                  ))}
+                </select>
+
+                <div className="mt-8">
+                  <div className="text-xs text-slate-400 mb-5">
+                    Currently using: {userTimezone}
+                  </div>
+
+                  <div className="flex justify-end gap-3">
+                    <button
+                      onClick={() => {
+                        const detected =
+                          Intl.DateTimeFormat().resolvedOptions().timeZone
+
+                        setTempTimezone(detected)
+                      }}
+                      className="
+px-5
+h-11
+
+rounded-2xl
+
+bg-white/80
+
+border border-white/70
+
+text-sm
+font-medium
+text-slate-600
+
+hover:bg-white
+
+transition-all
+"
+                    >
+                      Detect
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setUserTimezone(tempTimezone)
+
+                        localStorage.setItem('warmgpt_timezone', tempTimezone)
+
+                        setSettingsOpen(false)
+
+                        showToast('Timezone saved')
+                      }}
+                      className="
+px-6
+h-11
+
+rounded-2xl
+
+text-sm
+font-medium
+text-white
+
+bg-gradient-to-r
+from-blue-500
+to-violet-500
+
+shadow-[0_12px_30px_rgba(59,130,246,0.25)]
+
+hover:opacity-90
+
+transition-all
+"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {profileUpdateCandidate && (
         <div
           className="
@@ -5674,6 +6060,96 @@ ${
         </div>
       )}
 
+      {addLessonOpen && (
+        <div
+          className="
+      fixed inset-0
+      z-[9999]
+      flex items-center justify-center
+      bg-black/30
+    "
+        >
+          <div
+            className={`
+        ${glassStrong}
+        w-full max-w-lg
+        p-8
+        rounded-3xl
+      `}
+          >
+            <h3 className="text-2xl font-semibold mb-8">New Lesson</h3>
+
+            <div className="space-y-5">
+              <select
+                value={lessonStudentId}
+                onChange={(e) => setLessonStudentId(e.target.value)}
+                className={studentInputClass}
+              >
+                <option value="">Select student</option>
+
+                {coachStudents.map((student) => (
+                  <option key={student.id} value={student.id}>
+                    {student.name}
+                  </option>
+                ))}
+              </select>
+
+              <input
+                type="date"
+                value={lessonDate}
+                onChange={(e) => setLessonDate(e.target.value)}
+                className={studentInputClass}
+              />
+
+              <div>
+                <div className="text-sm text-slate-500 mb-2">Lesson start</div>
+
+                <input
+                  type="time"
+                  value={lessonTime}
+                  onChange={(e) => setLessonTime(e.target.value)}
+                  className={studentInputClass}
+                />
+              </div>
+
+              <select
+                value={lessonDuration}
+                onChange={(e) => setLessonDuration(e.target.value)}
+                className={studentInputClass}
+              >
+                <option value="">Duration (optional)</option>
+
+                <option value="30">30 minutes</option>
+
+                <option value="45">45 minutes</option>
+
+                <option value="60">60 minutes</option>
+
+                <option value="90">90 minutes</option>
+
+                <option value="120">120 minutes</option>
+              </select>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-8">
+              <button
+                onClick={() => setAddLessonOpen(false)}
+                className={`${pillBtn} px-4`}
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleCreateLesson}
+                className={`${pillBtn} px-4`}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {deleteStudentModalOpen && studentPendingDelete && (
         <div
           className="
@@ -5839,7 +6315,21 @@ overflow-y-auto
 pt-6 pb-6
 "
         >
-          <div className="w-[380px] rounded-2xl bg-white p-8 shadow-2xl border border-slate-200">
+          <div
+            className="
+w-[380px]
+
+max-h-[90vh]
+overflow-y-auto
+
+rounded-2xl
+bg-white
+p-8
+
+shadow-2xl
+border border-slate-200
+"
+          >
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-semibold text-slate-800">
