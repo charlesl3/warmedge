@@ -4300,9 +4300,11 @@ shadow-[0_20px_60px_rgba(15,23,42,0.06)]
                     }
                   >
                     <div
-                      className={`student-flip-card ${
-                        flippedStudentId === student.id ? 'flipped' : ''
-                      }`}
+                      className={`
+    student-flip-card
+
+    ${flippedStudentId === student.id ? 'flipped' : ''}
+  `}
                     >
                       <div
                         className="
@@ -4495,9 +4497,7 @@ justify-between
                         </div>
 
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-
+                          onClick={() => {
                             setSelectedStudentId(student.id)
                             setActiveView('student_profile')
                           }}
@@ -4532,6 +4532,7 @@ transition-all
         ) : activeView === 'student_profile' ? (
           <div
             className="
+            student-profile-enter
 flex-1 overflow-y-auto
 px-4 py-6 md:p-8
 bg-white/20 backdrop-blur-sm
