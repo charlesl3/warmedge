@@ -4409,6 +4409,19 @@ font-medium
                           >
                             Free {student.freeskate_level || '—'}
                           </span>
+
+                          <span
+                            className="
+px-3 py-1
+rounded-full
+bg-green-50
+text-green-700
+text-xs
+font-medium
+"
+                          >
+                            Dance {student.freeskate_level || '—'}
+                          </span>
                         </div>
                       </div>
 
