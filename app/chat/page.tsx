@@ -4325,6 +4325,32 @@ hover:bg-white/75
 transition-all
 "
                       >
+                        <div className="absolute top-4 right-4 z-20">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+
+                              setStudentPendingDelete(student)
+                              setDeleteStudentModalOpen(true)
+                            }}
+                            className="
+h-8 w-8
+
+rounded-full
+
+bg-rose-50
+text-rose-500
+
+border border-rose-100
+
+hover:bg-rose-100
+
+transition-all
+"
+                          >
+                            ×
+                          </button>
+                        </div>
                         <div className="flex items-center gap-2">
                           <h3 className="font-bold text-slate-900">
                             {student.name}
@@ -4346,45 +4372,42 @@ border border-sky-100
                           </span>
                         </div>
 
-                        <div className="text-slate-500 mt-2">
-                          {student.moves_level && (
-                            <div>Moves: {student.moves_level}</div>
-                          )}
-
-                          {student.freeskate_level && (
-                            <div>Free: {student.freeskate_level}</div>
-                          )}
-
-                          {student.dance_level && (
-                            <div>Dance: {student.dance_level}</div>
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-between mt-4">
-                          <div className="text-slate-600">
-                            Next:{' '}
-                            {getNextLessonForStudent(student.id) ||
-                              'No lesson scheduled'}
+                        <div className="mt-5">
+                          <div className="text-xs uppercase tracking-wide text-slate-400">
+                            Next Lesson
                           </div>
 
+                          <div className="mt-1 text-lg font-semibold text-slate-700">
+                            {getNextLessonForStudent(student.id) ||
+                              'Not Scheduled'}
+                          </div>
+                        </div>
+
+                        <div className="mt-5 flex gap-2 flex-wrap">
                           <span
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setStudentPendingDelete(student)
-                              setDeleteStudentModalOpen(true)
-                            }}
                             className="
-px-3 py-1.5
+px-3 py-1
 rounded-full
-text-xs font-medium
-text-rose-600
-bg-rose-50/80
-border border-rose-100
-hover:bg-rose-100
-transition-all
+bg-sky-50
+text-sky-700
+text-xs
+font-medium
 "
                           >
-                            - Student
+                            Moves {student.moves_level || '—'}
+                          </span>
+
+                          <span
+                            className="
+px-3 py-1
+rounded-full
+bg-violet-50
+text-violet-700
+text-xs
+font-medium
+"
+                          >
+                            Free {student.freeskate_level || '—'}
                           </span>
                         </div>
                       </div>
@@ -4414,12 +4437,47 @@ justify-between
                             {student.name}
                           </div>
 
-                          <div className="mt-4 space-y-2 text-slate-600">
-                            <div>Moves: {student.moves_level || '—'}</div>
+                          <div className="mt-5 space-y-3">
+                            <div className="flex justify-between">
+                              <span className="text-slate-400">
+                                Moves in the Field Level
+                              </span>
 
-                            <div>Free: {student.freeskate_level || '—'}</div>
+                              <span className="font-medium text-slate-700">
+                                {student.moves_level || '—'}
+                              </span>
+                            </div>
 
-                            <div>Dance: {student.dance_level || '—'}</div>
+                            <div className="flex justify-between">
+                              <span className="text-slate-400">
+                                Freeskate Level
+                              </span>
+
+                              <span className="font-medium text-slate-700">
+                                {student.freeskate_level || '—'}
+                              </span>
+                            </div>
+
+                            <div className="flex justify-between">
+                              <span className="text-slate-400">
+                                Ice Dance Level
+                              </span>
+
+                              <span className="font-medium text-slate-700">
+                                {student.dance_level || '—'}
+                              </span>
+                            </div>
+
+                            <div className="pt-2 border-t border-slate-100">
+                              <div className="text-xs text-slate-400">
+                                Next Lesson
+                              </div>
+
+                              <div className="font-medium text-slate-700">
+                                {getNextLessonForStudent(student.id) ||
+                                  'No lesson scheduled'}
+                              </div>
+                            </div>
                           </div>
                         </div>
 
