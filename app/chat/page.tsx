@@ -350,6 +350,61 @@ transition-all
     return nextLesson ? formatLessonPreview(nextLesson) : null
   }
 
+  const getUpcomingLessonsForStudent = (studentId: string, limit = 3) => {
+    return coachLessons
+      .filter(
+        (lesson) =>
+          lesson.student_id === studentId &&
+          new Date(lesson.lesson_datetime) > now
+      )
+      .sort(
+        (a, b) =>
+          new Date(a.lesson_datetime).getTime() -
+          new Date(b.lesson_datetime).getTime()
+      )
+      .slice(0, limit)
+  }
+
+  const getCurrentWeekLessonCounts = () => {
+    const now = new Date()
+
+    const monday = new Date(now)
+
+    monday.setDate(now.getDate() - ((now.getDay() + 6) % 7))
+
+    monday.setHours(0, 0, 0, 0)
+
+    const sunday = new Date(monday)
+
+    sunday.setDate(monday.getDate() + 7)
+
+    const counts = {
+      Mon: 0,
+      Tue: 0,
+      Wed: 0,
+      Thu: 0,
+      Fri: 0,
+      Sat: 0,
+      Sun: 0,
+    }
+
+    coachLessons.forEach((lesson) => {
+      const d = new Date(lesson.lesson_datetime)
+
+      if (d >= monday && d < sunday) {
+        const day = d.toLocaleDateString('en-US', {
+          weekday: 'short',
+        })
+
+        if (counts[day as keyof typeof counts] !== undefined) {
+          counts[day as keyof typeof counts]++
+        }
+      }
+    })
+
+    return counts
+  }
+
   const [reloading, setReloading] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [isTablet, setIsTablet] = useState(false)
@@ -4254,13 +4309,49 @@ shadow-[0_20px_60px_rgba(15,23,42,0.06)]
                     This Week Schedule
                   </div>
 
-                  <div className="space-y-3 text-slate-600">
-                    <div>Mon ••</div>
-                    <div>Tue •</div>
-                    <div>Wed •••</div>
-                    <div>Thu -</div>
-                    <div>Fri ••</div>
-                  </div>
+                  {(() => {
+                    const counts = getCurrentWeekLessonCounts()
+
+                    return (
+                      <div className="space-y-5">
+                        {Object.entries(counts).map(([day, count]) => (
+                          <div
+                            key={day}
+                            className="
+flex
+items-center
+gap-4
+"
+                          >
+                            <div className="w-14 text-slate-600">{day}</div>
+
+                            <div className="flex gap-2">
+                              {Array.from({ length: count }).map((_, idx) => (
+                                <div
+                                  key={idx}
+                                  className="
+w-3 h-3
+
+rounded-full
+
+bg-gradient-to-r
+from-sky-500
+to-violet-500
+
+w-3 h-3 rounded-full
+"
+                                />
+                              ))}
+
+                              {count === 0 && (
+                                <span className="text-slate-300">—</span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  })()}
                 </div>
               </div>
 
@@ -4376,13 +4467,38 @@ border border-sky-100
 
                         <div className="mt-5">
                           <div className="text-xs uppercase tracking-wide text-slate-400">
-                            Next Lesson
+                            Upcoming Lessons
                           </div>
 
-                          <div className="mt-1 text-lg font-semibold text-slate-700">
-                            {getNextLessonForStudent(student.id) ||
-                              'Not Scheduled'}
-                          </div>
+                          {getUpcomingLessonsForStudent(student.id).length >
+                          0 ? (
+                            <div className="mt-2 flex flex-col gap-2">
+                              {getUpcomingLessonsForStudent(student.id).map(
+                                (lesson) => (
+                                  <div
+                                    key={lesson.id}
+                                    className="
+w-fit
+px-3 py-1.5
+rounded-full
+
+bg-red-50
+text-red-700
+
+text-xs
+font-medium
+"
+                                  >
+                                    {formatLessonPreview(lesson)}
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          ) : (
+                            <div className="mt-1 text-lg font-semibold text-slate-700">
+                              Not Scheduled
+                            </div>
+                          )}
                         </div>
 
                         <div className="mt-5 flex gap-2 flex-wrap">
