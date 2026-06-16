@@ -173,6 +173,7 @@ export default function ChatPage() {
   const [addLessonOpen, setAddLessonOpen] = useState(false)
 
   const [lessonStudentId, setLessonStudentId] = useState('')
+  const hasStartedChat = messages.some((m) => m.role === 'user')
 
   const [lessonDate, setLessonDate] = useState('')
 
@@ -582,7 +583,7 @@ transition-all
         setMessages(updated[0].messages)
       } else {
         setCurrentChatId(null)
-        setMessages([defaultGreeting])
+        setMessages([])
       }
     }
   }
@@ -651,7 +652,7 @@ transition-all
     const saved = sessionStorage.getItem('warmgpt_chats')
 
     if (!saved) {
-      setMessages([defaultGreeting])
+      setMessages([])
       return
     }
 
@@ -659,7 +660,7 @@ transition-all
       const parsed: ChatSession[] = JSON.parse(saved)
 
       if (parsed.length === 0) {
-        setMessages([defaultGreeting])
+        setMessages([])
         return
       }
 
@@ -668,7 +669,7 @@ transition-all
       setMessages(parsed[0].messages)
     } catch (err) {
       console.error('Failed loading chats', err)
-      setMessages([defaultGreeting])
+      setMessages([])
     }
   }, [])
 
@@ -4501,7 +4502,7 @@ font-medium
                           )}
                         </div>
 
-                        <div className="mt-5 flex gap-2 flex-wrap">
+                        <div className="mt-auto pt-8 flex gap-2 flex-wrap">
                           <span
                             className="
 px-3 py-1
@@ -4538,7 +4539,7 @@ text-xs
 font-medium
 "
                           >
-                            Dance {student.freeskate_level || '—'}
+                            Dance {student.dance_level || '—'}
                           </span>
                         </div>
                       </div>
@@ -4903,6 +4904,162 @@ pt-4
                       )
                     })}
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : !hasStartedChat ? (
+          <div
+            className="
+flex-1
+flex
+items-center
+justify-center
+px-6
+"
+          >
+            <div
+              className="
+relative
+
+w-full
+max-w-[760px]
+
+-translate-y-12
+"
+            >
+              {/* Atmospheric Glow */}
+              <div
+                className="
+absolute
+
+left-1/2
+top-[58%]
+
+-translate-x-1/2
+-translate-y-1/2
+
+w-[1000px]
+h-[420px]
+
+pointer-events-none
+
+rounded-full
+
+bg-[radial-gradient(circle,
+rgba(14,165,233,0.42)_0%,
+rgba(99,102,241,0.30)_36%,
+rgba(168,85,247,0.20)_55%,
+transparent_78%)]
+
+blur-[70px]
+
+opacity-100
+"
+              />
+
+              {/* Visible Contour Ring */}
+              <div
+                className="
+absolute
+
+left-1/2
+top-[58%]
+
+w-[900px]
+h-[330px]
+
+-translate-x-1/2
+-translate-y-1/2
+
+pointer-events-none
+
+rounded-full
+
+border-[2px]
+border-sky-300/35
+
+shadow-[0_0_80px_rgba(56,189,248,0.45),0_0_160px_rgba(139,92,246,0.24)]
+
+blur-[8px]
+
+opacity-100
+"
+              />
+
+              {/* Actual Content */}
+              <div className="relative z-10">
+                <div
+                  className="
+text-center
+
+text-[56px]
+leading-[1.05]
+
+font-light
+
+tracking-[-0.05em]
+
+text-slate-700
+
+mb-10
+"
+                >
+                  Where figure skating meets AI
+                </div>
+
+                <div
+                  className="
+flex items-center gap-3
+
+rounded-full
+
+bg-white/90
+backdrop-blur-xl
+
+border border-white/80
+
+shadow-[0_20px_60px_rgba(15,23,42,0.12)]
+
+px-5 py-3
+"
+                >
+                  <textarea
+                    rows={1}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Ask WarmGPT"
+                    className="
+flex-1
+bg-transparent
+resize-none
+outline-none
+
+text-slate-700
+placeholder:text-slate-400
+"
+                  />
+
+                  <button
+                    onClick={sendMessage}
+                    disabled={loading}
+                    className="
+px-5 py-2
+
+rounded-full
+
+text-white
+
+bg-gradient-to-r
+from-sky-500
+to-violet-500
+
+shadow-[0_10px_30px_rgba(99,102,241,0.35)]
+"
+                  >
+                    Send
+                  </button>
                 </div>
               </div>
             </div>
