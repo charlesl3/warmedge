@@ -4825,11 +4825,40 @@ md:pb-0
                   </h3>
 
                   <div className="space-y-2">
-                    {upcomingLessons.map((lesson) => (
-                      <div key={lesson.id} className={portalCard}>
-                        {new Date(lesson.lesson_datetime).toLocaleString()}
+                    {upcomingLessons.length === 0 ? (
+                      <div className={`${portalCard} text-sm text-slate-400`}>
+                        No upcoming lessons yet.
                       </div>
-                    ))}
+                    ) : (
+                      upcomingLessons.map((lesson) => (
+                        <div key={lesson.id} className={`${portalCard} p-4`}>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="font-semibold text-slate-700">
+                                {new Date(
+                                  lesson.lesson_datetime
+                                ).toLocaleDateString([], {
+                                  timeZone: userTimezone,
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                })}
+                              </div>
+
+                              <div className="text-sm text-slate-500 mt-1">
+                                {formatLessonRange(lesson)}
+                              </div>
+                            </div>
+
+                            <div className="text-xs text-slate-400">
+                              {lesson.duration_minutes
+                                ? `${lesson.duration_minutes} min`
+                                : 'Duration TBD'}
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
 
@@ -4839,46 +4868,66 @@ md:pb-0
                   </h3>
 
                   <div className="space-y-3">
-                    {studentLessons.map((lesson) => {
-                      const expanded = expandedLessonId === lesson.id
+                    {lessonHistory.length === 0 ? (
+                      <div className={`${portalCard} text-sm text-slate-400`}>
+                        No past lessons yet.
+                      </div>
+                    ) : (
+                      lessonHistory
+                        .sort(
+                          (a, b) =>
+                            new Date(b.lesson_datetime).getTime() -
+                            new Date(a.lesson_datetime).getTime()
+                        )
+                        .map((lesson) => {
+                          const expanded = expandedLessonId === lesson.id
 
-                      return (
-                        <div
-                          key={lesson.id}
-                          className={`
+                          return (
+                            <div
+                              key={lesson.id}
+                              className={`
 ${portalCard}
-${expanded ? 'p-5' : 'p-3'}
+${expanded ? 'p-5' : 'p-4'}
 `}
-                        >
-                          <button
-                            onClick={() =>
-                              setExpandedLessonId(expanded ? null : lesson.id)
-                            }
-                            className="
+                            >
+                              <button
+                                onClick={() =>
+                                  setExpandedLessonId(
+                                    expanded ? null : lesson.id
+                                  )
+                                }
+                                className="
 w-full
 flex
 items-center
 justify-between
 text-left
 "
-                          >
-                            <div className="flex items-center gap-3">
-                              <span className="font-semibold">
-                                {lesson.date}
-                              </span>
+                              >
+                                <div>
+                                  <div className="font-semibold text-slate-700">
+                                    {new Date(
+                                      lesson.lesson_datetime
+                                    ).toLocaleDateString([], {
+                                      timeZone: userTimezone,
+                                      month: 'short',
+                                      day: 'numeric',
+                                      year: 'numeric',
+                                    })}
+                                  </div>
 
-                              <span className="text-slate-400">•</span>
+                                  <div className="text-sm text-slate-500 mt-1">
+                                    {formatLessonRange(lesson)}
+                                  </div>
+                                </div>
 
-                              <span className="text-slate-500">
-                                {lesson.time}
-                              </span>
-                            </div>
+                                <div className="text-slate-700">
+                                  {expanded ? '▼' : '▶'}
+                                </div>
+                              </button>
 
-                            <div>{expanded ? '▼' : '▶'}</div>
-                          </button>
-
-                          <div
-                            className={`
+                              <div
+                                className={`
 overflow-hidden
 transition-all
 duration-300
@@ -4886,23 +4935,27 @@ ease-in-out
 
 ${expanded ? 'max-h-40 opacity-100 mt-4 pt-4' : 'max-h-0 opacity-0'}
 `}
-                          >
-                            <div
-                              className="
+                              >
+                                <div
+                                  className="
 border-t
 border-slate-200
 text-sm
-text-slate-600
+text-slate-500
 leading-relaxed
 pt-4
 "
-                            >
-                              {lesson.note}
+                                >
+                                  Duration:{' '}
+                                  {lesson.duration_minutes
+                                    ? `${lesson.duration_minutes} minutes`
+                                    : 'Not specified'}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      )
-                    })}
+                          )
+                        })
+                    )}
                   </div>
                 </div>
               </div>
