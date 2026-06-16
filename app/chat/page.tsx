@@ -5005,7 +5005,7 @@ text-slate-700
 mb-10
 "
                 >
-                  Where figure skating meets AI
+                  Where skating meets AI
                 </div>
 
                 <div
