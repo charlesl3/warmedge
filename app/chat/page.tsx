@@ -4928,64 +4928,77 @@ max-w-[760px]
 -translate-y-12
 "
             >
-              {/* Atmospheric Glow */}
+              {/* Ambient Aurora Glow */}
               <div
                 className="
 absolute
 
 left-1/2
-top-[58%]
+top-1/2
 
 -translate-x-1/2
 -translate-y-1/2
 
-w-[1000px]
+w-[1200px]
+h-[700px]
+
+pointer-events-none
+
+opacity-100
+
+blur-[120px]
+"
+              >
+                <div
+                  className="
+absolute
+
+left-[8%]
+top-[18%]
+
+w-[420px]
 h-[420px]
 
-pointer-events-none
+rounded-full
+
+bg-sky-300/28
+"
+                />
+
+                <div
+                  className="
+absolute
+
+right-[10%]
+top-[15%]
+
+w-[460px]
+h-[460px]
 
 rounded-full
 
-bg-[radial-gradient(circle,
-rgba(14,165,233,0.42)_0%,
-rgba(99,102,241,0.30)_36%,
-rgba(168,85,247,0.20)_55%,
-transparent_78%)]
-
-blur-[70px]
-
-opacity-100
+bg-violet-300/24
 "
-              />
+                />
 
-              {/* Visible Contour Ring */}
-              <div
-                className="
+                <div
+                  className="
 absolute
 
 left-1/2
-top-[58%]
-
-w-[900px]
-h-[330px]
+bottom-[5%]
 
 -translate-x-1/2
--translate-y-1/2
 
-pointer-events-none
+w-[520px]
+h-[320px]
 
 rounded-full
 
-border-[2px]
-border-sky-300/35
-
-shadow-[0_0_80px_rgba(56,189,248,0.45),0_0_160px_rgba(139,92,246,0.24)]
-
-blur-[8px]
-
-opacity-100
+bg-cyan-200/16
 "
-              />
+                />
+              </div>
 
               {/* Actual Content */}
               <div className="relative z-10">
