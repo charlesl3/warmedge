@@ -4993,7 +4993,7 @@ opacity-100
                   className="
 text-center
 
-text-[56px]
+text-[30px]
 leading-[1.05]
 
 font-light
