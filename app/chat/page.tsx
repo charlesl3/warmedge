@@ -2305,7 +2305,7 @@ flex flex-col
             }}
             className={navBtn}
           >
-            Coach Portal (coming soon)
+            Coach Portal
           </button>
 
           <button
