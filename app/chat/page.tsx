@@ -283,6 +283,17 @@ transition-all
   const [expandedLessonId, setExpandedLessonId] = useState<string | null>(null)
 
   const [coachLessons, setCoachLessons] = useState<any[]>([])
+  const [deletingLessonId, setDeletingLessonId] = useState<string | null>(null)
+  const [deleteLessonModalOpen, setDeleteLessonModalOpen] = useState(false)
+  const [lessonPendingDelete, setLessonPendingDelete] = useState<any>(null)
+
+  const [editLessonOpen, setEditLessonOpen] = useState(false)
+  const [lessonPendingEdit, setLessonPendingEdit] = useState<any>(null)
+  const [editingLessonStudentId, setEditingLessonStudentId] = useState('')
+  const [editingLessonDate, setEditingLessonDate] = useState('')
+  const [editingLessonTime, setEditingLessonTime] = useState('')
+  const [editingLessonDuration, setEditingLessonDuration] = useState('')
+  const [lessonEditSaving, setLessonEditSaving] = useState(false)
 
   const studentLessons = coachLessons.filter(
     (lesson) => lesson.student_id === selectedStudentId
@@ -1018,6 +1029,141 @@ Please note:
       }
     } catch (err) {
       console.error(err)
+    }
+  }
+
+  const openEditLessonModal = (lesson: any) => {
+    const d = new Date(lesson.lesson_datetime)
+
+    const dateText = d.toLocaleDateString('en-CA', {
+      timeZone: userTimezone,
+    })
+
+    const timeText = d.toLocaleTimeString('en-GB', {
+      timeZone: userTimezone,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    })
+
+    setLessonPendingEdit(lesson)
+    setEditingLessonStudentId(lesson.student_id || '')
+    setEditingLessonDate(dateText)
+    setEditingLessonTime(timeText)
+    setEditingLessonDuration(
+      lesson.duration_minutes ? String(lesson.duration_minutes) : ''
+    )
+    setEditLessonOpen(true)
+  }
+
+  const handleUpdateLesson = async () => {
+    if (
+      !lessonPendingEdit ||
+      !editingLessonStudentId ||
+      !editingLessonDate ||
+      !editingLessonTime
+    ) {
+      showToast('Missing lesson info')
+      return
+    }
+
+    try {
+      setLessonEditSaving(true)
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const accessToken = session?.access_token
+
+      const lessonDatetime = fromZonedTime(
+        `${editingLessonDate} ${editingLessonTime}`,
+        userTimezone
+      ).toISOString()
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_CHAT_API_URL}/coach/lessons/${lessonPendingEdit.id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            student_id: editingLessonStudentId,
+            lesson_datetime: lessonDatetime,
+            timezone: userTimezone,
+            duration_minutes:
+              editingLessonDuration === ''
+                ? null
+                : parseInt(editingLessonDuration),
+          }),
+        }
+      )
+
+      const data = await res.json()
+
+      if (data.success) {
+        setEditLessonOpen(false)
+        setLessonPendingEdit(null)
+
+        await loadCoachLessons()
+
+        showToast('Lesson updated')
+      } else {
+        showToast(data.error || 'Could not update lesson')
+      }
+    } catch (err) {
+      console.error(err)
+      showToast('Could not update lesson')
+    } finally {
+      setLessonEditSaving(false)
+    }
+  }
+
+  const handleDeleteLesson = async (lessonId: string) => {
+    try {
+      setDeletingLessonId(lessonId)
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const accessToken = session?.access_token
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_CHAT_API_URL}/coach/lessons/${lessonId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      )
+
+      const data = await res.json()
+
+      if (data.success) {
+        setCoachLessons((prev) =>
+          prev.filter((lesson) => lesson.id !== lessonId)
+        )
+
+        if (expandedLessonId === lessonId) {
+          setExpandedLessonId(null)
+        }
+
+        setDeleteLessonModalOpen(false)
+        setLessonPendingDelete(null)
+
+        showToast('Lesson deleted')
+      } else {
+        showToast(data.error || 'Could not delete lesson')
+      }
+    } catch (err) {
+      console.error(err)
+      showToast('Could not delete lesson')
+    } finally {
+      setDeletingLessonId(null)
     }
   }
 
@@ -4278,19 +4424,58 @@ shadow-[0_20px_60px_rgba(15,23,42,0.06)]
                       <div
                         key={lesson.id}
                         className={`
-        ${portalCard}
-        flex
-        items-center
-        gap-4
-      `}
+      ${portalCard}
+      flex
+      items-center
+      gap-4
+    `}
                       >
                         <span className="font-medium text-slate-600 whitespace-nowrap">
                           {formatLessonRange(lesson)}
                         </span>
 
-                        <span className="font-medium text-slate-700">
+                        <span className="font-medium text-slate-700 flex-1">
                           {lesson.coach_students?.name}
                         </span>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => openEditLessonModal(lesson)}
+                            className="
+      w-8 h-8
+      rounded-full
+      bg-sky-50
+      text-sky-600
+      hover:bg-sky-100
+      transition
+    "
+                            title="Edit lesson"
+                          >
+                            ✎
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setLessonPendingDelete(lesson)
+                              setDeleteLessonModalOpen(true)
+                            }}
+                            disabled={deletingLessonId === lesson.id}
+                            className="
+      w-8 h-8
+      rounded-full
+      bg-rose-50
+      text-rose-500
+      hover:bg-rose-100
+      disabled:opacity-50
+      transition
+    "
+                            title="Delete lesson"
+                          >
+                            {deletingLessonId === lesson.id ? '…' : '×'}
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -6626,6 +6811,170 @@ ${
                 className={`${pillBtn} px-4`}
               >
                 Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {editLessonOpen && lessonPendingEdit && (
+        <div
+          className="
+      fixed inset-0
+      z-[9999]
+      flex items-center justify-center
+      bg-black/30
+      px-4
+    "
+        >
+          <div
+            className={`
+        ${glassStrong}
+        w-full max-w-lg
+        p-8
+        rounded-3xl
+      `}
+          >
+            <h3 className="text-2xl font-semibold mb-8">Edit Lesson</h3>
+
+            <div className="space-y-5">
+              <select
+                value={editingLessonStudentId}
+                onChange={(e) => setEditingLessonStudentId(e.target.value)}
+                className={studentInputClass}
+              >
+                <option value="">Select student</option>
+
+                {coachStudents.map((student) => (
+                  <option key={student.id} value={student.id}>
+                    {student.name}
+                  </option>
+                ))}
+              </select>
+
+              <input
+                type="date"
+                value={editingLessonDate}
+                onChange={(e) => setEditingLessonDate(e.target.value)}
+                className={studentInputClass}
+              />
+
+              <div>
+                <div className="text-sm text-slate-500 mb-2">Lesson start</div>
+
+                <input
+                  type="time"
+                  value={editingLessonTime}
+                  onChange={(e) => setEditingLessonTime(e.target.value)}
+                  className={studentInputClass}
+                />
+              </div>
+
+              <select
+                value={editingLessonDuration}
+                onChange={(e) => setEditingLessonDuration(e.target.value)}
+                className={studentInputClass}
+              >
+                <option value="">Duration optional</option>
+                <option value="30">30 minutes</option>
+                <option value="45">45 minutes</option>
+                <option value="60">60 minutes</option>
+                <option value="90">90 minutes</option>
+                <option value="120">120 minutes</option>
+              </select>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-8">
+              <button
+                onClick={() => {
+                  setEditLessonOpen(false)
+                  setLessonPendingEdit(null)
+                }}
+                className={`${pillBtn} px-4`}
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleUpdateLesson}
+                disabled={lessonEditSaving}
+                className={`${pillBtn} px-4 ${
+                  lessonEditSaving ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                {lessonEditSaving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteLessonModalOpen && lessonPendingDelete && (
+        <div
+          className="
+fixed inset-0 z-[220]
+flex items-center justify-center
+bg-slate-900/20
+backdrop-blur-sm
+px-4
+"
+        >
+          <div
+            className="
+w-full max-w-md
+rounded-[32px]
+border border-white/70
+bg-white/85
+backdrop-blur-2xl
+shadow-[0_30px_100px_rgba(15,23,42,0.18)]
+p-6
+"
+          >
+            <div className="text-xl font-semibold text-slate-800">
+              Delete Lesson
+            </div>
+
+            <div className="text-sm text-slate-500 mt-3 leading-relaxed">
+              Are you sure you want to delete{' '}
+              <span className="font-semibold text-slate-700">
+                {formatLessonRange(lessonPendingDelete)} with{' '}
+                {lessonPendingDelete.coach_students?.name}
+              </span>
+              ? This action cannot be undone.
+            </div>
+
+            <div className="flex items-center justify-end gap-3 mt-7">
+              <button
+                onClick={() => {
+                  setDeleteLessonModalOpen(false)
+                  setLessonPendingDelete(null)
+                }}
+                className={`${pillBtn} px-5 py-3`}
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={() => handleDeleteLesson(lessonPendingDelete.id)}
+                disabled={deletingLessonId === lessonPendingDelete.id}
+                className="
+px-5 py-3
+rounded-full
+text-sm font-medium
+text-white
+bg-gradient-to-r
+from-rose-500
+to-red-500
+shadow-[0_12px_30px_rgba(239,68,68,0.25)]
+hover:scale-[1.02]
+disabled:opacity-60
+disabled:hover:scale-100
+transition-all
+"
+              >
+                {deletingLessonId === lessonPendingDelete.id
+                  ? 'Deleting...'
+                  : 'Delete Lesson'}
               </button>
             </div>
           </div>
