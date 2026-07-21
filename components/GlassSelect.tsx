@@ -4,6 +4,34 @@ import { Listbox } from '@headlessui/react'
 import { ChevronDown } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
+type OptionItem = string | { value: string; label: string }
+
+const isObjectOption = (
+  option: OptionItem
+): option is { value: string; label: string } => {
+  return typeof option === 'object'
+}
+
+const getOptionValue = (option: OptionItem): string => {
+  if (isObjectOption(option)) {
+    return option.value
+  }
+  return option === 'Not specified' ? '' : option
+}
+
+const getOptionLabel = (option: OptionItem): string => {
+  if (isObjectOption(option)) {
+    return option.label
+  }
+  return option
+}
+
+const getDisplayLabel = (value: string, options: OptionItem[]): string => {
+  const option = options.find((opt) => getOptionValue(opt) === value)
+  if (!option) return value || 'Not specified'
+  return getOptionLabel(option)
+}
+
 export default function GlassSelect({
   value,
   onChange,
@@ -12,7 +40,7 @@ export default function GlassSelect({
 }: {
   value: string
   onChange: (v: string) => void
-  options: string[]
+  options: OptionItem[]
   direction?: 'down' | 'up'
 }) {
   const [isMobile, setIsMobile] = useState(false)
@@ -41,11 +69,8 @@ focus:outline-none
 "
         >
           {options.map((option) => (
-            <option
-              key={option}
-              value={option === 'Not specified' ? '' : option}
-            >
-              {option}
+            <option key={getOptionValue(option)} value={getOptionValue(option)}>
+              {getOptionLabel(option)}
             </option>
           ))}
         </select>
@@ -68,7 +93,7 @@ text-left text-slate-700
 flex items-center justify-between
 "
         >
-          {value || 'Not specified'}
+          {getDisplayLabel(value, options)}
           <ChevronDown className="w-4 h-4 text-slate-500 shrink-0" />
         </Listbox.Button>
 
@@ -85,8 +110,8 @@ ${direction === 'up' ? 'bottom-full mb-2' : 'top-full mt-2'}
         >
           {options.map((option) => (
             <Listbox.Option
-              key={option}
-              value={option === 'Not specified' ? '' : option}
+              key={getOptionValue(option)}
+              value={getOptionValue(option)}
               className={({ active }) =>
                 `
 px-4 py-3 cursor-pointer
@@ -94,7 +119,7 @@ ${active ? 'bg-sky-50 text-sky-700' : 'text-slate-700'}
 `
               }
             >
-              {option}
+              {getOptionLabel(option)}
             </Listbox.Option>
           ))}
         </Listbox.Options>
