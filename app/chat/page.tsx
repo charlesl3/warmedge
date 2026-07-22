@@ -56,6 +56,8 @@ const defaultGreeting: Message = {
   content: `Hi, I am WarmGPT, your AI assistant for figure skating. You can ask me about figure skating technique, equipment, USFSA tests, and daily skating questions.`,
 }
 
+const ABOUT_TEXT = `WarmGPT is an AI assistant built specifically for figure skaters and developed by WarmEdge. It organizes real skating discussions, equipment questions, and test requirements into something searchable, structured, and practical. It is not a substitute for a coach or skate technician, but a tool designed to help you think more clearly and make informed decisions around the rink. WarmEdge is a skating-focused design brand creating minimal, purpose-built skate accessories to improve comfort, focus, and consistency.`
+
 export default function ChatPage() {
   const [input, setInput] = useState('')
   const [session, setSession] = useState<any>(null)
@@ -1746,9 +1748,29 @@ Please note:
   }
 
   const handleAboutClick = () => {
-    injectAssistantMessage(
-      `WarmGPT is an AI assistant built specifically for figure skaters and developed by WarmEdge. It organizes real skating discussions, equipment questions, and test requirements into something searchable, structured, and practical. It is not a substitute for a coach or skate technician, but a tool designed to help you think more clearly and make informed decisions around the rink. WarmEdge is a skating-focused design brand creating minimal, purpose-built skate accessories to improve comfort, focus, and consistency.`
-    )
+    setActiveView('chat')
+
+    const aboutMessage: Message = {
+      role: 'assistant',
+      content: ABOUT_TEXT,
+    }
+
+    if (!currentChatId) {
+      const id = Date.now().toString()
+
+      const newChat: ChatSession = {
+        id,
+        title: 'About WarmGPT',
+        messages: [aboutMessage],
+      }
+
+      setChatSessions((prev) => [newChat, ...prev])
+      setCurrentChatId(id)
+      setMessages([aboutMessage])
+    } else {
+      setMessages((prev) => [...prev, aboutMessage])
+    }
+
     if (isMobile) setSidebarOpen(false)
   }
 
@@ -5413,7 +5435,7 @@ pt-4
               </div>
             </div>
           </div>
-        ) : !hasStartedChat ? (
+        ) : !currentChatId ? (
           <div
             className="
 flex-1
