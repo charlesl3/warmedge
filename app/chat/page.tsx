@@ -2331,46 +2331,57 @@ ${assistantAnswer}
     }
   }, [selectedDate, bladeTracker])
 
+  useEffect(() => {
+    const handleEscape = (e: Event) => {
+      const keyEvent = e as unknown as KeyboardEvent
+      if (keyEvent.key === 'Escape' && isMobile && sidebarOpen) {
+        setSidebarOpen(false)
+      }
+    }
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [isMobile, sidebarOpen])
+
+  useEffect(() => {
+    if (isMobile && sidebarOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isMobile, sidebarOpen])
+
   return (
     <div className={appShell}>
-      {/* Mobile Overlay */}
+      {/* Mobile Sidebar Backdrop */}
       {isMobile && sidebarOpen && (
-        <div
-          className="fixed inset-0 z-10"
+        <button
+          aria-label="Close sidebar"
           onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-[2px] transition-opacity duration-300"
         />
       )}
 
       {/* SIDEBAR */}
       <div
         className={`
-relative z-20 h-full shrink-0
-
-transition-all duration-500
-ease-[cubic-bezier(0.22,1,0.36,1)]
-
-overflow-hidden
-
-${sidebarOpen ? 'w-[290px]' : 'w-0'}
-
-md:block
-
-${isMobile ? 'fixed left-0 top-0' : ''}
-
+${
+  isMobile
+    ? 'fixed inset-y-0 left-0 z-50 w-[min(86vw,340px)] transition-transform duration-300 ease-out'
+    : 'relative z-20 transition-all duration-300 ease-out'
+}
+h-full overflow-hidden
 bg-white/70
 backdrop-blur-md
-
 border-r border-white/40
-
 shadow-[24px_0_90px_rgba(15,23,42,0.06)]
-
 text-slate-700
 flex flex-col
+shrink-0
+${isMobile ? (sidebarOpen ? 'translate-x-0' : '-translate-x-full') : sidebarOpen ? 'w-[290px]' : 'w-0'}
 `}
-        style={{
-          transform:
-            isMobile && !sidebarOpen ? 'translateX(-100%)' : 'translateX(0)',
-        }}
       >
         <div className="px-6 py-6 border-b border-slate-100 flex items-center justify-center">
           <img
@@ -2611,7 +2622,7 @@ transition-all duration-150
       </div>
 
       {/* CHAT AREA */}
-      <div className="flex-1 flex flex-col relative min-w-0">
+      <div className="flex-1 flex flex-col relative min-w-0 w-full">
         {/* HEADER BAR */}
         <div
           className="
