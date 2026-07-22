@@ -45,6 +45,19 @@ export default function GlassSelect({
 }) {
   const [isMobile, setIsMobile] = useState(false)
 
+  // Normalize options: filter out empty/invalid options
+  const normalizedOptions = options
+    .map((option) =>
+      typeof option === 'string' ? { value: option, label: option } : option
+    )
+    .filter(
+      (option) =>
+        option &&
+        typeof option.value === 'string' &&
+        typeof option.label === 'string' &&
+        option.label.trim() !== ''
+    )
+
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
     check()
@@ -54,7 +67,7 @@ export default function GlassSelect({
 
   if (isMobile) {
     return (
-      <div className="relative">
+      <div className="relative overflow-visible">
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -68,7 +81,7 @@ appearance-none
 focus:outline-none
 "
         >
-          {options.map((option) => (
+          {normalizedOptions.map((option) => (
             <option key={getOptionValue(option)} value={getOptionValue(option)}>
               {getOptionLabel(option)}
             </option>
@@ -82,7 +95,7 @@ focus:outline-none
 
   return (
     <Listbox value={value} onChange={onChange}>
-      <div className="relative z-[9999] overflow-visible">
+      <div className="relative overflow-visible">
         <Listbox.Button
           className="
 w-full px-4 py-3 rounded-2xl
@@ -93,13 +106,13 @@ text-left text-slate-700
 flex items-center justify-between
 "
         >
-          {getDisplayLabel(value, options)}
+          {getDisplayLabel(value, normalizedOptions)}
           <ChevronDown className="w-4 h-4 text-slate-500 shrink-0" />
         </Listbox.Button>
 
         <Listbox.Options
           className={`
-absolute left-0 right-0 z-[99999]
+absolute left-0 right-0 z-50
 w-full max-h-[220px] overflow-y-auto overflow-x-hidden
 rounded-2xl
 bg-white/95 backdrop-blur-2xl
@@ -108,20 +121,24 @@ shadow-[0_25px_60px_rgba(15,23,42,0.18)]
 ${direction === 'up' ? 'bottom-full mb-2' : 'top-full mt-2'}
 `}
         >
-          {options.map((option) => (
-            <Listbox.Option
-              key={getOptionValue(option)}
-              value={getOptionValue(option)}
-              className={({ active }) =>
-                `
+          {normalizedOptions.map((option) => {
+            const isSelected = getOptionValue(option) === value
+            return (
+              <Listbox.Option
+                key={getOptionValue(option)}
+                value={getOptionValue(option)}
+                className={({ active }) =>
+                  `
 px-4 py-3 cursor-pointer
-${active ? 'bg-sky-50 text-sky-700' : 'text-slate-700'}
+${isSelected ? 'bg-sky-50 text-sky-700 font-medium' : ''}
+${active && !isSelected ? 'bg-sky-50 text-sky-700' : !isSelected ? 'text-slate-700' : ''}
 `
-              }
-            >
-              {getOptionLabel(option)}
-            </Listbox.Option>
-          ))}
+                }
+              >
+                {getOptionLabel(option)}
+              </Listbox.Option>
+            )
+          })}
         </Listbox.Options>
       </div>
     </Listbox>

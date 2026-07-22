@@ -8,6 +8,9 @@ import 'react-calendar/dist/Calendar.css'
 import AssistantAvatar from '../../components/AssistantAvatar'
 import SkaterLevelSelector from '../../components/SkaterLevelSelector'
 import GlassSelect from '../../components/GlassSelect'
+import GlassDatePicker from '../../components/GlassDatePicker'
+import GlassTimePicker from '../../components/GlassTimePicker'
+import { ChevronRight } from 'lucide-react'
 import { fromZonedTime } from 'date-fns-tz'
 
 import {
@@ -460,6 +463,31 @@ transition-all
     })
 
     return lessonsByDay
+  }
+
+  const calculateLessonTimelinePosition = (lesson: any): number => {
+    const d = new Date(lesson.lesson_datetime)
+    const minutesSinceMidnight = d.getHours() * 60 + d.getMinutes()
+    return (minutesSinceMidnight / 1440) * 100
+  }
+
+  const getVerticalOffsetForLesson = (
+    lesson: any,
+    dayLessons: any[],
+    index: number
+  ): number => {
+    const position = calculateLessonTimelinePosition(lesson)
+    const threshold = 3 // Position threshold in percentage points
+    let offset = 0
+
+    for (let i = 0; i < index; i++) {
+      const otherPosition = calculateLessonTimelinePosition(dayLessons[i])
+      if (Math.abs(position - otherPosition) < threshold) {
+        offset += 1
+      }
+    }
+
+    return offset * 8 // 8px vertical offset per overlapping lesson
   }
 
   const [reloading, setReloading] = useState(false)
@@ -4546,36 +4574,98 @@ shadow-[0_20px_60px_rgba(15,23,42,0.06)]
                     const lessonsByDay = getWeekLessonsByDay()
 
                     return (
-                      <div className="space-y-5 overflow-visible">
+                      <div className="space-y-6 overflow-visible">
+                        {/* Time Anchor Labels */}
+                        <div className="flex items-center">
+                          <div className="w-14 shrink-0" />
+                          <div className="relative flex-1 h-6 pl-1">
+                            <div
+                              className="absolute top-1 text-xs text-slate-400 font-medium"
+                              style={{ left: '0%' }}
+                            >
+                              12 AM
+                            </div>
+                            <div
+                              className="absolute top-1 text-xs text-slate-400 font-medium"
+                              style={{
+                                left: '25%',
+                                transform: 'translateX(-50%)',
+                              }}
+                            >
+                              6 AM
+                            </div>
+                            <div
+                              className="absolute top-1 text-xs text-slate-400 font-medium"
+                              style={{
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                              }}
+                            >
+                              12 PM
+                            </div>
+                            <div
+                              className="absolute top-1 text-xs text-slate-400 font-medium"
+                              style={{
+                                left: '75%',
+                                transform: 'translateX(-50%)',
+                              }}
+                            >
+                              6 PM
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Horizontal timeline axis */}
+                        <div className="flex items-center">
+                          <div className="w-14 shrink-0" />
+                          <div className="flex-1 h-px bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200" />
+                        </div>
+
+                        {/* Day rows */}
                         {Object.entries(lessonsByDay).map(([day, lessons]) => (
                           <div
                             key={day}
-                            className="
-flex
-items-center
-gap-4
-overflow-visible
-"
+                            className="flex items-start gap-4 overflow-visible"
                           >
-                            <div className="w-14 text-slate-600">{day}</div>
+                            <div className="w-14 pt-2 text-sm font-medium text-slate-600 shrink-0">
+                              {day}
+                            </div>
 
-                            <div className="flex gap-2 overflow-visible">
+                            <div className="relative flex-1 h-6 bg-slate-50/40 rounded-lg border border-slate-100/60 overflow-visible">
+                              {/* Timeline dots */}
                               {lessons.map((lesson, idx) => {
                                 const student = coachStudents.find(
                                   (s) => s.id === lesson.student_id
                                 )
+                                const leftPercent =
+                                  calculateLessonTimelinePosition(lesson)
+                                const verticalOffset =
+                                  getVerticalOffsetForLesson(
+                                    lesson,
+                                    lessons,
+                                    idx
+                                  )
 
                                 return (
-                                  <div key={idx} className="group relative">
+                                  <div
+                                    key={idx}
+                                    className="group absolute"
+                                    style={{
+                                      left: `${leftPercent}%`,
+                                      top: `${6 + verticalOffset}px`,
+                                      transform: 'translateX(-50%)',
+                                    }}
+                                  >
                                     <div
                                       className="
 w-3 h-3
-
 rounded-full
-
 bg-gradient-to-r
 from-sky-500
 to-violet-500
+shadow-[0_2px_8px_rgba(99,102,241,0.3)]
+hover:shadow-[0_4px_12px_rgba(99,102,241,0.4)]
+transition-all
 "
                                     />
 
@@ -4584,8 +4674,7 @@ to-violet-500
 pointer-events-none
 absolute
 left-1/2
-bottom-full
-mb-2
+bottom-[calc(100%+10px)]
 -translate-x-1/2
 translate-y-1
 opacity-0
@@ -4615,8 +4704,13 @@ shadow-[0_10px_30px_rgba(15,23,42,0.12)]
                                 )
                               })}
 
+                              {/* Empty state */}
                               {lessons.length === 0 && (
-                                <span className="text-slate-300">—</span>
+                                <div className="absolute inset-0 flex items-center pl-4">
+                                  <span className="text-xs text-slate-300">
+                                    —
+                                  </span>
+                                </div>
                               )}
                             </div>
                           </div>
@@ -5240,8 +5334,27 @@ text-left
 gap-3
 "
                                 >
-                                  <div className="flex-shrink-0 w-5 flex items-center justify-center text-slate-700">
-                                    {expanded ? '▼' : '▶'}
+                                  <div
+                                    className="
+flex-shrink-0
+w-8 h-8
+flex items-center justify-center
+rounded-full
+text-slate-600
+hover:bg-sky-50/60
+transition-colors
+duration-200
+"
+                                  >
+                                    <ChevronRight
+                                      className={`
+w-5 h-5
+transition-transform
+duration-200
+ease-out
+${expanded ? 'rotate-90' : 'rotate-0'}
+`}
+                                    />
                                   </div>
 
                                   <div>
@@ -6900,8 +7013,8 @@ ${
           >
             <h3 className="text-2xl font-semibold mb-8">New Lesson</h3>
 
-            <div className="space-y-5">
-              <div>
+            <div className="space-y-5 overflow-visible">
+              <div className="relative overflow-visible">
                 <label className="block text-sm font-medium text-slate-600 mb-2">
                   Student
                 </label>
@@ -6918,25 +7031,22 @@ ${
                 />
               </div>
 
-              <input
-                type="date"
-                value={lessonDate}
-                onChange={(e) => setLessonDate(e.target.value)}
-                className={studentInputClass}
-              />
-
-              <div>
-                <div className="text-sm text-slate-500 mb-2">Lesson start</div>
-
-                <input
-                  type="time"
-                  value={lessonTime}
-                  onChange={(e) => setLessonTime(e.target.value)}
-                  className={studentInputClass}
-                />
+              <div className="relative overflow-visible">
+                <label className="block text-sm font-medium text-slate-600 mb-2">
+                  Date
+                </label>
+                <GlassDatePicker value={lessonDate} onChange={setLessonDate} />
               </div>
 
-              <div>
+              <div className="relative overflow-visible">
+                <label className="block text-sm font-medium text-slate-600 mb-2">
+                  Lesson start
+                </label>
+
+                <GlassTimePicker value={lessonTime} onChange={setLessonTime} />
+              </div>
+
+              <div className="relative overflow-visible">
                 <label className="block text-sm font-medium text-slate-600 mb-2">
                   Duration (optional)
                 </label>
@@ -6994,8 +7104,8 @@ ${
           >
             <h3 className="text-2xl font-semibold mb-8">Edit Lesson</h3>
 
-            <div className="space-y-5">
-              <div>
+            <div className="space-y-5 overflow-visible">
+              <div className="relative overflow-visible">
                 <label className="block text-sm font-medium text-slate-600 mb-2">
                   Student
                 </label>
@@ -7012,25 +7122,28 @@ ${
                 />
               </div>
 
-              <input
-                type="date"
-                value={editingLessonDate}
-                onChange={(e) => setEditingLessonDate(e.target.value)}
-                className={studentInputClass}
-              />
-
-              <div>
-                <div className="text-sm text-slate-500 mb-2">Lesson start</div>
-
-                <input
-                  type="time"
-                  value={editingLessonTime}
-                  onChange={(e) => setEditingLessonTime(e.target.value)}
-                  className={studentInputClass}
+              <div className="relative overflow-visible">
+                <label className="block text-sm font-medium text-slate-600 mb-2">
+                  Date
+                </label>
+                <GlassDatePicker
+                  value={editingLessonDate}
+                  onChange={setEditingLessonDate}
                 />
               </div>
 
-              <div>
+              <div className="relative overflow-visible">
+                <label className="block text-sm font-medium text-slate-600 mb-2">
+                  Lesson start
+                </label>
+
+                <GlassTimePicker
+                  value={editingLessonTime}
+                  onChange={setEditingLessonTime}
+                />
+              </div>
+
+              <div className="relative overflow-visible">
                 <label className="block text-sm font-medium text-slate-600 mb-2">
                   Duration (optional)
                 </label>
